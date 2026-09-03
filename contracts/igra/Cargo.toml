@@ -3,17 +3,11 @@ name = "enrk-igra"
 version = "1.0.0"
 edition = "2021"
 authors = ["ENRK Community <enrk@kaspa.network>"]
-description = "Immutable stablecoin protocol on Kaspa - ENRK (Energy Reserve)"
+description = "Immutable stablecoin protocol on Kaspa - ENRK (Energy Reserve Kaspa)"
 repository = "https://github.com/cyprox/ENRK_stablecoin"
 license = "GPL-3.0"
-keywords = ["stablecoin", "kaspa", "energy", "defi", "thermodynamic"]
 
 [dependencies]
-kaspa-addresses = "0.12"
-kaspa-consensus = "0.12"
-kaspa-core = "0.12"
-kaspa-hashing = "0.12"
-kaspa-utils = "0.12"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "1.0"
@@ -21,17 +15,6 @@ log = "0.4"
 hex = "0.4"
 num-traits = "0.2"
 num-bigint = "0.4"
-decimal = "0.1"
 
 [dev-dependencies]
 tokio = { version = "1", features = ["full"] }
-assert_matches = "1.5"
-
-[profile.release]
-opt-level = 3
-lto = true
-codegen-units = 1
-strip = true
-
-[profile.test]
-opt-level = 2

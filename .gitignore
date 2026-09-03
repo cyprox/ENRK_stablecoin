@@ -12,8 +12,9 @@ dist/
 build/
 
 # Rust
-/target/
-Cargo.lock
+**/target/
+# Cargo.lock IS tracked: this is a deployed immutable contract, not a library.
+# Reproducible builds are required for community bytecode verification.
 **/*.rs.bk
 
 # IDE
@@ -37,3 +38,7 @@ Thumbs.db
 .env
 *.log
 node_modules/
+
+# Backups (incl. .gitignore.bak from this session)
+*.bak
+*.old
