@@ -105,6 +105,7 @@ built only on shipped opcodes, which reopened an L1 path previously declared clo
 | [`docs/design/RECOVERY-MODE-ANALYSIS.md`](docs/design/RECOVERY-MODE-ANALYSIS.md) | Why Recovery Mode buys nothing; why the auction floor is the lever |
 | [`docs/design/REDEMPTION-ANALYSIS.md`](docs/design/REDEMPTION-ANALYSIS.md) | Mechanism #1: its structural limit, and the halved losses |
 | [`docs/design/PHASE_4_ARCHITECTURE_PROPOSAL.md`](docs/design/PHASE_4_ARCHITECTURE_PROPOSAL.md) | The double-bookkeeping problem, the master invariant, the seniority waterfall |
+| [`docs/design/Immutable-By-Design.md`](docs/design/Immutable-By-Design.md) | Why there is no governance, what is frozen, and what forking replaces it with |
 
 Code and tests live in the repository: `contracts/igra/` (Rust reference
 implementation, 119 tests) and `tests/backtesting/` (stress test and Recovery Mode
