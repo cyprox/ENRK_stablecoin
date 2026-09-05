@@ -64,7 +64,21 @@ are the designated shared-state path. vProgs were at RESEARCH stage in April 202
 are not part of Toccata, and Michael Sutton's own roadmap gist shows **zero
 releases, zero tags**.
 
-**Option "Kaspa L1 native" is closed.**
+**This is where the original assessment concluded that "Kaspa L1 native" was
+closed — and that inference was wrong.** ENRK never required a read *without*
+spending. It requires that many concurrent transactions can each obtain an
+authenticated current price, which a spendable oracle UTXO provides: the oracle
+publishes N children per round in a one-to-many covenant split, each consumer spends
+a different one alongside their vault, and the vault covenant authenticates by
+lineage rather than by signature. The construction is in `L1_NATIVE_REDUCED_SPEC.md`
+§2.
+
+**The L1 path is open in principle and unconfirmed in fact.** Whether a covenant can
+reliably assert `OpInputCovenantId` on a *sibling* input, and whether a one-to-many
+split preserves `covenant_id` across all authorised children, is asked in
+[`kaspanet/kips` issue #46](https://github.com/kaspanet/kips/issues/46). Until a core
+developer answers, this section states a reading of the KIPs, not a fact about the
+implementation.
 
 ## 3. Igra has two exit paths. Neither is trustless.
 
@@ -174,37 +188,43 @@ one as a dependency of immutable code, with no prior art, is a research project.
 | Dutch auction | **Probably** | Local to one vault; price descent is a function of time |
 | ENRK / kFIAT as tokens | **Qualified yes** | Native assets shipped, but KCC-0020 has a known defect |
 | kFIAT 30% cap | **Plausible by redesign** | Via conservation of quota tokens rather than reading a counter |
-| Stability Pool | **No** | Shared mutable balance |
-| Recovery Mode | **No** | Requires system-wide aggregate ICR |
-| Oracle / peg feed | **No — gating** | No reference-input equivalent. Confirmed from KIP text |
+| Redemption (mechanism #1) | **Yes** | Per-vault operation, no aggregate state needed |
+| 75% auction floor | **Yes** | A static compile-time constant — and it is the fix for the freeze. Identical on both layers |
+| Stability Pool | **Uncertain** | Shared mutable balance. Possible via KIP-20 leader delegation — and the pool is defective anyway |
+| Recovery Mode | **No — costs nothing** | Requires system-wide aggregate ICR. Modelled improvement: **zero points** |
+| Pro-rata insurance reserve | **No** | Requires global aggregate state. This is the one real argument for Igra |
+| Oracle / peg feed | **Yes, unconfirmed** | Covenant-lineage construction. Was "No — gating"; see §2 and issue #46 |
 
-## 8. The three remaining paths
+## 8. Where the decision actually stands
 
-**Path 1 — Deploy on Igra, bounded and disclosed.**
-Freeze a maximum total collateral constant sized to what the exit path can unwind,
-and publish the reasoning: *"this protocol is capped at X KAS because the layer it
-lives on can move Y per day."* This does not pretend the bridge is safe; it sizes
-the protocol so the bridge cannot become a trap, converting an unbounded hidden
-risk into a bounded disclosed one. Fork to v2 with a higher cap when KIP-16
-delivers a trustless bridge.
-*Cost:* confines the protocol to roughly 6–18M KAS. Collateral still sits behind a
-multisig and off-chain actors for as long as it is deployed.
+The three paths this section originally proposed — deploy on Igra with a capped size,
+wait for the infrastructure, or investigate KAT Bridge — were written when L1 was
+believed closed. They are superseded.
 
-**Path 2 — Finish the design, deploy when the infrastructure opens.**
-Complete the specification, the Solidity implementation, the economic audit and the
-stress testing now, while KIP-16 bridges and vProgs mature. Deploy the day one of
-the two doors opens.
-*Cost:* no launch date. Depends on third-party roadmaps.
+**If issue #46 is answered yes** → Kaspa L1 native. No custodian, no bridge, no size
+ceiling, exact doctrinal fit. The remaining costs are non-technical: no prior art, and
+almost no auditors with SilverScript covenant experience.
 
-**Path 3 — Investigate KAT Bridge first.**
-The one unexamined option. Its operator and security model could not be determined
-from public web content; it requires reading the contract directly.
-*Cost:* a delay, but a short one, and it closes the last open question.
+**If issue #46 is answered no** → Igra EVM, bounded and disclosed. Freeze a maximum
+total collateral constant sized to what the exit path can unwind (roughly 6–18M KAS)
+and publish the reasoning. That does not pretend the bridge is safe; it sizes the
+protocol so the bridge cannot become a trap, converting an unbounded hidden risk into
+a bounded disclosed one. Or wait for a KIP-16 trustless bridge.
+
+**Nothing else is open.** The layer decision is one external answer away, and no
+further design work proceeds until it arrives.
 
 ## 9. What remains unknown
 
-- **KAT Bridge**: operator, custody model, security. Not determinable from public
-  pages; needs direct contract inspection.
+- **The oracle construction itself.** Issue #46, questions 1 and 2. This is the gate.
+- **Sizing on L1:** compute-mass ceiling on input count, SilverScript script-size
+  limits, block inclusion for a several-hundred-input sweep. Issue #46, questions 3–5.
+- ~~**KAT Bridge**: operator, custody model, security.~~ **Resolved.** Operationally
+  far better than the Guardians route — 2–5 minutes, published contracts, four audits,
+  continuous public reserve reconciliation — but a **3-of-5 threshold whose five
+  signers are operated by a single organisation and are not publicly named**, with no
+  bonding or penalty. Its own documentation states three colluding signers could drain
+  the vault. Both KAS routes remain capped near 200,000 KAS per 24 hours.
 - Igra's "Architecture" and "Attesting Protocol" pages could not be loaded — a
   future attester security role cannot be ruled out.
 - Kaspa L1 UTXO contention under concurrent load: no public measurement found.

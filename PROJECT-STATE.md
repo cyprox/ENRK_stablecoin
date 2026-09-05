@@ -19,7 +19,9 @@ the execution layer is undecided and blocked on a single external answer.
 ## The critical path
 
 Everything downstream waits on **one question**, put to Kaspa core developers in
-§7.1 of the ecosystem proposal:
+§7.1 of the ecosystem proposal and filed as
+[`kaspanet/kips` issue #46](https://github.com/kaspanet/kips/issues/46) on
+September 5, 2026:
 
 > Is the covenant oracle construction sound? Can a covenant reliably verify
 > `OpInputCovenantId` on a sibling input, and does the one-to-many split preserve
@@ -32,9 +34,10 @@ Everything downstream waits on **one question**, put to Kaspa core developers in
 The answer also settles two other open items (fee destination, Stability Pool's
 fate) and determines the implementation language.
 
-**The single action outstanding: send the proposal.** Core developers first —
-the four questions are addressed to their own specification. Then KEF, once
-"reviewed by a core developer" can be written into the ask.
+**Status: filed, awaiting a technical response.** The questions went to the core
+developers first, addressed to their own specification. KEF comes next, once
+"reviewed by a core developer" can be written into the ask. **No further design work
+proceeds until the answer arrives.**
 
 ---
 
@@ -97,6 +100,7 @@ built only on shipped opcodes, which reopened an L1 path previously declared clo
 
 | Document | What it holds |
 |---|---|
+| [`docs/ENRK-System-Map.pdf`](docs/ENRK-System-Map.pdf) | **The whole protocol in 12 pages** — actors and incentives, attack surface, fee and burn flow, stress-test results, rejected paths. Start here for the overview. |
 | [`docs/design/FROZEN_PARAMETERS.md`](docs/design/FROZEN_PARAMETERS.md) | Every parameter, its value, its evidence. **Start here for implementation.** |
 | [`docs/ENRK_ECOSYSTEM_PROPOSAL.md`](docs/ENRK_ECOSYSTEM_PROPOSAL.md) / [`_FR`](docs/ENRK_ECOSYSTEM_PROPOSAL_FR.md) | The dossier for Kaspa core devs and KEF |
 | [`docs/design/EXECUTION_TARGET_ASSESSMENT.md`](docs/design/EXECUTION_TARGET_ASSESSMENT.md) | Kaspa L1 vs Igra, primary KIP citations, bridges, throughput ceilings |
