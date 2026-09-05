@@ -4,6 +4,15 @@
 **Date:** September 3, 2026  
 **Prerequisite:** Phases 1–3 complete (119 tests passing)
 
+> **The fee design explored here was superseded.** This document weighs options for
+> fees minted as ENRK and credited to the Stability Pool. The frozen decision is
+> different: **fees are taken in KAS from vault collateral**, never minted, and the
+> Stability Pool is a known defect that must be fixed or removed — it burns ENRK it
+> already holds rather than bidding. The master invariant and seniority waterfall
+> described below are unaffected and still hold.
+>
+> See `FROZEN_PARAMETERS.md` §6 and §9 for the decisions that replaced this section.
+
 ---
 
 ## 1. The core problem: double bookkeeping

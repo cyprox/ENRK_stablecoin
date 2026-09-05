@@ -4,6 +4,21 @@
 **Status:** Findings for decision. No implementation implied.
 **Question:** Where can ENRK deploy, and can collateral be held in a trust-minimised way?
 
+> **Its central verdict was overturned.** This assessment concluded that the Kaspa
+> L1 path was closed, because a covenant cannot read a UTXO without spending it and
+> therefore could not read a shared price oracle. **That reasoning was too broad.**
+> The protocol does not need to read without spending: it can spend an oracle UTXO
+> published for that purpose, in the same transaction as the operation needing the
+> price. KIP-10 introspection reads sibling inputs by index and KIP-20 covenant IDs
+> authenticate their lineage — both shipped with Toccata in June 2026.
+>
+> **The L1 path is open.** See `L1_NATIVE_REDUCED_SPEC.md` §2 for the construction,
+> which is the design this project now pursues and the subject of §7.1 of the
+> ecosystem proposal.
+>
+> Everything else here — the bridge analysis, the custody model, the throughput
+> ceilings, the KIP citations — stands and is why the L1 path is worth the risk.
+
 **Verdict in one line:** neither layer can currently carry this protocol. Kaspa L1
 cannot express a shared price oracle; Igra cannot move collateral in or out fast
 enough or safely enough to back a stablecoin of meaningful size.

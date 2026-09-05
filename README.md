@@ -1,142 +1,162 @@
-# ENRK - Kaspa Energy Reserve Stablecoin
+# ENRK — Kaspa Energy Reserve Stablecoin
 
-## Project Overview
-
-**ENRK** (Kaspa Energy Reserve) is a decentralized stablecoin on the Kaspa network, backed by the thermodynamic value of Kaspa's proof-of-work energy.
-
-**Key Principles:**
-- No central governance (immutable by design)
-- No DAO (code is law)
-- Backed by real energy index (not USD/fiat)
-- Self-regulating via 5 market mechanisms
-- No admin keys or upgrade proxies
-
-## Quick Links
-
-- **Design Philosophy**: `docs/design/Immutable-By-Design.md`
-- **Final Formula**: `docs/specifications/Final-Recommendation.md`
-- **Technical Spec**: `docs/specifications/Frozen-Parameters.md`
-- **Auto-Equilibrium**: `docs/analysis/Hedging-Mechanism.md`
-- **Deployment Plan**: `docs/design/Deployment-Strategy.md`
-
-## Project Structure
-
-```
-docs/
-  design/           - Philosophy, architecture, deployment strategy
-  analysis/         - Research, backtesting results, economic analysis
-  specifications/   - Technical specifications, frozen parameters
-
-contracts/igra/     - Rust smart contracts (Kaspa Igra protocol)
-
-tests/backtesting/  - Simulation framework, historical testing
-
-scripts/            - Deployment scripts, utilities
-
-research/           - Economic theory, game theory analysis
-```
-
-## Timeline
-
-- **Q1 2027** (Jan-Mar): Testnet phase, community review
-- **Q1 2027** (Mar): Hardening & auditing
-- **Q2 2027** (Apr-May): Mainnet beta (50-100M TVL cap)
-- **Q2 2027** (Jun+): Production (unlimited TVL)
-
-## Token Details
-
-**Primary Token: ENRK**
-- Full Name: Kaspa Energy Reserve
-- Ticker: ENRK
-- Supply: Unlimited (minted on demand via vaults)
-- Peg: 1 ENRK ≈ 1 kWh of energy cost
-- Redeemable: Always convertible to KAS at thermodynamic ratio
-
-**Speculative Token: kFIAT**
-- Full Name: Kaspa Speculative Finance Token
-- Ticker: kFIAT
-- Supply: Limited to 30% of total debt
-- Purpose: Leverage/speculation, absorbs losses first
-- No peg guarantee
-
-## Key Features
-
-### 1. Immutable Peg Formula
-```
-Peg(ENRK) = 0.40×Kaspa_Hashrate + 0.30×Global_Energy + 
-            0.20×Kaspa_Fees + 0.10×Crypto_Adoption
-```
-Frozen at deployment. No changes possible.
-
-### 2. Self-Regulating Mechanisms
-1. **Convertibility** - Anyone can burn ENRK for KAS
-2. **Miner Arbitrage** - Miners defend peg via profit incentives
-3. **Stability Pool** - Auto-buyback during crashes
-4. **Dutch Auction** - Progressive liquidations
-5. **PoW Difficulty** - Thermodynamic floor
-
-### 3. Immutable Parameters
-- ICR: 200% (initial collateral ratio)
-- MCR: 150% (maintenance ratio, liquidation trigger)
-- kFIAT Cap: 30% of total debt
-- Auction Duration: 120 minutes (100% → 85% price descent)
-- Fee Split: 80% Stability Pool, 20% Treasury
-
-### 4. Circuit-Breaker (Automatic)
-- If peg deviates >10% in 60 minutes → Auto-pause
-- If oracle down >6 hours → Fallback to previous price + alert
-- No DAO override possible
-
-## Use Cases
-
-**1. Miners with Cheap Energy**
-- Mine KAS at low cost
-- Mint ENRK, arbitrage for profit
-- Stabilize market naturally
-
-**2. Hyperinflation Hedge**
-- Argentina, Venezuela, Zimbabwe users
-- Use ENRK as money (energy-backed, not fiat)
-- Escape hyperinflation without USD dependency
-
-**3. Energy Traders**
-- Bet on inflation via energy prices
-- Use kFIAT speculative token
-- Leverage plays on energy market
-
-## Development Status
-
-✅ **Complete:**
-- Economic analysis & backtesting
-- Formula selection & validation
-- Immutable design philosophy
-- Technical specifications
-- Auto-equilibrium mechanism
-
-🚧 **In Progress:**
-- Igra smart contract development (Rust)
-- Oracle integration strategy
-- Security auditing
-
-📋 **Upcoming:**
-- Testnet deployment
-- Community review & feedback
-- Mainnet launch
-
-## Language
-
-All documentation is in **English** (international project).
-
-## Contact & Contribution
-
-ENRK is a community-driven project. 
-
-For questions or suggestions:
-- Create issues in project repository
-- Community Discord/forum discussions
-- GitHub pull requests for improvements
+An over-collateralised stablecoin whose unit of account is **one kilowatt hour of
+thermodynamic value**, not a fiat currency. Designed to be **immutable after
+deployment**: no DAO, no admin keys, no upgrade path. Evolution happens by fork,
+chosen by users.
 
 ---
 
-**Last Updated**: September 2026
-**Project Owner**: Community-maintained, immutable design
+## Status — read this before anything else
+
+**Design and specification complete. Implementation not started.**
+
+The execution layer is undecided and blocked on one external answer: whether the
+covenant-based price oracle described in
+[`docs/design/L1_NATIVE_REDUCED_SPEC.md`](docs/design/L1_NATIVE_REDUCED_SPEC.md)
+is sound on Kaspa L1. That question is put to Kaspa core developers in §7.1 of the
+ecosystem proposal.
+
+No code is deployed. No audit has been performed. Nothing here should be read as
+an invitation to use the protocol.
+
+**Start here:** [**`PROJECT-STATE.md`**](PROJECT-STATE.md) — what is decided, what
+is blocked, what happens next.
+
+---
+
+## What the protocol is
+
+| | |
+|---|---|
+| **Unit of account** | 1 ENRK = 1 kWh of thermodynamic value. No USD, no fiat. |
+| **Peg index** | 40% Kaspa hashrate, 30% global energy price, 20% Kaspa fees, 10% crypto adoption. Frozen weights, clipped to [0.1, 5.0]. |
+| **Collateral** | KAS, over-collateralised. |
+| **Structure** | Dual tranche — ENRK (senior, redeemable) and kFIAT (junior, loss-absorbing, capped at 30% of debt at issuance). |
+| **Liquidation** | Dutch auction, permissionless. |
+| **Governance** | **None.** Every parameter frozen at compile time. |
+
+The thermodynamic thesis is what makes Kaspa the right chain rather than an
+arbitrary one: KAS has a production cost anchored in proof-of-work electricity
+consumption. If price falls below that cost, miners power down, hashrate falls,
+difficulty adjusts, and cost realigns with price. Collateral and unit of account
+are causally linked through the consensus mechanism itself.
+
+---
+
+## Frozen parameters
+
+Every value below is fixed at compile time. Changing any of them requires a fork.
+Full justification, with the evidence behind each figure, in
+[`docs/design/FROZEN_PARAMETERS.md`](docs/design/FROZEN_PARAMETERS.md).
+
+| Parameter | Value |
+|---|---|
+| Peg formula | 40 hashrate / 30 energy / 20 fees / 10 adoption |
+| ICR minimum (at mint) | 200% |
+| MCR (liquidation trigger) | 150% |
+| kFIAT cap | 30% of total debt **at mint** |
+| Auction | 120 minutes, 100% → **75%** |
+| Liquidation fee | 4% |
+| Mint fee | 2% |
+| Redemption | Lowest-ICR-first, 100% floor, ENRK only, 1% fee |
+| Fee denomination | **KAS**, taken from vault collateral |
+| Treasury | 20% of fees until 2,500,000 peg units, then **0% forever** |
+| Circuit breaker | 10% peg deviation, 6h oracle downtime, **no override** |
+
+---
+
+## What we found wrong with our own design
+
+A Monte Carlo stress test of the whole protocol — vault populations, liquidation
+with realistic bidder scarcity, the seniority waterfall, reflexive price impact,
+and a liquidator capital constraint — produced four findings that changed the
+design. They are published here rather than discovered later.
+
+**The protocol freezes; it does not explode.** Past a 61% drawdown, no auction
+fills at any point in its descent. Debt becomes latent — 57% of total debt at p95,
+uncovered, with tokens still circulating. For an immutable protocol this is the
+critical property: **there is nobody to unfreeze it.**
+
+**The Stability Pool cannot buy.** `attempt_buyback` computes a cost, never debits
+it, and reduces the pool's own ENRK balance. It is a burn, not a bid — and its
+ammunition is denominated in the asset it defends. It must be fixed or removed;
+this repository does not claim it works.
+
+**Redemption was never implemented.** Equilibrium mechanism #1 exists only as
+error variants and a fee constant. Modelling shows it halves losses under stress
+and needs no liquidator capital, so it functions precisely when auctions cannot.
+It must be built.
+
+**The 30% kFIAT cap is a mint-time ceiling, not a permanent guarantee.** Burning
+ENRK shrinks the denominator, so peg defence and the cap pull against each other.
+Documented as such rather than claimed otherwise.
+
+**The fix is a static parameter.** Moving the Dutch auction floor from 85% to 75%
+eliminates the freeze — p95 latent hole from 46% to zero — for +2.4% additional
+discount in calm markets. The floor is a safety valve, not a price.
+
+Three false paths were rejected with numbers: a gold reserve, Liquity-style
+Recovery Mode (active 47 of 60 days, zero points of improvement), and a 250% ICR
+(buys nothing, costs 25% capital efficiency).
+
+---
+
+## Repository structure
+
+```
+PROJECT-STATE.md              Status, critical path, document index — start here
+
+docs/
+  ENRK_ECOSYSTEM_PROPOSAL.md      Dossier for Kaspa core devs and KEF (English)
+  ENRK_ECOSYSTEM_PROPOSAL_FR.md   Same, French
+  design/
+    FROZEN_PARAMETERS.md              Every parameter, its value, its evidence
+    EXECUTION_TARGET_ASSESSMENT.md    Kaspa L1 vs Igra, with primary KIP citations
+    L1_NATIVE_REDUCED_SPEC.md         L1 design and the covenant oracle construction
+    PHASE_4_ARCHITECTURE_PROPOSAL.md  Master invariant, seniority waterfall
+    Immutable-By-Design.md            Why no governance, and what forking replaces it with
+    STRESS-TEST-CRASH-RESULTS.md      The freeze finding, and three corrected model errors
+    RECOVERY-MODE-ANALYSIS.md         Why Recovery Mode buys nothing
+    REDEMPTION-ANALYSIS.md            Mechanism #1: structural limit, halved losses
+
+contracts/igra/               Rust reference implementation (119 tests)
+tests/backtesting/            Stress test and Recovery Mode analysis (stdlib only)
+```
+
+---
+
+## What is not claimed
+
+- No code is deployed. No audit has been performed.
+- The Rust implementation in `contracts/igra/` targeted an EVM rollup and **does
+  not deploy**. It survives as an executable specification and a
+  differential-testing oracle, nothing more.
+- The covenant oracle construction is derived from KIP text and has **not been
+  validated by anyone who wrote those KIPs**. That validation is the current
+  blocker.
+- Three sizing questions are unresolved: the compute-mass ceiling on input count,
+  SilverScript script size limits, and block inclusion for a large sweep
+  transaction.
+- Being first on these primitives is a risk, not a feature. Immutable code plus
+  three-month-old primitives plus no auditors with covenant experience is a
+  combination taken seriously here.
+
+---
+
+## Model assumptions to distrust
+
+Two parameters dominate every stress-test figure: `impact_coefficient` (0.08,
+square-root law) and `daily_liquidation_capacity` (5% of debt per day). They are
+assumptions, not measurements. Vary them and re-run before trusting any number.
+
+---
+
+**Author:** cyprox — sole developer. Contact via this repository.
+
+**Licence:** GPL-3.0
+
+Development is funded by a capped share of protocol fees, disclosed in the frozen
+parameter specification: 20% of fees to a treasury address until a fixed
+cumulative ceiling, then 0% forever. The ceiling is a compile-time constant, its
+counter is readable on-chain by anyone, and no party can raise it.

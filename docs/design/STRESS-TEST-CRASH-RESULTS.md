@@ -3,6 +3,17 @@
 **Script:** `tests/backtesting/stress_test_crash.py` (standard library only, fixed seed)
 **Date:** September 3, 2026
 
+> **Two conclusions in this document were superseded by later analysis.** It is
+> kept as written because the sequence matters, but read it with these corrections:
+>
+> - The auction floor described below as 85% **was changed to 75%**, which is what
+>   eliminates the freeze. See `RECOVERY-MODE-ANALYSIS.md`.
+> - The 250% ICR recommended below **was rejected**: once the floor is corrected,
+>   200% → 250% makes ENRK p95 loss slightly *worse* while costing 25% capital
+>   efficiency. See `FROZEN_PARAMETERS.md` §2.
+>
+> `FROZEN_PARAMETERS.md` is the authoritative parameter reference.
+
 This is the most consequential analysis produced for ENRK so far. It models the
 whole protocol under a severe KAS drawdown — not just the peg formula — and it
 changed the design.

@@ -45,3 +45,7 @@ node_modules/
 
 # Cowork scratch folder
 Claude outputs/
+
+# Internal working notes, superseded by PROJECT-STATE.md
+PROJECT_MANIFEST.md
+.gitignore.bak

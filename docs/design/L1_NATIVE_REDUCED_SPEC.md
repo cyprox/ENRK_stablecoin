@@ -214,7 +214,7 @@ Each auction is local to one vault, which fits the model well.
 
 The Dutch descent is a function of elapsed time. `OpCheckLockTimeVerify` lets the
 covenant bound the price against the transaction's lock time, so the
-100% → 85% descent over 120 minutes is expressible without any shared state.
+100% → 75% descent over 120 minutes is expressible without any shared state.
 
 The reflexive risk identified in the crash stress test is unchanged: liquidation
 throughput remains the binding constraint, and the oracle DoS vector in §2.3 would
