@@ -1,0 +1,78 @@
+ENRK CRASH STRESS TEST
+seed=20260903  vaults=1000  MCR=150%  kFIAT share=30%  auction floor=85%
+
+1. Crash severity — deployed formula (Alt 3.5), opening ICR 200%
+================================================================
+Scenario                            KAS    peg   liq  stuck   kFIAT    ENRK  latent
+-----------------------------------------------------------------------------------
+KAS -50%                           0.39  0.764   956      0      8%      0%      0%
+KAS -70%                           0.27  0.698   853     74     12%      0%      3%
+KAS -85%                           0.15  0.611   645    354      9%      0%     17%
+KAS -95%                           0.06  0.506   409    591      7%      0%     43%
+  KAS/peg = end values as a ratio of start.  liq = vaults liquidated,
+  stuck = still open but under water.  latent = unbacked debt not yet realised.
+
+2. Peg formula — same -85% crash, opening ICR 200%
+==================================================
+Scenario                            KAS    peg   liq  stuck   kFIAT    ENRK  latent
+-----------------------------------------------------------------------------------
+KAS -85%  Alt 3.5 (deployed)       0.15  0.611   645    354      9%      0%     17%
+KAS -85%  Alt 3 (pure Kaspa)       0.15  0.454   649    307      5%      0%     10%
+  KAS/peg = end values as a ratio of start.  liq = vaults liquidated,
+  stuck = still open but under water.  latent = unbacked debt not yet realised.
+
+3. Energy crisis + crypto crash (2022 pattern), -85%
+====================================================
+Energy up 60% while KAS collapses: the hedge pushes the peg UP
+exactly as collateral falls. Worst possible case for solvency.
+Scenario                            KAS    peg   liq  stuck   kFIAT    ENRK  latent
+-----------------------------------------------------------------------------------
+KAS -85%, energy flat              0.15  0.611   645    354      9%      0%     17%
+KAS -85%, energy +60%              0.15  0.791   644    356     12%      0%     19%
+  KAS/peg = end values as a ratio of start.  liq = vaults liquidated,
+  stuck = still open but under water.  latent = unbacked debt not yet realised.
+
+4. Opening ICR ladder — -85% crash, deployed formula
+====================================================
+Scenario                            KAS    peg   liq  stuck   kFIAT    ENRK  latent
+-----------------------------------------------------------------------------------
+opening ICR 200%                   0.15  0.611   645    354      9%      0%     17%
+opening ICR 300%                   0.17  0.622   383    463      0%      0%      7%
+opening ICR 400%                   0.20  0.651    58     98      0%      0%      0%
+opening ICR 600%                   0.22  0.665     0      0      0%      0%      0%
+  KAS/peg = end values as a ratio of start.  liq = vaults liquidated,
+  stuck = still open but under water.  latent = unbacked debt not yet realised.
+
+5. Minimum opening ICR for zero ENRK loss
+=========================================
+  KAS  -70%  ->  233%
+  KAS  -85%  ->  245%
+  KAS  -95%  ->  237%
+
+6. Where the Dutch auction stops clearing
+=========================================
+The auction floor is 85% of market, a 15% discount. Liquidators
+demand base 4% + 18% x drawdown. Beyond the crossover, no auction
+fills at any point in the descent:
+    required = 4% + 18% x drawdown  >  15%  when  drawdown > 61%
+
+7. Monte Carlo — 200 random paths per drawdown, opening ICR 200%
+================================================================
+Drawdown    metric           median      p95    worst
+-----------------------------------------------------
+KAS -70%    ENRK loss            0%       0%       0%
+            kFIAT loss           2%      14%      17%
+            latent hole          4%      29%      49%
+
+KAS -85%    ENRK loss            0%       0%       0%
+            kFIAT loss           5%      10%      14%
+            latent hole         16%      45%      63%
+
+KAS -95%    ENRK loss            0%       0%       0%
+            kFIAT loss           3%       6%       7%
+            latent hole         30%      57%      72%
+
+
+All figures are scenario-dependent, not forecasts. The parameters
+that matter most are in Scenario: impact_coefficient and
+stress_sensitivity. Change them and re-run before trusting any number.

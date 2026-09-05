@@ -1,0 +1,57 @@
+RECOVERY MODE vs STATIC PARAMETERISATION
+120 Monte Carlo paths per configuration, 1000 vaults, opening ICR 200%
+latent = unbacked debt not yet realised, the freeze metric
+discount = value transferred from vault owners to liquidators
+
+1. Protection under stress (KAS -85%)
+=====================================
+configuration                            latent    p95   ENRK  kFIAT   liq  RMdays
+----------------------------------------------------------------------------------
+baseline  MCR 150 / floor 85                 9%    46%     0%     5%   776       0
+RECOVERY MODE  trigger 150 -> MCR 200       11%    46%     0%     4%   831      47
+static  MCR 175 / floor 85                  10%    45%     0%     7%   824       0
+static  MCR 200 / floor 85                  10%    44%     0%     3%   834       0
+static  MCR 150 / floor 75                   0%     0%     1%    14%  1000       0
+static  MCR 150 / floor 70                   0%     0%     1%    14%  1000       0
+static  MCR 150 / floor 60                   0%     0%     1%    14%  1000       0
+static  MCR 175 / floor 70                   0%     0%     1%    18%  1000       0
+
+2. Cost in calm conditions (ordinary bear market, KAS -20%)
+===========================================================
+A static parameter is always on. This is what it costs when nothing
+dramatic happens — which is almost all of the time.
+
+configuration                             liq  discount   latent
+----------------------------------------------------------------
+baseline  MCR 150 / floor 85              687      9.7%       0%
+RECOVERY MODE  trigger 150 -> MCR 200     686      9.7%       0%
+static  MCR 175 / floor 85                900     13.5%       0%
+static  MCR 200 / floor 85                966     14.8%       0%
+static  MCR 150 / floor 75                824     12.0%       0%
+static  MCR 150 / floor 70                824     12.0%       0%
+static  MCR 150 / floor 60                824     12.0%       0%
+static  MCR 175 / floor 70                979     14.3%       0%
+
+3. Protection bought, against cost paid
+=======================================
+Improvement is the reduction in the p95 latent hole under crash.
+Cost is extra liquidations and extra discount paid in calm markets.
+
+configuration                           latent p95  calm liq  calm disc
+-----------------------------------------------------------------------
+baseline  MCR 150 / floor 85                   +0%        +0      +0.0%
+RECOVERY MODE  trigger 150 -> MCR 200          +0%        -0      +0.0%
+static  MCR 175 / floor 85                     -0%      +214      +3.8%
+static  MCR 200 / floor 85                     -1%      +280      +5.2%
+static  MCR 150 / floor 75                    -46%      +136      +2.4%
+static  MCR 150 / floor 70                    -46%      +136      +2.4%
+static  MCR 150 / floor 60                    -46%      +136      +2.4%
+static  MCR 175 / floor 70                    -46%      +292      +4.6%
+
+Negative latent = better protection. Positive costs = worse in calm markets.
+
+The row to compare everything against is RECOVERY MODE: it is what
+Igra EVM can do and Kaspa L1 cannot. Any static configuration that
+matches its protection while costing little in calm conditions is a
+viable substitute; one that only matches it by liquidating people in
+ordinary markets is not.

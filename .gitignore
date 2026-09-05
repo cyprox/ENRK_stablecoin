@@ -42,3 +42,6 @@ node_modules/
 # Backups (incl. .gitignore.bak from this session)
 *.bak
 *.old
+
+# Cowork scratch folder
+Claude outputs/
