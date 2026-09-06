@@ -1,0 +1,60 @@
+// Variant A - price carried in the native UTXO value.
+//
+// This is the construction described in L1-Native-Reduced-Spec section 2.2:
+// the oracle publishes N sibling UTXOs sharing one covenant id, each encoding
+// the current price in its amount. A consumer co-spends one of them and reads
+// the amount.
+//
+// Two branches:
+//   use   - open to anyone, forces identical replication (value and state)
+//   sweep - publisher signature, republishes the round at a new price
+//
+// The split below is deliberately N = 2. It is the smallest N that exercises
+// one-to-many covenant id preservation, which is question 1b of kips issue #46.
+
+state PriceRoundState {
+    pubkey publisher;
+    int round;
+}
+
+actor PriceRound owns PriceRoundState {
+    // USE branch. Anyone may co-spend a price UTXO, but must recreate it
+    // unchanged. This is what makes the feed undrainable.
+    //
+    // Note: this entry carries no condition tying the spender to a vault.
+    // The spec's condition (a) - the transaction must also spend a vault
+    // covenant - is deliberately omitted here, because expressing it would
+    // make the oracle app depend on the vault app and create a dependency
+    // cycle. Whether that condition is expressible at all is a separate
+    // question; see NOTES.md.
+    entry use() emits next: PriceRound {
+        require(next.value == self.value);
+        become next <- self;
+    }
+
+    // SWEEP branch. The publisher consumes a round and republishes it as two
+    // children at a new price. Value is unrestricted because the price is the
+    // value in this variant.
+    entry sweep(sig publisher_sig) emits {
+        left: PriceRound,
+        right: PriceRound,
+    } {
+        require(checkSig(publisher_sig, publisher));
+
+        PriceRoundState next_state = {
+            publisher: publisher,
+            round: round + 1,
+        };
+
+        unrestricted(left.value);
+        unrestricted(right.value);
+        become {
+            left <- PriceRound(next_state),
+            right <- PriceRound(next_state),
+        };
+    }
+}
+
+app OracleFeed {
+    actor PriceRound;
+}

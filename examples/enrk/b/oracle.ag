@@ -1,0 +1,55 @@
+// Variant B - price carried in a typed state field.
+//
+// Same construction as variant A, except the price is state rather than value.
+// This is only possible because an observing covenant can read an observed
+// input's authored state, which the original spec assumed impossible.
+//
+// The consequence to measure: the UTXO amounts are now free to stay constant
+// across rounds, which is exactly the case KIP-9 says never incurs storage
+// mass. Variant A's asymmetry - a falling price costs mass - should disappear.
+// That claim is what the mass harness has to confirm or refute.
+
+state PriceRoundState {
+    pubkey publisher;
+    int round;
+    int price;
+}
+
+actor PriceRound owns PriceRoundState {
+    // USE branch. Exact continuation preserves the state, so the price is
+    // replicated by construction; only the value needs an explicit check.
+    entry use() emits next: PriceRound {
+        require(next.value == self.value);
+        become next <- self;
+    }
+
+    // SWEEP branch. Publisher republishes at a new price as two children.
+    // The value is conserved across the split, which is the shape KIP-9
+    // charges nothing for.
+    entry sweep(sig publisher_sig, int next_price, int left_value) emits {
+        left: PriceRound,
+        right: PriceRound,
+    } {
+        require(checkSig(publisher_sig, publisher));
+        require(next_price > 0);
+        require(left_value > 0);
+        require(left_value < self.value);
+
+        PriceRoundState next_state = {
+            publisher: publisher,
+            round: round + 1,
+            price: next_price,
+        };
+
+        require(left.value == left_value);
+        require(right.value == self.value - left_value);
+        become {
+            left <- PriceRound(next_state),
+            right <- PriceRound(next_state),
+        };
+    }
+}
+
+app OracleFeed {
+    actor PriceRound;
+}

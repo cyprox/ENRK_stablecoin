@@ -1,0 +1,67 @@
+// Variant A - vault reading the price from the co-spent oracle input's value.
+//
+// This is the measurement target. Everything not needed to read an
+// authenticated price and act on it is out of scope: no kFIAT, no tranches,
+// no Dutch descent, no fees. Adding them would inflate the script size we are
+// trying to measure against the primitive.
+
+import "./oracle.ag";
+
+// Percent, matching Frozen-Parameters-Specification section 2.
+const int ICR_MINIMUM = 200;
+const int MCR_TRIGGER = 150;
+
+// Fixed-point scale for the published price, in the same spirit as the spec's
+// "price x fixed scaling factor".
+const int PRICE_SCALE = 100000000;
+
+state VaultState {
+    pubkey owner;
+    cov_id oracle_covid;
+    int debt;
+}
+
+actor Vault owns VaultState {
+    // collateral_value * 100 / debt, in percent.
+    fn icr_percent(int collateral_sompi, int price, int debt_units) -> int {
+        return collateral_sompi * price * 100 / PRICE_SCALE / debt_units;
+    }
+
+    // LIQUIDATE branch. Permissionless. Proves the vault is under the
+    // maintenance ratio at the authenticated price, then releases the
+    // collateral with no further constraint.
+    //
+    // `emits none` means the collateral is unconstrained on the way out. The
+    // real protocol replaces this with the auction distribution rules; here it
+    // is left open so the measurement isolates the oracle read.
+    entry liquidate()
+    observes oracle by self.oracle_covid {
+        inputs {
+            round: OracleFeed::PriceRound,
+        }
+    }
+    emits none {
+        require(icr_percent(self.value, oracle.inputs.round.value, debt) < MCR_TRIGGER);
+    }
+
+    // OWNER branch. Withdrawing collateral must leave the vault at or above
+    // the opening ratio, priced at the same authenticated price.
+    entry withdraw(sig owner_sig, int withdrawn)
+    observes oracle by self.oracle_covid {
+        inputs {
+            round: OracleFeed::PriceRound,
+        }
+    }
+    emits next: Vault {
+        require(checkSig(owner_sig, owner));
+        require(withdrawn > 0);
+        require(next.value == self.value - withdrawn);
+        require(icr_percent(next.value, oracle.inputs.round.value, debt) >= ICR_MINIMUM);
+
+        become next <- self;
+    }
+}
+
+app EnrkVault {
+    actor Vault;
+}

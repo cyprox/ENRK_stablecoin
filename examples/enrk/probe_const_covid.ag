@@ -1,0 +1,31 @@
+// Probe - can the observed covenant id be a compile-time constant?
+//
+// This decides a security property, not a style. The spec says the oracle
+// covenant id is "frozen into every vault script". The ICC example instead
+// carries it as a `cov_id` state field, which is set when the vault is
+// created - so a vault could be created pointing at a forged feed.
+//
+// This file is expected to either compile or fail with a clear message. Both
+// outcomes are the answer. Build it on its own.
+
+const cov_id ORACLE_COVID = 0x0000000000000000000000000000000000000000000000000000000000000001;
+
+state ProbeState {
+    int debt;
+}
+
+actor Probe owns ProbeState {
+    entry touch()
+    observes oracle by ORACLE_COVID {
+        inputs {
+            round: Probe,
+        }
+    }
+    emits none {
+        require(debt >= 0);
+    }
+}
+
+app Probe {
+    actor Probe;
+}
