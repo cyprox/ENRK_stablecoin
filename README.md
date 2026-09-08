@@ -11,11 +11,32 @@ chosen by users.
 
 **Design and specification complete. Implementation not started.**
 
-The execution layer is undecided and blocked on one external answer: whether the
-covenant-based price oracle described in
+The execution layer is undecided. The covenant-based price oracle described in
 [`docs/design/L1_NATIVE_REDUCED_SPEC.md`](docs/design/L1_NATIVE_REDUCED_SPEC.md)
-is sound on Kaspa L1. That question is put to Kaspa core developers in §7.1 of the
-ecosystem proposal.
+was **implemented, compiled and measured** on September 6, 2026 — written in Argent,
+executed through the real Kaspa mainnet script engine — which answered three of the
+four questions filed as
+[`kaspanet/kips` issue #46](https://github.com/kaspanet/kips/issues/46):
+
+| | Question | Result |
+|---|---|---|
+| Q1a | Sibling input `covenant_id` observable? | **Yes** |
+| Q1b | 1→N split preserves `covenant_id`? | **Yes** |
+| Q1c | `covenant_id` as a compile-time constant? | **No** — new constraint |
+| Q2 | Ceiling on N per oracle round | **640** / **530**, bounded by transient mass |
+| Q3 | Script size | 0.1% of the 1 MB limit |
+| Q4 | Block inclusion under contention | **Open** — Testnet-10 required |
+
+Method and reproduction:
+[`docs/design/GITHUB-ISSUE-46-UPDATE.md`](docs/design/GITHUB-ISSUE-46-UPDATE.md).
+Source under [`examples/enrk/`](examples/enrk/) and
+[`tests/enrk_mass.rs`](tests/enrk_mass.rs).
+
+**A local engine agreeing with our reading is not a core developer agreeing with
+it.** Confirmation has not arrived. Two questions the measurement opened rather
+than closed — where the oracle identity is bound (Q1c), and which of the two
+variants to deploy — are open and documented in
+[`PROJECT-STATE.md`](PROJECT-STATE.md).
 
 No code is deployed. No audit has been performed. Nothing here should be read as
 an invitation to use the protocol.
@@ -108,8 +129,8 @@ Recovery Mode (active 47 of 60 days, zero points of improvement), and a 250% ICR
 PROJECT-STATE.md              Status, critical path, document index — start here
 
 docs/
-  ENRK_ECOSYSTEM_PROPOSAL.md      Dossier for Kaspa core devs and KEF (English)
-  ENRK_ECOSYSTEM_PROPOSAL_FR.md   Same, French
+  ENRK-System-Map.pdf             The whole protocol in 12 pages
+  ENRK_ECOSYSTEM_PROPOSAL.md      Dossier for Kaspa core devs and KEF
   design/
     FROZEN_PARAMETERS.md              Every parameter, its value, its evidence
     EXECUTION_TARGET_ASSESSMENT.md    Kaspa L1 vs Igra, with primary KIP citations
@@ -119,10 +140,22 @@ docs/
     STRESS-TEST-CRASH-RESULTS.md      The freeze finding, and three corrected model errors
     RECOVERY-MODE-ANALYSIS.md         Why Recovery Mode buys nothing
     REDEMPTION-ANALYSIS.md            Mechanism #1: structural limit, halved losses
+    BACKTESTING-PEG-FORMULAS.md       The three peg alternatives, and why Alt 3.5
+    PEG-FORMULA-RECOMMENDATION.md     The chosen formula, its calibration, black scenarios
+    STABLECOIN-FAILURE-ANALYSIS.md    Terra, DOLA, Curve — the failures designed against
+    GITHUB-ISSUE-46-COMMENT.md        Oracle validation — summary posted to issue #46
+    GITHUB-ISSUE-46-UPDATE.md         Oracle validation — full report, tables, method
+
+examples/enrk/                Argent source for the oracle/vault construction
+  a/oracle.ag  a/vault.ag       Variant A — price encoded in the UTXO amount
+  b/oracle.ag  b/vault.ag       Variant B — price as a typed state field
+  probe_const_covid.ag          Probe for Q1c; fails to compile, as documented
 
 contracts/igra/               Rust reference implementation (119 tests)
+tests/enrk_mass.rs            Mass measurement harness — real mainnet script engine
 tests/backtesting/            Stress test and Recovery Mode analysis (stdlib only)
 ```
+
 
 ---
 
@@ -132,12 +165,18 @@ tests/backtesting/            Stress test and Recovery Mode analysis (stdlib onl
 - The Rust implementation in `contracts/igra/` targeted an EVM rollup and **does
   not deploy**. It survives as an executable specification and a
   differential-testing oracle, nothing more.
-- The covenant oracle construction is derived from KIP text and has **not been
-  validated by anyone who wrote those KIPs**. That validation is the current
-  blocker.
-- Three sizing questions are unresolved: the compute-mass ceiling on input count,
-  SilverScript script size limits, and block inclusion for a large sweep
-  transaction.
+- The covenant oracle construction has been compiled and measured against the real
+  Kaspa mainnet script engine, but it has **not been reviewed by anyone who wrote
+  those KIPs**. A local engine agreeing with our reading is not the same thing.
+  That review is the current blocker.
+- One sizing question remains unresolved: block inclusion for a large sweep
+  transaction under contention, which requires Testnet-10.
+- The measurement surfaced a constraint we had not anticipated: `covenant_id`
+  cannot be a compile-time constant, so each vault carries the oracle identity in
+  its own state. **What guarantees a vault is bound to the correct oracle at
+  creation is not yet specified**, and on immutable code that is a security
+  question.
+- Which of the two oracle variants to deploy is not decided.
 - Being first on these primitives is a risk, not a feature. Immutable code plus
   three-month-old primitives plus no auditors with covenant experience is a
   combination taken seriously here.

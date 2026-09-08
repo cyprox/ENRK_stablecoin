@@ -244,11 +244,19 @@ therefore costs nothing.
 
 ## 10. Still open
 
-1. **Execution layer** — Kaspa L1 covenants vs Igra EVM. Blocked on core-developer
-   validation of the covenant oracle construction.
-2. **Fee destination after the treasury cap** (§7) — burn on L1, pro-rata reserve on
+1. **Execution layer** — Kaspa L1 covenants vs Igra EVM. The oracle construction
+   was measured on September 6, 2026 and holds (Q1a, Q1b yes; N = 640/530; script
+   size negligible). Awaiting core-developer confirmation, and Q4 (block inclusion
+   under contention) still requires Testnet-10.
+2. **Oracle identity binding (Q1c)** — `covenant_id` cannot be a compile-time
+   constant, so the vault carries it in its own state. What guarantees a vault is
+   created against the correct oracle is unspecified. **New, and a security
+   question on immutable code.**
+3. **Oracle variant A or B** — A allows ~21% more N; B incurs zero storage mass
+   under a falling price and locks negligible capital. Not decided.
+4. **Fee destination after the treasury cap** (§7) — burn on L1, pro-rata reserve on
    Igra. Follows the layer decision.
-3. **Stability Pool: fix or remove** — follows from (2).
+5. **Stability Pool: fix or remove** — follows from (4).
 
 ---
 
@@ -256,4 +264,4 @@ therefore costs nothing.
 
 `Stress-Test-Crash-Results`, `Recovery-Mode-Analysis`, `Redemption-Analysis`,
 `Execution-Target-Assessment`, `L1-Native-Reduced-Spec`,
-`Phase-4-Architecture-Proposal`.
+`Phase-4-Architecture-Proposal`, `GITHUB-ISSUE-46-UPDATE`.

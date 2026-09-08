@@ -70,7 +70,9 @@ input authorizing one or many covenant outputs in the spending transaction."*
 
 ```
 Oracle genesis:  the oracle creates one covenant UTXO.
-                 Its covenant_id is frozen into every vault script.
+                 Its covenant_id is held in each vault's own state, fixed at
+                 vault creation. It CANNOT be a compile-time constant --
+                 measured, see 2.5 Q1c.
 
 Price round:     the oracle spends it in a one-to-many split, producing N child
                  UTXOs, all carrying the same covenant_id, each encoding the
@@ -92,8 +94,17 @@ because Kaspa script has no opcode to verify a signature over an arbitrary
 message. Only `OP_CHECKSIG` over the transaction exists. Covenant IDs sidestep that
 limitation entirely.
 
-The consumed sompi flow to the spender, so the oracle's working capital recirculates
-rather than being locked.
+**A correction to an earlier claim here.** This section previously stated that the
+consumed sompi flow to the spender, so the oracle's working capital recirculates.
+That contradicts §2.3: the USE branch requires an output carrying the same
+covenant_id **and the same amount**, so the spender must recreate what they consume.
+The oracle's working capital is therefore **locked, not recirculated**, at
+`N x amount_per_UTXO`.
+
+This matters for the variant choice. In variant A the amount encodes the price, so
+the locked capital is set by the price scaling factor and cannot be reduced
+independently. In variant B the price is a state field, so the amount can sit at the
+dust minimum and the locked capital is negligible. See §2.5.
 
 ### 2.3 The three-way tension, and how it resolves
 
@@ -168,18 +179,72 @@ while the mempool limit (100,000) and block limit (500,000) are in "grams", and
 that conversion has not been verified. The structural results are certain; a
 specific maximum N is not.
 
-### 2.5 What is still unverified
+### 2.5 What was measured, and what remains
 
-These are sizing questions, not feasibility questions:
+On September 6, 2026 the construction was implemented in Argent
+(`argent-lang/argent` d08e52d) in two variants and executed through the real Kaspa
+mainnet script engine via `argent-runtime` and `MassCalculator`. The sizing
+questions below are no longer estimates.
 
-1. **Compute mass.** KIP-9 does not bound input count; *compute* mass does. Every
-   input executes a covenant script, so this is the real ceiling on N. Not yet
-   established.
-2. **Script size limits.** The USE branch must scan inputs for the vault lineage —
-   a loop plus comparisons. SilverScript advertises loops and arrays, but its
-   script size limits are not established.
-3. **Block inclusion.** A several-hundred-input sweep competes for block space. If
-   it is delayed, the oracle round is delayed with it.
+**Variant A** encodes the price in the UTXO amount. **Variant B** carries it as a
+typed state field. Both compiled on the first attempt.
+
+| | Variant A | Variant B |
+|---|---|---|
+| Ceiling on N per round | **640** | **530** |
+| Binding constraint | transient mass | transient mass |
+| Compute mass per input | ~759 | ~849 |
+| Transient mass per input | ~1,556 | ~1,866 |
+| Signature script | 248 B | 262 B |
+| Total script size | 1,046 B | 1,206 B |
+
+1. **Compute mass — answered, and it is not the ceiling.** The binding constraint
+   is *transient* mass, not compute mass. Toccata block limits: compute 500,000,
+   transient 1,000,000, storage 500,000.
+2. **Script size — answered, and it is a non-issue.** 1,046 B and 1,206 B against a
+   1 MB limit, or 0.1%. Vault 805 B / 886 B, oracle 241 B / 320 B.
+3. **Block inclusion — still open.** A round at N=640 consumes 996,216 transient
+   mass, or 99.6% of one block's budget. At Kaspa's 10 BPS that is ~100 ms per
+   round, and ~10 ms at the planned 100 BPS, which is acceptable for real-time
+   liquidation. But behaviour under contention, and post-Toccata fees, require
+   Testnet-10. **The oracle monopolises one block per round, so the cadence model
+   is N x block_time.**
+
+### 2.5.1 Q1c — the constraint the measurement surfaced
+
+A question nobody had asked was answered by the compiler refusing to build:
+**`covenant_id` cannot be a compile-time constant.** `probe_const_covid.ag` is
+rejected; the compiler requires a state field or an argument.
+
+The consequence is structural, not cosmetic. §2.2 above previously assumed the
+oracle's `covenant_id` could be frozen into every vault script at compile time,
+which is what made authenticity free. It cannot. The vault must carry the oracle
+identity in its own state, fixed at vault creation — and **what guarantees a vault
+is created against the right oracle is not specified anywhere in this document.**
+
+For immutable code this is a security question. It is open.
+
+### 2.5.2 The KIP-9 asymmetry, quantified
+
+§2.4 derived the asymmetry structurally. It has now been measured, and it separates
+the two variants sharply.
+
+| Price ratio per round | Variant A storage mass | Variant B |
+|---|---|---|
+| constant | 0 | 0 |
+| k = 0.99 (−1%) | 101 units/unit | 0 |
+| k = 0.90 (−10%) | 1,111 units/unit | 0 |
+| k = 0.50 (−50%) | 10,000 units/unit | 0 |
+
+At N=640 a −10% round costs variant A **711,040 storage units**, which exceeds the
+500,000 per-block limit by 42%. Variant B incurs zero storage mass under any price
+movement, because its amounts do not change when the price does.
+
+**This is the crash scenario.** A falling price is exactly when the oracle must keep
+publishing, and it is where variant A's capacity degrades. Whether that is
+structural or merely an artefact of the amount scaling factor chosen for the
+measurement has not been tested. **The A/B choice is open and is the next piece of
+work.**
 
 ---
 
@@ -331,9 +396,18 @@ The gating problem — oracle freshness — is **resolved** (§2.3, §2.4). What
 2. **No prior art.** Nobody has shipped a CDP stablecoin on these primitives.
    First-of-its-kind plus never-patchable is the combination that should worry us
    most.
-3. **Compute mass ceiling on N** (§2.5). Sizing, not feasibility.
-4. **Stability Pool via delegation.** Worth a design attempt, but low priority
+3. **Q1c — the oracle identity binding** (§2.5.1). The vault carries the oracle
+   `covenant_id` in its own state; nothing yet specifies what guarantees it is the
+   right oracle at vault creation. This is the only *new* problem the measurement
+   created, and it is a security one.
+4. **Variant A or B** (§2.5.2). Measurable, not yet measured.
+5. **Block inclusion under contention** (§2.5). Testnet-10 required.
+6. **Stability Pool via delegation.** Worth a design attempt, but low priority
    given §6.2.
+
+~~Compute mass ceiling on N~~ — **resolved.** 640 / 530, bounded by transient mass
+(§2.5).
+~~Script size limits~~ — **resolved.** 0.1% of the limit (§2.5).
 
 ~~Recovery Mode substitute~~ — **resolved.** The auction floor at 75% is the fix,
 it is a static constant, and it works identically on both layers (§6.1).

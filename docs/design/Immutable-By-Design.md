@@ -171,9 +171,18 @@ and need no oracle.
 On Kaspa L1 the construction is a covenant-lineage price feed described in
 [`L1_NATIVE_REDUCED_SPEC.md`](L1_NATIVE_REDUCED_SPEC.md) §2 — authenticity comes
 from covenant ID lineage rather than from a signature, and round transitions are
-atomic so no stale-price window exists. That construction has not been validated
-by anyone who wrote the KIPs it relies on, and validating it is the current
+atomic so no stale-price window exists. That construction has been compiled and
+measured against the real Kaspa mainnet script engine (see
+[`GITHUB-ISSUE-46-UPDATE.md`](GITHUB-ISSUE-46-UPDATE.md)), but it has not been
+reviewed by anyone who wrote the KIPs it relies on, and that review is the current
 blocker for the entire project.
+
+One consequence of the measurement belongs here, because it touches what can be
+frozen: the oracle's `covenant_id` **cannot** be a compile-time constant. Each
+vault carries the oracle identity in its own state, fixed at vault creation. What
+guarantees a vault is bound to the correct oracle at that moment is not yet
+specified — and in a protocol with no governance and no upgrade path, an
+unspecified binding is not a detail that can be settled later.
 
 What is settled, whatever the layer: the fallback behaviour is hardcoded, there is
 no vote on which oracle to trust, and no multi-sig can override the circuit

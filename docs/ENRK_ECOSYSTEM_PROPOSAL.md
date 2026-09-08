@@ -229,11 +229,20 @@ We document it as such rather than claiming otherwise.
 - An earlier Rust implementation (~5,000 lines, 119 passing tests) targeted the
   wrong execution environment and does not deploy. It survives as an executable
   specification and a differential-testing oracle, nothing more.
-- The oracle construction in §3 is derived from KIP text and has **not been
-  validated by anyone who wrote those KIPs.** That is the first thing we want.
-- Three sizing questions are unresolved: the compute-mass ceiling on input count,
-  SilverScript script size limits, and block inclusion for a several-hundred-input
-  sweep transaction (§7.1).
+- The oracle construction in §3 has been implemented, compiled and measured
+  against the real Kaspa mainnet script engine (§7.1), but it has **not been
+  reviewed by anyone who wrote those KIPs.** A local engine agreeing with our
+  reading is not the same as a core developer agreeing with it. That review is
+  still the first thing we want.
+- One sizing question remains unresolved: block inclusion for a several-hundred-
+  input sweep transaction under contention, which requires Testnet-10 (§7.1).
+- The measurement surfaced a constraint we had not anticipated: `covenant_id`
+  cannot be a compile-time constant, so each vault must carry the oracle identity
+  in its own state. **What guarantees a vault is bound to the correct oracle at
+  creation is not yet specified.** On immutable code that is a security question,
+  and it is open.
+- Which of the two oracle variants to deploy is not decided. The trade-off is
+  measurable and we have not finished measuring it.
 - Recovery Mode is unavailable on L1. Per §4 this costs essentially nothing, but it
   is a real difference from Liquity.
 - Being first on these primitives is a risk, not a feature. Immutable code plus
@@ -270,21 +279,41 @@ sufficient for serious financial applications.
 
 ### 7.1 First — a technical answer, not funding
 
-Four questions. Any core developer can answer them, and they decide whether this
-project proceeds:
+We asked four questions on
+[`kaspanet/kips` issue #46](https://github.com/kaspanet/kips/issues/46). Rather than
+wait, we answered three of them ourselves — by writing the construction in Argent,
+compiling it, and executing it through the real Kaspa mainnet script engine with
+`argent-runtime` and `MassCalculator`. The full report and reproduction steps are in
+`docs/design/GITHUB-ISSUE-46-UPDATE.md` and posted on the issue.
 
-1. **Is the §3 oracle construction sound?** Specifically: can a covenant reliably
-   verify `OpInputCovenantId` on a sibling input, and does the one-to-many split
-   preserve `covenant_id` across all authorised children as we read KIP-20 to say?
-2. **What is the compute-mass ceiling on input count** when every input executes a
-   covenant script? This sets the maximum N and we could not establish it.
-3. **What are SilverScript's script size limits?** The USE branch must scan inputs
-   for the vault lineage — a loop plus comparisons.
-4. **Is a several-hundred-input sweep transaction reliably includable**, or will it
-   be crowded out?
+| | Question | What we measured |
+|---|---|---|
+| Q1a | Sibling input `covenant_id` observable? | **Yes** |
+| Q1b | 1→N split preserves `covenant_id`? | **Yes** |
+| Q1c | `covenant_id` as a compile-time constant? | **No** — new constraint |
+| Q2 | Ceiling on N per round | **640** / **530**, bounded by transient mass |
+| Q3 | Script size | 0.1% of the limit |
+| Q4 | Block inclusion under contention | **Open** — Testnet-10 |
 
-If the answer to (1) is no, this proposal ends and we deploy elsewhere or wait. We
-would rather learn that from you now than from an auditor in six months.
+**What we are asking of you is therefore narrower than it was, and different in
+kind.** Not "please answer these for us", but:
+
+1. **Is our reading correct?** A local engine executing our scripts is strong
+   evidence, not authority. We would like the people who wrote KIP-10 and KIP-20 to
+   say whether the construction is what those KIPs intend, or whether we have found
+   a behaviour that happens to work and is not guaranteed.
+2. **Q1c — is the state-field binding the intended pattern?** Since `covenant_id`
+   cannot be a compile-time constant, each vault carries the oracle identity in its
+   own state. We do not yet know what should guarantee a vault is bound to the
+   correct oracle at creation, and we would rather be told than invent it.
+3. **Q4 — block inclusion.** A round at N=640 consumes 99.6% of one block's
+   transient mass. Is that acceptable in practice, and what happens under
+   contention? This needs Testnet-10 and, ideally, your view on whether the
+   cadence model (one block per oracle round) is sane.
+
+If the answer to (1) is that we have misread the KIPs, this proposal ends and we
+deploy elsewhere or wait. We would rather learn that from you now than from an
+auditor in six months.
 
 ### 7.2 Then — audit partnership
 

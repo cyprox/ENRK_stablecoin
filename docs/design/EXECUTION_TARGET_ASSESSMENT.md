@@ -211,14 +211,26 @@ and publish the reasoning. That does not pretend the bridge is safe; it sizes th
 protocol so the bridge cannot become a trap, converting an unbounded hidden risk into
 a bounded disclosed one. Or wait for a KIP-16 trustless bridge.
 
-**Nothing else is open.** The layer decision is one external answer away, and no
-further design work proceeds until it arrives.
+**Nothing else is open.** The layer decision is one external confirmation away.
+The reading of the KIPs has since been tested by compilation and measurement rather
+than left as a reading — see §9 and `docs/design/GITHUB-ISSUE-46-UPDATE.md`.
 
 ## 9. What remains unknown
 
-- **The oracle construction itself.** Issue #46, questions 1 and 2. This is the gate.
-- **Sizing on L1:** compute-mass ceiling on input count, SilverScript script-size
-  limits, block inclusion for a several-hundred-input sweep. Issue #46, questions 3–5.
+- ~~**The oracle construction itself.**~~ **Measured, September 6, 2026.** A
+  covenant can observe a sibling input's `covenant_id`, and the 1→N split preserves
+  it across authorised children — both verified by compiling two variants in Argent
+  and executing them through the real Kaspa mainnet script engine. Core-developer
+  confirmation has not arrived, so this is established locally, not endorsed.
+- ~~**Sizing on L1.**~~ **Mostly resolved.** N ceiling 640 (variant A) / 530
+  (variant B), bounded by transient mass rather than compute mass; script size
+  negligible at 0.1% of the limit. **Block inclusion under contention remains open**
+  and requires Testnet-10.
+- **New: the oracle identity binding (Q1c).** `covenant_id` cannot be a
+  compile-time constant, so each vault carries it in its own state. Nothing yet
+  specifies what guarantees a vault is bound to the correct oracle at creation.
+- **New: variant A or B.** Measurable, not yet measured. See
+  `L1_NATIVE_REDUCED_SPEC` §2.5.2.
 - ~~**KAT Bridge**: operator, custody model, security.~~ **Resolved.** Operationally
   far better than the Guardians route — 2–5 minutes, published contracts, four audits,
   continuous public reserve reconciliation — but a **3-of-5 threshold whose five
