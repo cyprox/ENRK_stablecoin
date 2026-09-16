@@ -2,6 +2,13 @@
 
 This is a response to [kaspanet/kips#46](https://github.com/kaspanet/kips/issues/46) with compiled evidence, not arguments.
 
+> **Re-measured September 15, 2026** on Argent `e76ee07` with the released
+> Silverscript v1.0.0. Every row in this document reproduces to the unit. Three
+> corrections have been applied below, and one defect in the published
+> reproduction procedure is recorded in
+> [`REMEASUREMENT-2026-09-15.md`](REMEASUREMENT-2026-09-15.md) §5.1. That
+> document is authoritative on method and on the current toolchain.
+
 ## Methodology
 
 Two Argent applications were written to embody the oracle and vault structure in the ENRK specification section 2:
@@ -52,6 +59,13 @@ Both outputs are bound to the same `covenant_id` at creation time. The compiler 
 
 **Answer: 640 for variant A, 530 for variant B.** Both limits are imposed by the Toccata transient mass constraint, not by script execution.
 
+*Correction, September 15, 2026.* 640 and 530 are rungs of the test ladder, not
+maxima. Measuring the marginal cost per input over ten points and removing the
+fixed transaction cost (94 compute, 376 transient) gives true ceilings of
+**642** for variant A and **532** for variant B. Compute mass would have allowed
+658 and 595. The finding is unchanged and the published figures are mildly
+conservative.
+
 The difference arises because variant B's state includes an extra `price: int` field, increasing the signature script size per entry. Transient mass is calculated as tx size × cofactors, and is exhausted before compute mass or script size.
 
 **Measurements from `oracle_round_scaling` test:**
@@ -71,7 +85,7 @@ Variant B (price in state field):
 | 530 | 444 764 | 994 656 | 0 |
 | 540 | — | **1 013 416** (fails) | — |
 
-**The bottleneck is transaction size, not script execution.** Compute mass remains 3–4 % under limit at both breaking points. Transient mass grows at ~1 556 sompi/byte for A and ~1 866 for B as signature scripts accumulate.
+**The bottleneck is transaction size, not script execution.** Compute mass remains 3–4 % under limit at both breaking points. Transient mass grows at **1 556 units per input for A and 1 876 for B** as signature scripts accumulate, on a fixed transaction cost of 376. (Both figures are exact, not approximate; an earlier text gave 1 866 for B, which the tables above already contradict.)
 
 ### Question 3: How large are the generated scripts?
 
@@ -121,10 +135,13 @@ Variant A encodes the price in the UTXO amount; variant B encodes it in state. T
 **The KIP-9 storage mass formula** charges based on input vs. output amounts. For variant A, when the price falls (output amounts decrease), KIP-9 charges storage mass:
 
 ```
-storage_mass = max(0, C · (|O| / H(O) - |I| / A(I)))
+storage_mass = C · ( Σ(1/o) − |I|²/Σ(v) )⁺        C = storage_mass_parameter
 ```
 
-where C = storage_mass_parameter, and H and A are harmonic means of amounts.
+For N inputs of value `a` and N outputs of value `b` this reduces to
+`C · N · (1/b − 1/a)⁺`. (An earlier version of this section rendered the formula
+in terms of harmonic means; the numbers in the table below were always computed
+from the canonical form above.)
 
 **Storage mass incurred per round transition, by price ratio k and N:**
 
@@ -150,11 +167,25 @@ This is the measured form of the KIP-9 asymmetry claimed in L1-Native-Reduced-Sp
 
 **Question 1c (newly surfaced)**: Can the observed oracle's `covenant_id` be constrained at vault creation time?
 
-The Argent language requires the ID to be a dynamic field (`self.oracle_covid`) or entry argument, not a compile-time constant (see `probe_const_covid.ag` for the probe). A vault could be created with a forged oracle reference. Genesis covenant controls could enforce correct initialization, but this requires a separate design.
+The Argent language requires the ID to be a dynamic field or entry argument, not
+a compile-time constant. Re-verified under Silverscript v1.0.0 on September 15,
+2026; the compiler now states the constraint itself:
+
+```
+argentc: entry `Probe::touch` observe `oracle` covenant id source must be
+a `self.<field>` state field or entry argument of type `cov_id`
+```
+
+A vault could be created with a forged oracle reference. Genesis covenant
+controls — Argent's `spawns … by …`, where consensus derives the child's
+covenant id from the parent's outpoint — are the candidate mechanism. The
+question has since been reframed: the binding that must be secured is
+**asset → vault**, not vault → oracle. See
+[`ORACLE-BINDING.md`](ORACLE-BINDING.md).
 
 **Question 4 (refined from "will it be included?" to "what is the achievable cadence?")**: 
 
-On Testnet-10, what is the maximum frequency at which 640-entry rounds can propagate? At ~10 seconds per block, the theoretical maximum is one full round per block, or ~once per 10 seconds on average. Actual throughput depends on network propagation, block times, and competing transaction demand. This is now a well-formed empirical question.
+On Testnet-10, what is the maximum frequency at which full-N rounds can propagate? Kaspa runs at **10 blocks per second**, so the theoretical maximum is one full round per block, or roughly **one per 100 milliseconds** — and about one per 10 ms at the planned 100 BPS. (An earlier version of this paragraph said "~10 seconds per block", contradicting the Key Finding section above by a factor of 100. The 10 BPS figure is the correct one.) Actual throughput depends on network propagation and competing transaction demand. This is now a well-formed empirical question.
 
 **Variant selection decision point**: 
 
@@ -185,6 +216,13 @@ argentc inspect /tmp/a_oracle
 ```bash
 ENRK_ORACLE=examples/enrk/a/oracle.ag cargo test --test enrk_mass oracle_round_scaling -- --nocapture
 ```
+
+> **The harness as committed on September 6 fails at N = 2.** It binds every
+> output to authorizing input 0, while the generated `use` entry requires each
+> input to authorize exactly one output. The working copy that produced the
+> tables above was not the copy that was committed. See
+> [`REMEASUREMENT-2026-09-15.md`](REMEASUREMENT-2026-09-15.md) §5.1 for the
+> one-line fix. Until it is applied, these steps do not reproduce.
 
 All measurements use `argent-runtime` and `rusty-kaspa` mainnet script engine with actual consensus constants. No mocks, no approximations.
 

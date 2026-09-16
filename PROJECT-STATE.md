@@ -1,6 +1,6 @@
 # ENRK — Project State
 
-**Last updated:** September 8, 2026
+**Last updated:** September 15, 2026
 **Author:** cyprox
 **Repository:** https://github.com/cyprox/ENRK_stablecoin
 
@@ -35,13 +35,20 @@ KIP-20), compiled, and executed through the real Kaspa mainnet script engine via
 | Q1a | Can a covenant observe a sibling input's `covenant_id`? | **Yes** |
 | Q1b | Does the 1→N split preserve `covenant_id` across children? | **Yes** |
 | Q1c | Can `covenant_id` be a compile-time constant? | **No** — newly surfaced |
-| Q2 | Ceiling on N per oracle round | **640** (variant A) / **530** (variant B), bounded by transient mass, not compute mass |
+| Q2 | Ceiling on N per oracle round | **642** (variant A) / **532** (variant B), bounded by transient mass, not compute mass |
 | Q3 | SilverScript / Argent script size | Negligible — 1,046 B and 1,206 B, 0.1% of the 1 MB limit |
 | Q4 | Block inclusion under contention | **Open** — requires Testnet-10 |
 
 Method, tables and reproduction instructions: `docs/design/GITHUB-ISSUE-46-UPDATE.md`.
 Source under `examples/enrk/` and `tests/enrk_mass.rs`. Published as two comments on
 issue #46 on September 6, 2026.
+
+**Re-measured September 15, 2026** against Argent `e76ee07` and the released
+Silverscript v1.0.0. Every published figure reproduced to the unit, so Q1a, Q1b,
+Q2 and Q3 stand on a toolchain two revisions and one language release later. The
+exercise also found three defects in this repository and one claim the generated
+code contradicts. Full record, corrections and reproduction:
+[`docs/design/REMEASUREMENT-2026-09-15.md`](docs/design/REMEASUREMENT-2026-09-15.md).
 
 **Status: measured, awaiting confirmation.** The construction holds as far as a
 local mainnet engine can establish. What has not happened is a core developer
@@ -51,10 +58,27 @@ saying so, and the KEF ask still depends on that.
 
 1. **Q1c — where the oracle identity lives.** The oracle's `covenant_id` cannot be
    frozen into the vault script as a compile-time constant; the compiler requires a
-   state field or an argument. The vault therefore carries the oracle identity in
-   its own state, fixed at vault creation. **What guarantees it is the right oracle
-   at that moment is not yet specified.** On immutable code this is a security
-   question, not a formatting one, and it is unresolved.
+   state field or an argument. Reframed on September 15: the binding that must be
+   secured is **asset → vault**, not vault → oracle, because a forged vault is
+   inert unless it can mint real ENRK — and a `MinterProxy` holds exactly one
+   covenant id, so a permissionless vault population needs a common ancestor that
+   every mint would contend on. Michael Sutton pointed at Argent's open-ICC
+   `spawns` pattern for the lineage primitive; Argent's own docs record the
+   KCC20 bootstrap and launch proofs as unimplemented follow-ups. See
+   [`docs/design/ORACLE-BINDING.md`](docs/design/ORACLE-BINDING.md).
+   **Unresolved.**
+
+1b. **The round transition is not atomic as written.** `sweep` emits two outputs,
+   not N. The atomicity that removes the stale-price window in
+   `L1_NATIVE_REDUCED_SPEC` §2.3 does not follow from a binary split. Open design
+   decision, and it gates the next measurement.
+
+1c. **Two undefined behaviours in our own Argent sources.** `icr_percent` divides
+   by an unchecked `debt` and overflows above ~9.2 KAS of collateral, in both
+   variants and both entries. The compiler accepts it silently. On today's engine
+   both fail closed, so affected vaults become impossible to liquidate or withdraw
+   from rather than exploitable — the freeze, reached by arithmetic. See
+   [`docs/design/UNDEFINED-BEHAVIOUR-EXPOSURE.md`](docs/design/UNDEFINED-BEHAVIOUR-EXPOSURE.md).
 
 2. **Variant A or B — not decided.** A allows roughly 21% more N in calm markets.
    B incurs zero storage mass under any price movement, where A incurs 711,040
@@ -93,6 +117,13 @@ Full justifications: [`docs/design/FROZEN_PARAMETERS.md`](docs/design/FROZEN_PAR
 1. Execution layer — Kaspa L1 covenants vs Igra EVM
 2. Fee destination after the treasury cap — burn on L1, pro-rata reserve on Igra
 3. Stability Pool — fix it or remove it
+
+Independent of the layer, and opened by the September 15 re-measurement:
+
+4. The form of the oracle round transition (binary sweep, or N sweeps batched)
+5. The asset → vault minting binding
+6. An arithmetic discipline for immutable Argent code, and its audit scope
+7. The mass cost of the liquidation transaction, never measured
 
 ---
 
@@ -139,6 +170,9 @@ built only on shipped opcodes, which reopened an L1 path previously declared clo
 | [`docs/design/REDEMPTION-ANALYSIS.md`](docs/design/REDEMPTION-ANALYSIS.md) | Mechanism #1: its structural limit, and the halved losses |
 | [`docs/design/PHASE_4_ARCHITECTURE_PROPOSAL.md`](docs/design/PHASE_4_ARCHITECTURE_PROPOSAL.md) | The double-bookkeeping problem, the master invariant, the seniority waterfall |
 | [`docs/design/Immutable-By-Design.md`](docs/design/Immutable-By-Design.md) | Why there is no governance, what is frozen, and what forking replaces it with |
+| [`docs/design/REMEASUREMENT-2026-09-15.md`](docs/design/REMEASUREMENT-2026-09-15.md) | **The current state of the measurement.** Re-measurement on Argent `e76ee07` + Silverscript v1.0.0, corrections, what is open and in what order. Start here to resume the work. |
+| [`docs/design/UNDEFINED-BEHAVIOUR-EXPOSURE.md`](docs/design/UNDEFINED-BEHAVIOUR-EXPOSURE.md) | Line-by-line audit of both variants against Silverscript's undefined-behaviour specification |
+| [`docs/design/ORACLE-BINDING.md`](docs/design/ORACLE-BINDING.md) | Q1c reframed: the asset → vault binding, Argent's `spawns` lineage, and what Argent does not yet provide |
 | [`docs/design/GITHUB-ISSUE-46-UPDATE.md`](docs/design/GITHUB-ISSUE-46-UPDATE.md) | Oracle validation: method, tables, the KIP-9 asymmetry, reproduction steps |
 | [`docs/design/GITHUB-ISSUE-46-COMMENT.md`](docs/design/GITHUB-ISSUE-46-COMMENT.md) | The same, as summarised for issue #46 |
 | [`docs/design/PEG-FORMULA-RECOMMENDATION.md`](docs/design/PEG-FORMULA-RECOMMENDATION.md) | The chosen peg formula, its calibration, and the black scenarios |
@@ -157,10 +191,18 @@ variants) and `tests/enrk_mass.rs` (the mass measurement harness).
 **No prior art.** Nobody has shipped a CDP stablecoin on Kaspa covenants. First of
 its kind plus never-patchable is the combination that should worry us most.
 
-**Almost no auditors.** SilverScript is three months old. This is very likely the
-real blocker, regardless of any technical answer — and it is the argument the
-ecosystem proposal is built on: the first covenant audit produces a methodology the
-whole ecosystem inherits.
+**Almost no auditors.** Silverscript reached **v1.0.0 on September 9, 2026**, with
+a tagged release and an explicit SemVer commitment — a real improvement over
+building on a moving `master`. But the release notes describe a review, testing
+and standardisation process, not an audit; the word does not appear in the release
+notes or anywhere in the repository, `SECURITY.md` at the tagged commit still
+calls the language experimental, and no audit report was found. Argent states of
+itself that it needs its own audit after Silverscript's. So the risk changes shape
+rather than going away: **nobody has audited a Silverscript covenant system for
+immutable deployment**, and an ENRK audit must cover two layers, our source and
+Argent's lowering. This remains very likely the real blocker, and it is the
+argument the ecosystem proposal is built on: the first covenant audit produces a
+methodology the whole ecosystem inherits.
 
 **Model assumptions.** Two parameters dominate the stress test:
 `impact_coefficient` (0.08) and `daily_liquidation_capacity` (5% of debt per day).

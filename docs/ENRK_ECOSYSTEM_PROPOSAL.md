@@ -243,10 +243,20 @@ We document it as such rather than claiming otherwise.
   and it is open.
 - Which of the two oracle variants to deploy is not decided. The trade-off is
   measurable and we have not finished measuring it.
+- The round transition is **not atomic as written**: `sweep` emits two outputs,
+  not N. The stale-price-free property in §3.3 does not follow from a binary
+  split, and the form of the transition is an open design decision.
+- Our own Argent sources contain two reachable undefined behaviours in the ICR
+  computation, accepted by the compiler without a diagnostic. On the current
+  engine they fail closed. We publish this rather than fix it quietly; see
+  `docs/design/UNDEFINED-BEHAVIOUR-EXPOSURE.md`.
+- Silverscript reached v1.0.0 on September 9, 2026. Its release describes a
+  review process, not an audit, and no audit report exists.
 - Recovery Mode is unavailable on L1. Per §4 this costs essentially nothing, but it
   is a real difference from Liquity.
-- Being first on these primitives is a risk, not a feature. Immutable code plus
-  three-month-old primitives plus no auditors with covenant experience is a
+- Being first on these primitives is a risk, not a feature. Immutable code, plus
+  primitives nobody has shipped a CDP stablecoin on, plus a language that reached
+  v1.0.0 with no published audit, plus no auditors with covenant experience, is a
   combination we take seriously.
 
 ---
@@ -291,7 +301,7 @@ compiling it, and executing it through the real Kaspa mainnet script engine with
 | Q1a | Sibling input `covenant_id` observable? | **Yes** |
 | Q1b | 1→N split preserves `covenant_id`? | **Yes** |
 | Q1c | `covenant_id` as a compile-time constant? | **No** — new constraint |
-| Q2 | Ceiling on N per round | **640** / **530**, bounded by transient mass |
+| Q2 | Ceiling on N per round | **642** / **532**, bounded by transient mass |
 | Q3 | Script size | 0.1% of the limit |
 | Q4 | Block inclusion under contention | **Open** — Testnet-10 |
 

@@ -245,13 +245,29 @@ therefore costs nothing.
 ## 10. Still open
 
 1. **Execution layer** — Kaspa L1 covenants vs Igra EVM. The oracle construction
-   was measured on September 6, 2026 and holds (Q1a, Q1b yes; N = 640/530; script
-   size negligible). Awaiting core-developer confirmation, and Q4 (block inclusion
-   under contention) still requires Testnet-10.
+   was measured on September 6, 2026 and re-measured on September 15 against
+   Argent `e76ee07` and Silverscript v1.0.0, where every figure reproduced
+   (Q1a, Q1b yes; true ceilings N = 642/532; script size negligible). Awaiting
+   core-developer confirmation, and Q4 (block inclusion under contention) still
+   requires Testnet-10. See
+   [`REMEASUREMENT-2026-09-15.md`](REMEASUREMENT-2026-09-15.md).
 2. **Oracle identity binding (Q1c)** — `covenant_id` cannot be a compile-time
-   constant, so the vault carries it in its own state. What guarantees a vault is
-   created against the correct oracle is unspecified. **New, and a security
-   question on immutable code.**
+   constant, so the vault carries it in its own state. Reframed on September 15:
+   the binding to secure is **asset → vault**, since a forged vault is inert
+   unless it can mint real ENRK, and a single-id `MinterProxy` forces a common
+   ancestor that every mint would contend on. See
+   [`ORACLE-BINDING.md`](ORACLE-BINDING.md). **A security question on immutable
+   code, and unsolved.**
+2b. **Undefined behaviour in the Argent sources** — `icr_percent` divides by an
+   unchecked `debt` and overflows above ~9.2 KAS of collateral, in both variants
+   and both entries; the compiler accepts it without a diagnostic. On the current
+   mainnet engine both fail closed, which makes affected vaults impossible to
+   liquidate or withdraw from rather than exploitable. An arithmetic discipline
+   must be written into this specification and into the audit scope. See
+   [`UNDEFINED-BEHAVIOUR-EXPOSURE.md`](UNDEFINED-BEHAVIOUR-EXPOSURE.md).
+2c. **The form of the round transition** — `sweep` as written is a 1→2 split, so
+   the atomic round transition claimed in `L1_NATIVE_REDUCED_SPEC` §2.3 does not
+   hold as written. Design decision, gates the next measurement.
 3. **Oracle variant A or B** — A allows ~21% more N; B incurs zero storage mass
    under a falling price and locks negligible capital. Not decided.
 4. **Fee destination after the treasury cap** (§7) — burn on L1, pro-rata reserve on

@@ -139,9 +139,22 @@ must recreate what they consume. The feed cannot be drained. Condition (a)
 additionally forces the attacker to touch a real vault, so the feed cannot be
 spammed for free either.
 
-**Freshness** — sweep and republish happen in a **single transaction**: round R's
-UTXOs are consumed and round R+1's are created atomically. There is no instant at
-which both rounds exist, so there is no stale-price window at all.
+**Freshness** — sweep and republish are intended to happen in a **single
+transaction**: round R's UTXOs are consumed and round R+1's are created
+atomically. There is no instant at which both rounds exist, so there is no
+stale-price window at all.
+
+> **This property does not hold for the construction as currently written.**
+> Measured September 15, 2026: `sweep` in both variants emits exactly two outputs
+> (`left`, `right`), and the generated Silverscript requires
+> `OpAuthOutputCount(this.activeInputIndex) == 2`. The split is **binary**, so
+> reaching N children from one parent takes ⌈log₂ N⌉ successive sweeps and
+> therefore several transactions — which is the opposite of atomic. Batching N
+> independent sweeps into one transaction is the obvious candidate and has the
+> same shape as the validated USE ladder, but it has never been measured and the
+> contract does not express it. **The form of the round transition is an open
+> design decision.** See [`REMEASUREMENT-2026-09-15.md`](REMEASUREMENT-2026-09-15.md)
+> §6.1.
 
 ### 2.4 Why the atomic round transition is free — KIP-9
 
@@ -186,16 +199,23 @@ On September 6, 2026 the construction was implemented in Argent
 mainnet script engine via `argent-runtime` and `MassCalculator`. The sizing
 questions below are no longer estimates.
 
+**Re-measured September 15, 2026** on Argent `e76ee07` with the released
+Silverscript v1.0.0. Every figure reproduces; the variant B column below has been
+corrected for three transcription errors, and the ceilings are now the true
+maxima rather than ladder rungs. Method, corrections and the defect found in the
+published harness are in
+[`REMEASUREMENT-2026-09-15.md`](REMEASUREMENT-2026-09-15.md).
+
 **Variant A** encodes the price in the UTXO amount. **Variant B** carries it as a
 typed state field. Both compiled on the first attempt.
 
 | | Variant A | Variant B |
 |---|---|---|
-| Ceiling on N per round | **640** | **530** |
+| Ceiling on N per round | **642** | **532** |
 | Binding constraint | transient mass | transient mass |
-| Compute mass per input | ~759 | ~849 |
-| Transient mass per input | ~1,556 | ~1,866 |
-| Signature script | 248 B | 262 B |
+| Compute mass per input | 759 | 839 |
+| Transient mass per input | 1,556 | 1,876 |
+| Signature script | 248 B | 328 B |
 | Total script size | 1,046 B | 1,206 B |
 
 1. **Compute mass — answered, and it is not the ceiling.** The binding constraint
@@ -214,7 +234,13 @@ typed state field. Both compiled on the first attempt.
 
 A question nobody had asked was answered by the compiler refusing to build:
 **`covenant_id` cannot be a compile-time constant.** `probe_const_covid.ag` is
-rejected; the compiler requires a state field or an argument.
+rejected. Re-verified under Silverscript v1.0.0 on September 15, 2026, where the
+compiler states the constraint itself:
+
+```
+argentc: entry `Probe::touch` observe `oracle` covenant id source must be
+a `self.<field>` state field or entry argument of type `cov_id`
+```
 
 The consequence is structural, not cosmetic. §2.2 above previously assumed the
 oracle's `covenant_id` could be frozen into every vault script at compile time,
@@ -396,16 +422,36 @@ The gating problem — oracle freshness — is **resolved** (§2.3, §2.4). What
 2. **No prior art.** Nobody has shipped a CDP stablecoin on these primitives.
    First-of-its-kind plus never-patchable is the combination that should worry us
    most.
-3. **Q1c — the oracle identity binding** (§2.5.1). The vault carries the oracle
-   `covenant_id` in its own state; nothing yet specifies what guarantees it is the
-   right oracle at vault creation. This is the only *new* problem the measurement
-   created, and it is a security one.
+3. **Q1c — the oracle identity binding** (§2.5.1), now reframed. The binding that
+   must be secured is **asset → vault**, not vault → oracle: a forged vault harms
+   only its creator unless it can mint real ENRK. A `MinterProxy` stores exactly
+   one covenant id, so a permissionless population of independent vaults needs a
+   common ancestor — which every mint would have to co-spend, reintroducing the
+   contention the 1→N construction exists to avoid. Argent's `spawns … by …`
+   supplies the lineage primitive; its own docs record the KCC20 bootstrap and
+   launch proofs as unimplemented follow-ups. See
+   [`ORACLE-BINDING.md`](ORACLE-BINDING.md).
 4. **Variant A or B** (§2.5.2). Measurable, not yet measured.
 5. **Block inclusion under contention** (§2.5). Testnet-10 required.
 6. **Stability Pool via delegation.** Worth a design attempt, but low priority
-   given §6.2.
+   given §6.2. **Constraint:** any delegation design must leave `PriceRound`
+   non-leader. Argent `e76ee07` requires `|I(c)| = 1` — one input per covenant id
+   per transaction — for a `consumes`-free ordinary entry on a leader actor. If
+   the oracle ever declares a `delegate` entry, the 1→N construction dies.
 
-~~Compute mass ceiling on N~~ — **resolved.** 640 / 530, bounded by transient mass
+7. **The form of the round transition** (§2.3). Binary sweep without atomicity,
+   or N sweeps batched into one transaction. Gates the next measurement.
+
+8. **The cost of the liquidation transaction.** Never measured. A vault input is
+   815–912 B of signature script against 248–328 B for an oracle `use`. N = 642 is
+   the ceiling on a pure oracle round, not on the path the protocol runs.
+
+9. **Undefined behaviour.** `icr_percent` contains two reachable undefined
+   behaviours — an unchecked divisor and an overflow above ~9.2 KAS of collateral
+   — in both variants and both entries, accepted by the compiler without a
+   diagnostic. See [`UNDEFINED-BEHAVIOUR-EXPOSURE.md`](UNDEFINED-BEHAVIOUR-EXPOSURE.md).
+
+~~Compute mass ceiling on N~~ — **resolved.** 642 / 532, bounded by transient mass
 (§2.5).
 ~~Script size limits~~ — **resolved.** 0.1% of the limit (§2.5).
 

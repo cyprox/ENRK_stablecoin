@@ -224,13 +224,17 @@ than left as a reading — see §9 and `docs/design/GITHUB-ISSUE-46-UPDATE.md`.
   it across authorised children — both verified by compiling two variants in Argent
   and executing them through the real Kaspa mainnet script engine. Core-developer
   confirmation has not arrived, so this is established locally, not endorsed.
-- ~~**Sizing on L1.**~~ **Mostly resolved.** N ceiling 640 (variant A) / 530
+- ~~**Sizing on L1.**~~ **Mostly resolved.** N ceiling 642 (variant A) / 532
   (variant B), bounded by transient mass rather than compute mass; script size
-  negligible at 0.1% of the limit. **Block inclusion under contention remains open**
-  and requires Testnet-10.
+  negligible at 0.1% of the limit. Re-measured September 15, 2026 against Argent
+  `e76ee07` and Silverscript v1.0.0, reproducing to the unit — see
+  `docs/design/REMEASUREMENT-2026-09-15.md`. **Block inclusion under contention
+  remains open** and requires Testnet-10. **New:** these ceilings describe a pure
+  oracle round; the mass of a liquidation transaction has never been measured.
 - **New: the oracle identity binding (Q1c).** `covenant_id` cannot be a
-  compile-time constant, so each vault carries it in its own state. Nothing yet
-  specifies what guarantees a vault is bound to the correct oracle at creation.
+  compile-time constant, so each vault carries it in its own state. Reframed
+  September 15, 2026: the binding to secure is asset → vault, not vault → oracle.
+  See `docs/design/ORACLE-BINDING.md`.
 - **New: variant A or B.** Measurable, not yet measured. See
   `L1_NATIVE_REDUCED_SPEC` §2.5.2.
 - ~~**KAT Bridge**: operator, custody model, security.~~ **Resolved.** Operationally

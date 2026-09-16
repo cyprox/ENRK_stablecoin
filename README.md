@@ -23,7 +23,7 @@ four questions filed as
 | Q1a | Sibling input `covenant_id` observable? | **Yes** |
 | Q1b | 1→N split preserves `covenant_id`? | **Yes** |
 | Q1c | `covenant_id` as a compile-time constant? | **No** — new constraint |
-| Q2 | Ceiling on N per oracle round | **640** / **530**, bounded by transient mass |
+| Q2 | Ceiling on N per oracle round | **642** / **532**, bounded by transient mass |
 | Q3 | Script size | 0.1% of the 1 MB limit |
 | Q4 | Block inclusion under contention | **Open** — Testnet-10 required |
 
@@ -31,6 +31,13 @@ Method and reproduction:
 [`docs/design/GITHUB-ISSUE-46-UPDATE.md`](docs/design/GITHUB-ISSUE-46-UPDATE.md).
 Source under [`examples/enrk/`](examples/enrk/) and
 [`tests/enrk_mass.rs`](tests/enrk_mass.rs).
+
+**Re-measured on September 15, 2026** against Argent `e76ee07` and the released
+Silverscript v1.0.0: every published figure reproduced to the unit. The same
+exercise found three defects in this repository, including a published
+reproduction procedure that does not reproduce, and one claim the generated code
+contradicts. See
+[`docs/design/REMEASUREMENT-2026-09-15.md`](docs/design/REMEASUREMENT-2026-09-15.md).
 
 **A local engine agreeing with our reading is not a core developer agreeing with
 it.** Confirmation has not arrived. Two questions the measurement opened rather
@@ -177,8 +184,21 @@ tests/backtesting/            Stress test and Recovery Mode analysis (stdlib onl
   creation is not yet specified**, and on immutable code that is a security
   question.
 - Which of the two oracle variants to deploy is not decided.
-- Being first on these primitives is a risk, not a feature. Immutable code plus
-  three-month-old primitives plus no auditors with covenant experience is a
+- **The round transition is not atomic as written.** `sweep` emits two outputs,
+  not N, so the stale-price-free property claimed in the specification does not
+  follow from the construction as it stands. The form of the split is an open
+  design decision.
+- **Our own Argent sources contain two reachable undefined behaviours**, in the
+  ICR computation used by both vault entries of both variants, accepted by the
+  compiler without a diagnostic. On today's engine they fail closed, which makes
+  affected vaults impossible to liquidate rather than exploitable. Documented in
+  [`docs/design/UNDEFINED-BEHAVIOUR-EXPOSURE.md`](docs/design/UNDEFINED-BEHAVIOUR-EXPOSURE.md)
+  rather than fixed quietly.
+- The mass cost of a liquidation transaction has never been measured. The
+  published ceilings describe a pure oracle round.
+- Being first on these primitives is a risk, not a feature. Immutable code, plus
+  primitives nobody has shipped a CDP stablecoin on, plus a language that reached
+  v1.0.0 with no published audit, plus no auditors with covenant experience, is a
   combination taken seriously here.
 
 ---
@@ -188,6 +208,11 @@ tests/backtesting/            Stress test and Recovery Mode analysis (stdlib onl
 Two parameters dominate every stress-test figure: `impact_coefficient` (0.08,
 square-root law) and `daily_liquidation_capacity` (5% of debt per day). They are
 assumptions, not measurements. Vary them and re-run before trusting any number.
+
+One more, on the toolchain side: Silverscript reached v1.0.0 on September 9,
+2026, but its release describes a review process rather than an audit, and no
+audit report exists. Argent says of itself that it needs one after Silverscript's.
+Nobody has audited a Silverscript covenant system for immutable deployment.
 
 ---
 

@@ -1,0 +1,30 @@
+From: cyprox <enrk@kaspa.network>
+Subject: [PATCH] tests: bind each oracle output to its own authorizing input
+
+The committed harness binds every output to authorizing input 0. The
+generated `PriceRound::use` requires each input to authorize exactly one
+output, so `OpAuthOutputCount(0)` returns N instead of 1 and the ladder
+fails at N = 2 with "input 0 script failed: script ran, but verification
+failed".
+
+This check is present verbatim in the .sil fixtures committed at Argent
+d08e52d, so the committed harness could never have produced the published
+ladder on either revision. The working copy that produced it was not the
+copy that was committed.
+
+crates/argent-runtime/src/resolve.rs binds outputs to distinct authorizing
+inputs within a single transaction, so per-input binding is intended usage.
+CovenantBinding::new takes a u16 (consensus/core/src/tx.rs).
+
+With this applied, both variants validate the full ladder to N = 512 and
+reproduce every published figure to the unit.
+
+--- a/tests/enrk_mass.rs
++++ b/tests/enrk_mass.rs
+@@
+-        for _ in 0..n {
+-            context = context.actor_output("PriceRound", state.clone(), CovenantBinding::new(0, covenant_id), UTXO_VALUE);
+-        }
++        for index in 0..n {
++            context = context.actor_output("PriceRound", state.clone(), CovenantBinding::new(index as u16, covenant_id), UTXO_VALUE);
++        }
