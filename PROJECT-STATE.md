@@ -21,7 +21,7 @@ As written, a vault and an oracle price UTXO could not be co-spent: the vault de
 zero oracle outputs while every oracle spend creates one. With the oracle outputs
 declared in both vault entries, the lifecycle was executed on testnet-10 with real
 transactions: oracle genesis, vault genesis, a real liquidation, and oracle rounds of 64
-and 256 inputs, all confirmed. Inclusion near a full block (N ≈ 500–640) is untested.
+and 256 inputs, all confirmed. An N = 640 round (97.5 % of the compute limit) was also included on testnet-10; variant B was executed on chain for genesis, liquidation and a 64-input round.
 
 ---
 
@@ -44,7 +44,7 @@ KIP-20), compiled, and executed through the real Kaspa mainnet script engine via
 | Q1c | Can `covenant_id` be a compile-time constant? | **No** — newly surfaced |
 | Q2 | Ceiling on N per oracle round | **642** (variant A) / **532** (variant B), bounded by transient mass, not compute mass. No 100 k standard-mass cap exists after Toccata in rusty-kaspa v2.1.0 (audit P4); N = 256 was included on testnet-10 |
 | Q3 | SilverScript / Argent script size | Negligible — 1,046 B and 1,206 B, 0.1% of the 1 MB limit |
-| Q4 | Block inclusion under contention | **Partly answered** — N = 256 round (compute mass 195,930) included on testnet-10; N ≈ 500–640 not tested; mainnet contention not tested |
+| Q4 | Block inclusion under contention | **Answered on testnet-10, not on mainnet** — an N = 640 round (compute mass 487,386, 97.5 % of the limit) was included within about 8 seconds on a lightly loaded testnet; mainnet contention not tested; fee-paying input must be sized close to the price UTXOs (storage mass) |
 | Q5 (new) | Can a vault and an oracle price UTXO be co-spent? | **Refused as written; accepted once both vault entries declare the oracle outputs** (executed locally and on testnet-10, audit B1/P1) |
 
 Method, tables and reproduction instructions: `docs/design/GITHUB-ISSUE-46-UPDATE.md`.
