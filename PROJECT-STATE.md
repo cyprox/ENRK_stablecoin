@@ -116,6 +116,18 @@ language.
 
 ---
 
+## Test networks
+
+Testnet-10 is the network used so far (covenants and transaction v1 active; every
+on-chain result in the audit ran there). **It is not the only one**: Testnet-11 (10 blocks
+per second, Rust) and Testnet-12 (the experimental covenants network, run from the `tn12`
+branch of rusty-kaspa with `--netsuffix=12`) exist, but no public node, API or confirmed
+faucet for either was reachable on November 10, 2026. Decision of the owner: stay on
+Testnet-10 while it gives clean results, move to the others later if needed. Details and
+sources: [`docs/design/AUDIT-2026-11-09.md`](docs/design/AUDIT-2026-11-09.md) §13.3b.
+
+---
+
 ## Decided and frozen
 
 | | |
