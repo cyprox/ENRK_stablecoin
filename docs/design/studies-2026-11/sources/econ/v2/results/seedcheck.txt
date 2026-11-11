@@ -1,0 +1,3 @@
+seed 1 b_ORA:+68% c_y50:+90% d_ORA_y50:+11% d_RV_y50:+1% e_ctrl:+0%
+seed 2 b_ORA:+67% c_y50:+89% d_ORA_y50:+10% d_RV_y50:+3% e_ctrl:-1%
+seed 3 b_ORA:+69% c_y50:+89% d_ORA_y50:+11% d_RV_y50:+4% e_ctrl:+2%

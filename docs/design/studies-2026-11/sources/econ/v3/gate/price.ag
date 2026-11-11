@@ -1,0 +1,58 @@
+// ENRK price UTXO (feasibility snippet, NOT a design decision). Single publisher key.
+// price = ENRK per 1 index unit, scaled 1e8 (units are a placeholder; see report).
+// Constants are TEST values, not proposals.
+const int MAX_MOVE_BPS = 200;        // max relative move per update, basis points
+const int MIN_GAP_DAA = 100;         // min DAA-score gap between two updates of one lineage
+const int PRICE_MAX = 1000000000000; // 1e12: keeps price * 10000 far below 2^63
+const int DAA_DOMAIN_MAX = 500000000000; // lock_time below this is read as DAA score
+
+state EnrkPriceState {
+    pubkey publisher;
+    int round;
+    int price;
+    int stamp;   // lock_time (DAA domain) written at the last update
+}
+
+actor EnrkPrice owns EnrkPriceState {
+    // Anyone may co-spend, must recreate unchanged (same as the KAS oracle).
+    entry use() emits next: EnrkPrice {
+        require(next.value == self.value);
+        become next <- self;
+    }
+
+    // Publisher republishes: 1 -> 2 split, value conserved (price is state).
+    entry update(sig publisher_sig, int next_price, int left_value) emits {
+        left: EnrkPrice,
+        right: EnrkPrice,
+    } {
+        require(checkSig(publisher_sig, publisher));
+        require(price > 0);
+        require(price <= PRICE_MAX);
+        require(next_price > 0);
+        require(next_price <= PRICE_MAX);
+        // bounded move, cross-multiplied (no division)
+        require(next_price * 10000 <= price * (10000 + MAX_MOVE_BPS));
+        require(next_price * 10000 >= price * (10000 - MAX_MOVE_BPS));
+        // clock: consensus gives lock_time <= real DAA (finality) and CLTV gives >= stamp + gap
+        require(tx.daa >= stamp + MIN_GAP_DAA);
+        int now_c = OpTxLockTime();
+        require(now_c < DAA_DOMAIN_MAX);
+        require(left_value > 0);
+        require(left_value < self.value);
+        require(left.value == left_value);
+        require(right.value == self.value - left_value);
+
+        EnrkPriceState next_state = {
+            publisher: publisher,
+            round: round + 1,
+            price: next_price,
+            stamp: now_c,
+        };
+        become {
+            left <- EnrkPrice(next_state),
+            right <- EnrkPrice(next_state),
+        };
+    }
+}
+
+app EnrkPriceFeed { actor EnrkPrice; }

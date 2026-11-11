@@ -1,0 +1,26 @@
+// v4 P7/P16 bench: stability-fee accrual debt * r * dt / (YEAR * 1e9), naive vs hi/lo split. Test constants.
+const int YEAR = 31536000;
+const int GIGA = 1000000000;
+const int DEBT_MAX = 1000000000000000000;  // 1e18 units [bound under test]
+const int R_MAX = 1000000000;
+const int DT_LIM = 63072000;               // 2 years in seconds [bound under test]
+state AccState { int debt; int r; int dt; int expect; }
+actor Acc owns AccState {
+    fn naive(int dd, int rr, int tt) -> int { return dd * rr * tt / YEAR / GIGA; }
+    fn split(int dd, int rr, int tt) -> int {
+        int dh = dd / GIGA;
+        int dl = dd % GIGA;
+        int a = dh * rr + dl * rr / GIGA;     // annual fee in units (floor)
+        int ah = a / YEAR;
+        int al = a % YEAR;
+        return ah * tt + al * tt / YEAR;      // pro-rated (floor)
+    }
+    entry naive_e() emits none { require(naive(debt, r, dt) == expect); }
+    entry split_e() emits none {
+        require(debt >= 0); require(debt <= DEBT_MAX);
+        require(r >= 0); require(r <= R_MAX);
+        require(dt >= 0); require(dt <= DT_LIM);
+        require(split(debt, r, dt) == expect);
+    }
+}
+app AccApp { actor Acc; }

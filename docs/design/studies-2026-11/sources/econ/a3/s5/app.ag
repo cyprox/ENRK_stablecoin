@@ -1,0 +1,32 @@
+import "./tok.ag";
+const int IDX_SCALE = 1000000000000;
+state PoolState { cov_id tok_covid; int idx; int supply; }
+state PayState { pubkey owner; }
+actor Pay owns PayState { entry claim(sig s) emits none { require(checkSig(s, owner)); } }
+actor Pool owns PoolState {
+    // pull-claim: token UTXO co-spent, its idx_paid advanced to pool idx; payout = amount*(idx-idx_paid)/SCALE
+    entry claim()
+    observes kf by self.tok_covid {
+        inputs { t: KF::Tok, }
+        outputs { t: KF::Tok, }
+    }
+    emits { pool: Pool, pay: Pay, } {
+        TokState ts = state(kf.inputs.t);
+        int due = ts.amount * (idx - ts.idx_paid) / IDX_SCALE;
+        require(due > 0);
+        require kf.outputs become { t <- KF::Tok(TokState{owner: ts.owner, amount: ts.amount, idx_paid: idx}), };
+        require(pool.value == self.value - due);
+        require(pay.value == due);
+        become {
+            pool <- Pool(PoolState{tok_covid: tok_covid, idx: idx, supply: supply}),
+            pay <- Pay(PayState{owner: ts.owner}),
+        };
+    }
+    // deposit: anyone adds KAS; idx += deposit*SCALE/supply   (supply fixed in state: the unsolved part)
+    entry deposit(int amount_in) emits pool: Pool {
+        require(amount_in > 0);
+        require(pool.value == self.value + amount_in);
+        become pool <- Pool(PoolState{tok_covid: tok_covid, idx: idx + amount_in * IDX_SCALE / supply, supply: supply});
+    }
+}
+app Dist { actor Pool; actor Pay; }

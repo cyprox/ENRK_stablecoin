@@ -1,0 +1,4 @@
+target ICR 1.8: share of vaults at the 153% floor ~23.0% | kFIAT mean r0 18.40 r3 16.15 (paired d -2.25) | ENRK mean d -0.37 | pre-liq r3 0
+target ICR 2.0: share of vaults at the 153% floor ~11.2% | kFIAT mean r0 10.04 r3  8.37 (paired d -1.68) | ENRK mean d -0.18 | pre-liq r3 0
+target ICR 2.3: share of vaults at the 153% floor ~3.2% | kFIAT mean r0 10.50 r3  9.88 (paired d -0.61) | ENRK mean d -0.03 | pre-liq r3 0
+target ICR 2.6: share of vaults at the 153% floor ~0.8% | kFIAT mean r0 10.39 r3 10.28 (paired d -0.11) | ENRK mean d -0.00 | pre-liq r3 0

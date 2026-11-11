@@ -1,0 +1,114 @@
+
+T1 (E6) headline: architecture x adverse base, base parameters (stress .18, cap 5%/day, impact .08, ADV 40M), 500 paths
+=======================================================================================================================
+cell = ENRK p95 / p99 | kFIAT mean / p95 | latent p95 | unbacked mean | junior net mean || verdict (SURV/hold/FAIL)
+
+[orig85(ref)]
+  A0_r0_s0             ENRK  12.0/ 20.5 [95%CI p95 10.7,13.6] | kF   0.0/  0.0 | lat95   0.0 | unb   2.0 | net    n/a || FAIL
+  A1_r0_s30            ENRK   4.1/ 10.0 [95%CI p95 3.2,5.0] | kF  10.0/ 38.9 | lat95   0.0 | unb   2.5 | net  -10.0 || hold
+  A2_r3_s0             ENRK  10.6/ 18.3 [95%CI p95 8.8,12.2] | kF   0.0/  0.0 | lat95   0.0 | unb   1.6 | net    n/a || FAIL
+  A3_r3_s30_D1_S1      ENRK   3.0/  8.5 [95%CI p95 2.2,3.8] | kF   8.4/ 35.7 | lat95   0.0 | unb   2.1 | net   +1.8 || hold
+  A4_r3_s30_D3         ENRK   2.9/  8.5 [95%CI p95 2.2,3.8] | kF   5.8/ 30.6 | lat95   0.0 | unb   1.5 | net   -5.8 || hold
+  A5_r3_s30_S3         ENRK   1.9/  7.1 [95%CI p95 0.5,3.0] | kF   1.6/ 14.1 | lat95   0.0 | unb   0.5 | net   +8.6 || SURV
+  A6_r3_s30_KBcap5     ENRK   1.8/  7.9 [95%CI p95 1.1,2.3] | kF   8.7/ 37.8 | lat95   0.0 | unb   2.1 | net   +1.5 || SURV
+  A7_r3_s30_C1a+C2     ENRK   1.7/  6.4 [95%CI p95 1.2,1.9] | kF   8.9/ 39.4 | lat95   0.0 | unb   2.1 | net   +1.3 || SURV
+  A8_r3_s50            ENRK   0.2/  2.4 [95%CI p95 0.1,0.4] | kF   6.9/ 28.7 | lat95   0.0 | unb   2.6 | net   -0.8 || SURV
+  A9_r1_s30            ENRK   3.5/  9.5 [95%CI p95 2.8,4.1] | kF   9.2/ 37.8 | lat95   0.0 | unb   2.3 | net   -5.8 || hold
+
+[flat85]
+  A0_r0_s0             ENRK  25.4/ 33.9 [95%CI p95 21.8,28.0] | kF   0.0/  0.0 | lat95   0.0 | unb   9.0 | net    n/a || FAIL
+  A1_r0_s30            ENRK  14.7/ 22.3 [95%CI p95 12.2,16.7] | kF  26.8/ 58.1 | lat95   0.0 | unb  10.7 | net  -26.8 || FAIL
+  A2_r3_s0             ENRK  24.0/ 32.9 [95%CI p95 19.9,26.9] | kF   0.0/  0.0 | lat95   0.0 | unb   8.5 | net    n/a || FAIL
+  A3_r3_s30_D1_S1      ENRK  13.8/ 20.6 [95%CI p95 11.2,15.5] | kF  25.7/ 54.8 | lat95   0.0 | unb  10.2 | net  -15.5 || FAIL
+  A4_r3_s30_D3         ENRK  13.7/ 20.6 [95%CI p95 11.1,15.4] | kF  20.6/ 49.9 | lat95   0.0 | unb   8.6 | net  -20.6 || FAIL
+  A5_r3_s30_S3         ENRK  12.5/ 20.5 [95%CI p95 9.7,15.0] | kF   8.5/ 40.2 | lat95   0.0 | unb   4.3 | net   +1.7 || FAIL
+  A6_r3_s30_KBcap5     ENRK  13.5/ 20.4 [95%CI p95 11.0,15.3] | kF  26.7/ 56.7 | lat95   3.9 | unb  10.2 | net  -16.5 || FAIL
+  A7_r3_s30_C1a+C2     ENRK  11.2/ 18.1 [95%CI p95 9.1,12.4] | kF  27.7/ 58.7 | lat95   0.0 | unb  10.0 | net  -17.6 || FAIL
+  A8_r3_s50            ENRK   5.4/ 12.4 [95%CI p95 4.8,6.2] | kF  21.7/ 49.6 | lat95   0.0 | unb  11.6 | net  -15.6 || FAIL
+  A9_r1_s30            ENRK  14.6/ 22.4 [95%CI p95 12.4,16.5] | kF  27.4/ 58.2 | lat95   0.0 | unb  10.9 | net  -24.0 || FAIL
+
+[x1.5@85]
+  A0_r0_s0             ENRK  28.9/ 37.4 [95%CI p95 25.4,31.5] | kF   0.0/  0.0 | lat95   0.0 | unb  14.1 | net    n/a || FAIL
+  A1_r0_s30            ENRK  18.4/ 25.7 [95%CI p95 16.3,20.3] | kF  34.6/ 61.0 | lat95   4.1 | unb  16.4 | net  -34.6 || FAIL
+  A2_r3_s0             ENRK  27.2/ 36.1 [95%CI p95 23.1,30.2] | kF   0.0/  0.0 | lat95   0.0 | unb  13.2 | net    n/a || FAIL
+  A3_r3_s30_D1_S1      ENRK  17.3/ 23.7 [95%CI p95 14.5,19.1] | kF  33.0/ 57.8 | lat95   4.2 | unb  15.3 | net  -22.8 || FAIL
+  A4_r3_s30_D3         ENRK  17.2/ 23.6 [95%CI p95 14.4,19.0] | kF  28.0/ 52.9 | lat95   4.2 | unb  13.7 | net  -28.0 || FAIL
+  A5_r3_s30_S3         ENRK  16.2/ 23.5 [95%CI p95 12.7,18.4] | kF  11.2/ 45.9 | lat95   4.2 | unb   6.7 | net   -1.0 || FAIL
+  A6_r3_s30_KBcap5     ENRK  17.4/ 23.8 [95%CI p95 14.3,19.3] | kF  34.4/ 59.2 | lat95   5.0 | unb  15.6 | net  -24.3 || FAIL
+  A7_r3_s30_C1a+C2     ENRK  14.4/ 21.0 [95%CI p95 12.4,15.8] | kF  35.7/ 60.9 | lat95   0.0 | unb  14.9 | net  -25.6 || FAIL
+  A8_r3_s50            ENRK   8.2/ 15.9 [95%CI p95 7.3,9.0] | kF  28.1/ 53.2 | lat95   4.5 | unb  17.1 | net  -22.0 || FAIL
+  A9_r1_s30            ENRK  18.4/ 26.0 [95%CI p95 16.3,20.3] | kF  35.1/ 61.3 | lat95   4.5 | unb  16.6 | net  -31.7 || FAIL
+
+[x2@85]
+  A0_r0_s0             ENRK  31.5/ 39.7 [95%CI p95 27.5,33.9] | kF   0.0/  0.0 | lat95   4.6 | unb  18.5 | net    n/a || FAIL
+  A1_r0_s30            ENRK  21.2/ 28.6 [95%CI p95 18.3,22.8] | kF  39.2/ 62.2 | lat95   4.7 | unb  21.1 | net  -39.2 || FAIL
+  A2_r3_s0             ENRK  29.9/ 38.1 [95%CI p95 25.0,32.5] | kF   0.0/  0.0 | lat95   4.7 | unb  17.2 | net    n/a || FAIL
+  A3_r3_s30_D1_S1      ENRK  20.0/ 26.2 [95%CI p95 16.9,21.9] | kF  37.3/ 59.7 | lat95   4.9 | unb  19.6 | net  -27.2 || FAIL
+  A4_r3_s30_D3         ENRK  19.9/ 26.1 [95%CI p95 16.8,21.7] | kF  32.4/ 54.7 | lat95   4.9 | unb  17.9 | net  -32.4 || FAIL
+  A5_r3_s30_S3         ENRK  18.4/ 26.1 [95%CI p95 14.8,20.9] | kF  13.2/ 50.1 | lat95   4.9 | unb   9.0 | net   -3.1 || FAIL
+  A6_r3_s30_KBcap5     ENRK  20.0/ 26.4 [95%CI p95 16.7,22.1] | kF  38.9/ 60.7 | lat95   6.2 | unb  20.1 | net  -28.8 || FAIL
+  A7_r3_s30_C1a+C2     ENRK  16.7/ 23.0 [95%CI p95 14.5,18.2] | kF  40.6/ 64.1 | lat95   0.0 | unb  18.8 | net  -30.4 || FAIL
+  A8_r3_s50            ENRK  10.5/ 18.4 [95%CI p95 9.3,11.5] | kF  32.3/ 55.5 | lat95   5.0 | unb  21.6 | net  -26.2 || FAIL
+  A9_r1_s30            ENRK  21.4/ 28.5 [95%CI p95 18.7,23.0] | kF  39.8/ 62.6 | lat95   4.7 | unb  21.4 | net  -36.4 || FAIL
+
+[flat70]
+  A0_r0_s0             ENRK  21.2/ 33.2 [95%CI p95 19.2,23.6] | kF   0.0/  0.0 | lat95   0.0 | unb   5.6 | net    n/a || FAIL
+  A1_r0_s30            ENRK  10.5/ 21.1 [95%CI p95 8.7,11.7] | kF  17.4/ 55.5 | lat95   0.0 | unb   6.7 | net  -17.4 || FAIL
+  A2_r3_s0             ENRK  18.8/ 27.5 [95%CI p95 15.7,21.4] | kF   0.0/  0.0 | lat95   0.0 | unb   4.5 | net    n/a || FAIL
+  A3_r3_s30_D1_S1      ENRK   8.0/ 16.1 [95%CI p95 6.6,9.7] | kF  14.0/ 49.4 | lat95   0.0 | unb   5.3 | net   -3.8 || FAIL
+  A4_r3_s30_D3         ENRK   8.0/ 16.0 [95%CI p95 6.6,9.7] | kF  11.2/ 44.7 | lat95   0.0 | unb   4.4 | net  -11.2 || FAIL
+  A5_r3_s30_S3         ENRK   7.4/ 15.0 [95%CI p95 4.6,8.8] | kF   4.4/ 31.8 | lat95   0.0 | unb   2.1 | net   +5.8 || FAIL
+  A6_r3_s30_KBcap5     ENRK   7.5/ 16.0 [95%CI p95 6.1,9.3] | kF  14.6/ 51.5 | lat95   0.0 | unb   5.3 | net   -4.4 || FAIL
+  A7_r3_s30_C1a+C2     ENRK   6.1/ 14.0 [95%CI p95 5.0,6.8] | kF  15.0/ 53.7 | lat95   0.0 | unb   5.2 | net   -4.8 || FAIL
+  A8_r3_s50            ENRK   1.9/  7.7 [95%CI p95 1.2,2.4] | kF  11.5/ 42.1 | lat95   0.0 | unb   6.1 | net   -5.4 || hold
+  A9_r1_s30            ENRK   9.6/ 19.5 [95%CI p95 8.2,10.8] | kF  16.4/ 55.2 | lat95   0.0 | unb   6.2 | net  -13.0 || FAIL
+
+[x1.5@70]
+  A0_r0_s0             ENRK  23.9/ 33.9 [95%CI p95 21.4,27.2] | kF   0.0/  0.0 | lat95   0.0 | unb   9.0 | net    n/a || FAIL
+  A1_r0_s30            ENRK  13.2/ 23.0 [95%CI p95 11.7,14.7] | kF  24.0/ 58.3 | lat95   0.0 | unb  10.7 | net  -24.0 || FAIL
+  A2_r3_s0             ENRK  21.7/ 30.5 [95%CI p95 18.2,24.6] | kF   0.0/  0.0 | lat95   0.0 | unb   7.5 | net    n/a || FAIL
+  A3_r3_s30_D1_S1      ENRK  11.3/ 18.7 [95%CI p95 9.0,13.1] | kF  20.7/ 53.0 | lat95   0.0 | unb   9.0 | net  -10.6 || FAIL
+  A4_r3_s30_D3         ENRK  11.3/ 18.7 [95%CI p95 9.0,13.0] | kF  15.7/ 48.5 | lat95   0.0 | unb   7.3 | net  -15.7 || FAIL
+  A5_r3_s30_S3         ENRK  10.3/ 18.0 [95%CI p95 7.5,12.5] | kF   6.6/ 37.3 | lat95   0.0 | unb   3.7 | net   +3.6 || FAIL
+  A6_r3_s30_KBcap5     ENRK  10.7/ 18.6 [95%CI p95 8.6,12.7] | kF  21.5/ 54.5 | lat95   0.0 | unb   9.1 | net  -11.4 || FAIL
+  A7_r3_s30_C1a+C2     ENRK   9.1/ 16.4 [95%CI p95 7.4,10.3] | kF  22.4/ 57.1 | lat95   0.0 | unb   8.7 | net  -12.2 || FAIL
+  A8_r3_s50            ENRK   3.6/ 10.0 [95%CI p95 3.2,4.4] | kF  17.3/ 46.6 | lat95   0.0 | unb  10.3 | net  -11.2 || hold
+  A9_r1_s30            ENRK  12.1/ 20.9 [95%CI p95 10.5,13.9] | kF  22.2/ 56.6 | lat95   0.0 | unb   9.7 | net  -18.8 || FAIL
+
+[x2@70]
+  A0_r0_s0             ENRK  25.9/ 34.1 [95%CI p95 22.5,28.5] | kF   0.0/  0.0 | lat95   0.0 | unb  11.7 | net    n/a || FAIL
+  A1_r0_s30            ENRK  14.7/ 22.9 [95%CI p95 13.0,16.5] | kF  27.8/ 58.2 | lat95   0.0 | unb  13.7 | net  -27.8 || FAIL
+  A2_r3_s0             ENRK  24.5/ 33.0 [95%CI p95 20.7,27.1] | kF   0.0/  0.0 | lat95   0.0 | unb  11.0 | net    n/a || FAIL
+  A3_r3_s30_D1_S1      ENRK  14.0/ 21.1 [95%CI p95 11.6,15.5] | kF  26.5/ 54.8 | lat95   0.0 | unb  12.8 | net  -16.3 || FAIL
+  A4_r3_s30_D3         ENRK  14.0/ 21.1 [95%CI p95 11.5,15.4] | kF  21.4/ 50.1 | lat95   0.0 | unb  11.0 | net  -21.4 || FAIL
+  A5_r3_s30_S3         ENRK  12.6/ 20.6 [95%CI p95 9.9,14.9] | kF   8.3/ 40.1 | lat95   0.0 | unb   5.3 | net   +1.8 || FAIL
+  A6_r3_s30_KBcap5     ENRK  13.7/ 21.1 [95%CI p95 11.4,15.4] | kF  27.4/ 56.5 | lat95   4.3 | unb  13.0 | net  -17.3 || FAIL
+  A7_r3_s30_C1a+C2     ENRK  11.5/ 18.8 [95%CI p95 9.7,12.7] | kF  28.5/ 58.9 | lat95   0.0 | unb  12.3 | net  -18.4 || FAIL
+  A8_r3_s50            ENRK   5.5/ 12.7 [95%CI p95 4.9,6.3] | kF  21.9/ 49.5 | lat95   3.7 | unb  14.3 | net  -15.9 || FAIL
+  A9_r1_s30            ENRK  14.7/ 22.9 [95%CI p95 13.0,16.6] | kF  28.3/ 58.5 | lat95   0.0 | unb  14.0 | net  -24.9 || FAIL
+
+[ep2024]
+  A0_r0_s0             ENRK  25.6/ 33.8 [95%CI p95 19.6,28.1] | kF   0.0/  0.0 | lat95   0.0 | unb  10.0 | net    n/a || FAIL
+  A1_r0_s30            ENRK  12.9/ 20.5 [95%CI p95 10.1,15.6] | kF  27.1/ 63.1 | lat95   2.4 | unb  12.2 | net  -27.1 || FAIL
+  A2_r3_s0             ENRK  25.9/ 32.7 [95%CI p95 20.5,28.5] | kF   0.0/  0.0 | lat95   0.0 | unb  10.6 | net    n/a || FAIL
+  A3_r3_s30_D1_S1      ENRK  13.7/ 20.2 [95%CI p95 9.8,16.1] | kF  28.7/ 63.0 | lat95   0.1 | unb  12.8 | net  -17.9 || FAIL
+  A4_r3_s30_D3         ENRK  13.7/ 20.1 [95%CI p95 9.7,15.9] | kF  23.0/ 57.8 | lat95   0.1 | unb  10.8 | net  -23.0 || FAIL
+  A5_r3_s30_S3         ENRK  13.6/ 20.1 [95%CI p95 9.1,15.8] | kF  13.8/ 56.6 | lat95   0.1 | unb   7.2 | net   -3.1 || FAIL
+  A6_r3_s30_KBcap5     ENRK  13.3/ 20.2 [95%CI p95 9.3,15.8] | kF  29.7/ 64.4 | lat95   3.3 | unb  12.9 | net  -19.0 || FAIL
+  A7_r3_s30_C1a+C2     ENRK  11.1/ 16.6 [95%CI p95 8.7,13.0] | kF  30.8/ 68.3 | lat95   0.0 | unb  12.5 | net  -20.0 || FAIL
+  A8_r3_s50            ENRK   5.3/  9.7 [95%CI p95 3.7,5.9] | kF  23.9/ 57.1 | lat95   1.5 | unb  14.7 | net  -17.5 || FAIL
+  A9_r1_s30            ENRK  13.0/ 20.7 [95%CI p95 10.2,15.9] | kF  27.7/ 63.9 | lat95   0.1 | unb  12.4 | net  -24.1 || FAIL
+
+T1b survival matrix (E6)
+========================
+architecture          orig85(ref)       flat85      x1.5@85        x2@85       flat70      x1.5@70        x2@70       ep2024
+A0_r0_s0                     FAIL         FAIL         FAIL         FAIL         FAIL         FAIL         FAIL         FAIL
+A1_r0_s30                    hold         FAIL         FAIL         FAIL         FAIL         FAIL         FAIL         FAIL
+A2_r3_s0                     FAIL         FAIL         FAIL         FAIL         FAIL         FAIL         FAIL         FAIL
+A3_r3_s30_D1_S1              hold         FAIL         FAIL         FAIL         FAIL         FAIL         FAIL         FAIL
+A4_r3_s30_D3                 hold         FAIL         FAIL         FAIL         FAIL         FAIL         FAIL         FAIL
+A5_r3_s30_S3                 SURV         FAIL         FAIL         FAIL         FAIL         FAIL         FAIL         FAIL
+A6_r3_s30_KBcap5             SURV         FAIL         FAIL         FAIL         FAIL         FAIL         FAIL         FAIL
+A7_r3_s30_C1a+C2             SURV         FAIL         FAIL         FAIL         FAIL         FAIL         FAIL         FAIL
+A8_r3_s50                    SURV         FAIL         FAIL         FAIL         hold         hold         FAIL         FAIL
+A9_r1_s30                    hold         FAIL         FAIL         FAIL         FAIL         FAIL         FAIL         FAIL

@@ -1,0 +1,21 @@
+poke_daa honest lock=620467315 txid 751c265b accepted mass 2583 7.4s fee 0.005
+RESULT[ck_daa_future] REJECTED RPC Server (remote error) -> Rejected transaction 370ec2e9d77076ed3157ed083f766ae3c92e5174958467d7ec4935152f540d5d: transaction input #0 is not finalized
+poke_daa lock=daa+100000 seq0: 
+RESULT[ck_daa_maxseq] REJECTED RPC Server (remote error) -> Rejected transaction be5b34a2065a0cf224ab5fa927b364e7ea1d26180036dc62f583076ac39b15cf: failed to verify the signature script: Unsatisfied lock time: transaction input is finalized
+RESULT[ck_raw_maxseq_overstate] SUBMITTED 3884f8859b78a70b85d2d49cdbae43dd3a81586a498bd5a61a29b9db7d23c00a
+API_MASS 2583 accepted True block_time 1794383055401 accepting_daa 608825221
+CONFIRM_SECONDS 67.0
+RESULT[ck_raw_seq0_huge] REJECTED RPC Server (remote error) -> Rejected transaction 6cb5577d6b4e44d88ac8b5738485b87461b234a5748024979433583face7e6cf: transaction input #0 is not finalized
+cfe099fe1c72 ck_genesis2 (cov 726946f3) anchor_ms 1794382691570
+RESULT[ck_time_wallminus60] REJECTED RPC Server (remote error) -> Rejected transaction 6cb5577d6b4e44d88ac8b5738485b87461b234a5748024979433583face7e6cf: transaction input #0 is not finalized
+RESULT[ck_time_pmtplus1s] SUBMITTED 54064ee0ca29c7743fbdc2c3664e230a2b66e96335bb5741fde2dac8379cbb5f
+API_MASS 2583 accepted True block_time 1794383254422 accepting_daa 608827199
+CONFIRM_SECONDS 8.0
+RESULT[ck_time_maxseq_future] REJECTED RPC Server (remote error) -> Rejected transaction 54064ee0ca29c7743fbdc2c3664e230a2b66e96335bb5741fde2dac8379cbb5f: transaction 54064ee0ca29c7743fbdc2c3664e230a2b66e96335bb5741fde2dac8379cbb5f was already accepted by the consensus
+RESULT[ck_time_wallminus60] REJECTED RPC Server (remote error) -> Rejected transaction d43ccc84411f3adc18de97adfb1d787bcd7964706b34725f2fd1e638f857fed3: transaction input #0 is not finalized
+RESULT[ck_time_pmtplus60s] REJECTED RPC Server (remote error) -> Rejected transaction 9a1a529c4a4f7c04e8913b9f628732cfedcc722ac25316d795d17c0944669682: transaction input #0 is not finalized
+RESULT[ck_time_maxseq_future] REJECTED RPC Server (remote error) -> Rejected transaction e68bbe449448d22f3bbb1358f25f9630607b52583f7e41fbf86fed2e2ed507eb: transaction e68bbe449448d22f3bbb1358f25f9630607b52583f7e41fbf86fed2e2ed507eb is an orphan where orphan is disallowed
+RESULT[ck_time_maxseq_future] REJECTED RPC Server (remote error) -> Rejected transaction 961cdeb6ad987a2df80c282c92e05c30879d2a4ac2c0f28d621d27f28dd176d7: failed to verify the signature script: Unsatisfied lock time: transaction input is finalized
+RESULT[ck_time_honest_pmt_minus1s] SUBMITTED 3f603c81eb45f06452ce029c972289784f71db8cb16a16bdbd5fadd9eaf1669d
+API_MASS 2583 accepted True block_time 1794383372779 accepting_daa 608828342
+CONFIRM_SECONDS 7.3

@@ -1,0 +1,58 @@
+// v4 P19: per-vault liquidation settled by an ENRK bid: the liquidator retires a note of ENRK == repaid debt.
+import "./oracle.ag";
+import "./tok.ag";
+const int PRICE_SCALE = 100000000;
+const int MCR_TRIGGER = 150;
+const int P_LO = 1000000;
+const int P_HI = 500000000;
+const int X_MAX = 1000000000000000;
+const int BONUS_BPS = 900;
+state VaultState { pubkey owner; cov_id oracle_covid; cov_id enrk_covid; int debt; }
+state PayState { pubkey to; }
+actor Pay owns PayState { entry take(sig s) emits none { require(checkSig(s, to)); } }
+actor Vault owns VaultState {
+    fn icr_percent(int c, int p, int d) -> int {
+        int hi = c / PRICE_SCALE;
+        int lo = c % PRICE_SCALE;
+        int num = hi * p * 100 + lo * p * 100 / PRICE_SCALE;
+        return num / d;
+    }
+    fn coll_of(int x, int p) -> int {
+        int q = x / p;
+        int r = x % p;
+        return q * PRICE_SCALE + r * PRICE_SCALE / p;
+    }
+    fn mulbps(int a, int bps) -> int {
+        int h = a / 10000;
+        int l = a % 10000;
+        return h * bps + l * bps / 10000;
+    }
+    entry liquidate_bid(pubkey liquidator)
+    observes oracle by self.oracle_covid {
+        inputs { round: OracleFeed::PriceRound, }
+        outputs { round: OracleFeed::PriceRound, }
+    }
+    observes enrk by self.enrk_covid {
+        inputs { bid: Tok::Note, }
+    }
+    emits { next: Vault, pay: Pay, } {
+        PriceRoundState pr = state(oracle.inputs.round);
+        require oracle.outputs become { round <- OracleFeed::PriceRound(pr), };
+        NoteState bn = state(enrk.inputs.bid);
+        int p = oracle.inputs.round.value;
+        require(p >= P_LO); require(p <= P_HI);
+        require(debt > 0);
+        require(icr_percent(self.value, p, debt) < MCR_TRIGGER);
+        int repay = bn.amount;
+        require(repay > 0); require(repay <= debt); require(repay <= X_MAX);
+        int cv = coll_of(repay, p);
+        int seize = cv + mulbps(cv, BONUS_BPS);
+        if (seize > self.value) { seize = self.value; }
+        require(pay.value == seize);
+        require(next.value == self.value - seize);
+        VaultState ns = { owner: owner, oracle_covid: oracle_covid, enrk_covid: enrk_covid, debt: debt - repay };
+        unrestricted(pay.value);
+        become { next <- Vault(ns), pay <- Pay(PayState{ to: liquidator }), };
+    }
+}
+app BVault { actor Vault; actor Pay; }

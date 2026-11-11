@@ -1,0 +1,6 @@
+
+COV_SPK aa204a0c00457bb0d6c13855d1ebcd32e7b42f2e91fbdf144ffd0120890cd33484c287
+TXID 751c265bc557d5ce7f7cd8411a79a7f33216458b02a874ff033c49aa6d29ad64
+LOCAL_MASS compute 2583 transient 3412 inputs 2 outputs 2 json=t4_ck_poke.json
+
+

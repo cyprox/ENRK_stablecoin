@@ -1,0 +1,9 @@
+RESULT [liquidate, claimed age 0 (healthy)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [liquidate, age = DECAY/2 (ICR exactly 150, not < 150)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [liquidate, age = 0.6 DECAY (price x0.4, ICR 120)] ACCEPT compute 2740 transient 9080 storage Some(0)
+RESULT [liquidate, age = DECAY (price 0)] ACCEPT compute 2740 transient 9080 storage Some(0)
+RESULT [liquidate, age = 10 x DECAY (clamped)] ACCEPT compute 2740 transient 9080 storage Some(0)
+RESULT [liquidate, lock_time below oracle clock (CLTV)] REJECT input 0 script failed: Unsatisfied lock time: locktime requirement not satisfied -- locktime is greater than t
+RESULT [liquidate, oracle price 0 (must reject)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [withdraw to 200 %, owner claims age 0 while real age is arbitrary] ACCEPT compute 4268 transient 9712 storage Some(20000)
+RESULT [withdraw to 200 %, honest age = DECAY] REJECT input 0 script failed: script ran, but verification failed

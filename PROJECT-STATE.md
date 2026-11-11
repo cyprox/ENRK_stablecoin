@@ -1,6 +1,6 @@
 # ENRK — Project State
 
-**Last updated:** November 10, 2026
+**Last updated:** November 11, 2026
 **Author:** cyprox
 **Repository:** https://github.com/cyprox/ENRK_stablecoin
 
@@ -128,6 +128,31 @@ sources: [`docs/design/AUDIT-2026-11-09.md`](docs/design/AUDIT-2026-11-09.md) §
 
 ---
 
+## Economics and mechanism verification (November 11, 2026)
+
+Full record: [`docs/design/ECONOMICS-VERIFICATION-2026-11-11.md`](docs/design/ECONOMICS-VERIFICATION-2026-11-11.md); reports and scripts in
+[`docs/design/studies-2026-11/`](docs/design/studies-2026-11/). Model outputs, not forecasts; **no design decision taken**.
+
+- **The stress-test figures in `FROZEN_PARAMETERS.md` inherit a hidden cushion.** The
+  simulator's default index response makes the peg index fall to about 0.54 when KAS falls
+  85 %, a 46 % reduction of debt value. With a flat index, junior 30 % + fee 3 % gives ENRK
+  p95 loss 13.8 % (not 3.0 %), kFIAT mean loss 25.7 % (not 8.4 %), junior net −15.5 %.
+- **No tested architecture (fee ≤ 3 %, junior ≤ 50 %) is both safe and self-consistent on
+  adverse index bases.** Only a stack (junior 70 %, surplus reserve, deepening floor, sub-par
+  redemption) holds, and 70 % is above any voluntary junior share (23–28 %).
+- **The index is the dominant risk**, through its drift in a crash, not its noise. The coded
+  circuit breaker is harmful (it can halt liquidations: unbacked debt 19.9 % → 86.8 % at index ×2).
+- **Owner directions recorded:** a recurring stability fee; fees are never burned and must
+  remunerate; ENRK must have its own price oracle; the Monolith free/paid-debt avenue is to be
+  explored; stay on testnet-10.
+- **Mechanism checks on L1:** declared-outputs co-spend fix confirmed on testnet-10; the
+  Argent issuance-cap example is bypassable (negative mint, extra controller entry); the
+  `icr_percent` guard is exact (10,716 engine runs); an oracle sweep bound alone permits
+  ~117–300× per hour at one-minute gaps.
+- **Open decisions** are listed in §9 of the verification document.
+
+---
+
 ## Decided and frozen
 
 | | |
@@ -227,6 +252,7 @@ built only on shipped opcodes, which reopened an L1 path previously declared clo
 | [`docs/design/REMEASUREMENT-2026-09-15.md`](docs/design/REMEASUREMENT-2026-09-15.md) | **The current state of the measurement.** Re-measurement on Argent `e76ee07` + Silverscript v1.0.0, corrections, what is open and in what order. Start here to resume the work. |
 | [`docs/design/UNDEFINED-BEHAVIOUR-EXPOSURE.md`](docs/design/UNDEFINED-BEHAVIOUR-EXPOSURE.md) | Line-by-line audit of both variants against Silverscript's undefined-behaviour specification |
 | [`docs/design/ORACLE-BINDING.md`](docs/design/ORACLE-BINDING.md) | Q1c reframed: the asset → vault binding, Argent's `spawns` lineage, and what Argent does not yet provide |
+| [`docs/design/ECONOMICS-VERIFICATION-2026-11-11.md`](docs/design/ECONOMICS-VERIFICATION-2026-11-11.md) | **Economic and mechanism verification round**: 21 proposals with verdicts, the index cushion finding, corrections registry, blind spots, decisions. Reports and scripts: `docs/design/studies-2026-11/`. |
 | [`docs/design/AUDIT-2026-11-09.md`](docs/design/AUDIT-2026-11-09.md) | **The current audit.** Findings by severity, the Kaspa fact base, testnet-10 results, options and the decisions that belong to the owner. Start here to resume. |
 | [`KFIAT-DEFINITION-GAP.md`](KFIAT-DEFINITION-GAP.md) | The undefined denomination of kFIAT, the two ICRs, the unimplemented waterfall. |
 | [`docs/design/GITHUB-ISSUE-46-UPDATE.md`](docs/design/GITHUB-ISSUE-46-UPDATE.md) | Oracle validation: method, tables, the KIP-9 asymmetry, reproduction steps |

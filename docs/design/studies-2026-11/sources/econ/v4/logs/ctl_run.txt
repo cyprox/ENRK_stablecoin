@@ -1,0 +1,8 @@
+RESULT [poke dir=+1 dt=1d (expected r from python)] ACCEPT compute 5345 transient 13180 storage Some(35660)
+RESULT [dt below DT_MIN] REJECT input 0 script failed: script ran, but verification failed
+RESULT [lock_time below last (CLTV)] REJECT input 0 script failed: Unsatisfied lock time: locktime requirement not satisfied -- locktime is greater than the transaction locktime: 1000 > 999
+RESULT [shard output tampered] REJECT input 0 script failed: script ran, but verification failed
+RESULT [only 3 shards co-spent] REJECT observe `sh` expects 4 inputs for its covenant id, found 3
+RESULT [one shard of a foreign covenant id] REJECT observe `sh` expects 4 inputs for its covenant id, found 3
+RESULT [sum above SUM_MAX] REJECT input 0 script failed: script ran, but verification failed
+RESULT [poke dir=+1 dt=1d (expected r from python)] REJECT input 0 script failed: script ran, but verification failed

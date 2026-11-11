@@ -1,0 +1,49 @@
+// v4 P7 test bench: integer exponential rate controller r' = clamp(r * 2^(dir*dt/H), RMIN, RMAX).
+// All constants are TEST values, not proposals. Rate unit: ppb per year (1e-9).
+const int Q = 1073741824;            // 2^30 fixed point one
+const int LN2_Q = 744261118;         // round(ln2 * 2^30)
+const int H = 2592000;               // half life, seconds (30 days) [test]
+const int DT_MIN = 3600;             // minimum elapsed seconds between updates [test]
+const int DT_MAX = 1296000;          // clamp per update = H/2 -> x <= ln2/2 [test]
+const int RMIN = 5000000;            // 0.5 %/yr
+const int RMAX = 1000000000;         // 100 %/yr  (hard overflow ceiling is ~6.0e9, see report)
+
+state RState { int r; int dt; int dir; int expect; }
+
+actor R owns RState {
+    // e^x in Q30 for 0 <= x <= ln2/2 (Q30), degree-6 Horner. Every product <= 2^61.
+    fn exp_q(int x) -> int {
+        int a = Q + x / 6;
+        a = Q + x * a / Q / 5;
+        a = Q + x * a / Q / 4;
+        a = Q + x * a / Q / 3;
+        a = Q + x * a / Q / 2;
+        return Q + x * a / Q;
+    }
+    fn step(int rr, int dtt, int dd) -> int {
+        int d1 = dtt;
+        if (d1 > DT_MAX) { d1 = DT_MAX; }
+        int x = d1 * LN2_Q / H;
+        int e = exp_q(x);
+        int nr = rr;
+        if (dd > 0) { nr = rr * e / Q; }
+        if (dd < 0) { nr = rr * Q / e; }
+        if (nr < RMIN) { nr = RMIN; }
+        if (nr > RMAX) { nr = RMAX; }
+        return nr;
+    }
+    // unguarded: no bound on r, dt not gated
+    entry raw() emits none {
+        require(step(r, dt, dir) == expect);
+    }
+    // guarded: r within [0,RMAX], dt >= DT_MIN, dir in {-1,0,1}
+    entry guarded() emits none {
+        require(r >= 0);
+        require(r <= RMAX);
+        require(dt >= DT_MIN);
+        require(dir >= -1);
+        require(dir <= 1);
+        require(step(r, dt, dir) == expect);
+    }
+}
+app Rate { actor R; }

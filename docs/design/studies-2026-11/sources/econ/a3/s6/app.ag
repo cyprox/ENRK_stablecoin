@@ -1,0 +1,14 @@
+// oracle price UTXO that carries a clock (unix ms, timestamp domain) written at sweep
+state PRS { pubkey publisher; int round; int clock; }
+actor PR owns PRS {
+    entry use() emits next: PR { require(next.value == self.value); become next <- self; }
+    entry sweep(sig publisher_sig) emits { left: PR, right: PR, } {
+        require(checkSig(publisher_sig, publisher));
+        require(tx.time >= temporal(clock));        // CLTV, timestamp domain, monotone clock; rejects sequence==MAX
+        int now_ms = OpTxLockTime();
+        PRS ns = { publisher: publisher, round: round + 1, clock: now_ms };
+        unrestricted(left.value); unrestricted(right.value);
+        become { left <- PR(ns), right <- PR(ns), };
+    }
+}
+app Clk { actor PR; }

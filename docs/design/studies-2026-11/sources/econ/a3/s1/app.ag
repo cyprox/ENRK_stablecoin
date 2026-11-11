@@ -1,0 +1,66 @@
+import "./oracle.ag";
+
+const int PRICE_SCALE = 100000000;
+const int FEE_PPM_PER_UNIT = 1;      // fee ppm of debt per clock unit (placeholder)
+
+state VaultState {
+    pubkey owner;
+    cov_id oracle_covid;
+    int debt;
+    int anchor;     // clock value at last accrual
+}
+
+actor Vault owns VaultState {
+    // lazy accrual, spender-claimed clock = tx lock_time (consensus: lock_time <= block DAA)
+    entry touch_locktime()
+    observes oracle by self.oracle_covid {
+        inputs { round: OracleFeed::PriceRound, }
+        outputs { round: OracleFeed::PriceRound, }
+    }
+    emits next: Vault {
+        PriceRoundState prev_round = state(oracle.inputs.round);
+        require oracle.outputs become { round <- OracleFeed::PriceRound(prev_round), };
+        int now_c = OpTxLockTime();
+        require(now_c >= anchor);
+        int fee_debt = debt * (now_c - anchor) * FEE_PPM_PER_UNIT / 1000000;
+        VaultState ns = { owner: owner, oracle_covid: oracle_covid, debt: debt + fee_debt, anchor: now_c };
+        require(next.value == self.value);
+        become next <- Vault(ns);
+    }
+
+    // oracle-round clock: the price UTXO state carries round counter
+    entry touch_round()
+    observes oracle by self.oracle_covid {
+        inputs { round: OracleFeed::PriceRound, }
+        outputs { round: OracleFeed::PriceRound, }
+    }
+    emits next: Vault {
+        PriceRoundState prev_round = state(oracle.inputs.round);
+        require oracle.outputs become { round <- OracleFeed::PriceRound(prev_round), };
+        int r = prev_round.round;
+        require(r >= anchor);
+        int fee_debt = debt * (r - anchor) * FEE_PPM_PER_UNIT / 1000000;
+        VaultState ns = { owner: owner, oracle_covid: oracle_covid, debt: debt + fee_debt, anchor: r };
+        require(next.value == self.value);
+        become next <- Vault(ns);
+    }
+
+    // creation-DAA of the co-spent oracle input as clock
+    entry touch_inputdaa()
+    observes oracle by self.oracle_covid {
+        inputs { round: OracleFeed::PriceRound, }
+        outputs { round: OracleFeed::PriceRound, }
+    }
+    emits next: Vault {
+        PriceRoundState prev_round = state(oracle.inputs.round);
+        require oracle.outputs become { round <- OracleFeed::PriceRound(prev_round), };
+        int d = OpTxInputDaaScore(this.activeInputIndex);
+        require(d >= anchor);
+        int fee_debt = debt * (d - anchor) * FEE_PPM_PER_UNIT / 1000000;
+        VaultState ns = { owner: owner, oracle_covid: oracle_covid, debt: debt + fee_debt, anchor: d };
+        require(next.value == self.value);
+        become next <- Vault(ns);
+    }
+}
+
+app Fee { actor Vault; }

@@ -1,0 +1,112 @@
+// v4 P9/P12: targeted single-vault redemption (free-debt vaults only) with an ICR-increasing fee, and
+// a per-vault liquidation with clean/dirty fee and no close factor. Test constants, not proposals.
+// The ENRK burn of the redeemed amount is NOT modelled (KCC-20 has no burn; see report).
+import "./oracle.ag";
+const int PRICE_SCALE = 100000000;
+const int MCR_TRIGGER = 150;
+const int P_LO = 1000000;            // redemption price floor (overflow bound)
+const int P_HI = 500000000;
+const int X_MAX = 1000000000000000;  // max redeemed units per tx
+const int MIN_DEBT = 100000000;      // debt left after a partial redemption must be 0 or >= this
+const int MIN_REDEEM = 1000000;
+const int FEE_BASE_BPS = 50;         // 0.5 %
+const int FEE_SLOPE_BPS = 10;        // + 0.10 % per ICR point above 100
+const int FEE_MAX_BPS = 1000;
+const int CLEAN_BPS = 1000;          // liquidator fee when the whole vault debt is cleared
+const int DIRTY_BPS = 900;           // when partial
+
+state VaultState { pubkey owner; cov_id oracle_covid; int debt; int free; }
+state PayState { pubkey to; }
+
+actor Pay owns PayState {
+    entry take(sig s) emits none { require(checkSig(s, to)); }
+}
+
+actor Vault owns VaultState {
+    fn icr_percent(int c, int p, int d) -> int {
+        int hi = c / PRICE_SCALE;
+        int lo = c % PRICE_SCALE;
+        int num = hi * p * 100 + lo * p * 100 / PRICE_SCALE;
+        return num / d;
+    }
+    // exact floor(x * SCALE / p) for 0 <= x <= X_MAX, p >= P_LO
+    fn coll_of(int x, int p) -> int {
+        int q = x / p;
+        int r = x % p;
+        return q * PRICE_SCALE + r * PRICE_SCALE / p;
+    }
+    // exact floor(a * bps / 10000) without the 1e4 multiplication overflow
+    fn mulbps(int a, int bps) -> int {
+        int h = a / 10000;
+        int l = a % 10000;
+        return h * bps + l * bps / 10000;
+    }
+    fn fee_bps(int icr) -> int {
+        int f = FEE_BASE_BPS;
+        if (icr > 100) { f = FEE_BASE_BPS + (icr - 100) * FEE_SLOPE_BPS; }
+        if (f > FEE_MAX_BPS) { f = FEE_MAX_BPS; }
+        return f;
+    }
+
+    entry redeem(int x, pubkey redeemer)
+    observes oracle by self.oracle_covid {
+        inputs { round: OracleFeed::PriceRound, }
+        outputs { round: OracleFeed::PriceRound, }
+    }
+    emits { next: Vault, pay: Pay, } {
+        PriceRoundState pr = state(oracle.inputs.round);
+        require oracle.outputs become { round <- OracleFeed::PriceRound(pr), };
+        int p = oracle.inputs.round.value;
+        require(p >= P_LO); require(p <= P_HI);
+        require(free == 1);
+        require(x >= MIN_REDEEM); require(x <= X_MAX); require(x <= debt);
+        int icr = icr_percent(self.value, p, debt);
+        int gross = coll_of(x, p);
+        int net = gross - mulbps(gross, fee_bps(icr));
+        require(net <= self.value);
+        require(pay.value == net);
+        int left = debt - x;
+        require(left == 0 || left >= MIN_DEBT);
+        require(next.value == self.value - net);
+        VaultState ns = { owner: owner, oracle_covid: oracle_covid, debt: left, free: free };
+        unrestricted(pay.value);
+        become { next <- Vault(ns), pay <- Pay(PayState{ to: redeemer }), };
+    }
+
+    entry set_mode(sig owner_sig, int new_free) emits next: Vault {
+        require(checkSig(owner_sig, owner));
+        require(new_free == 0 || new_free == 1);
+        require(next.value == self.value);
+        VaultState ns = { owner: owner, oracle_covid: oracle_covid, debt: debt, free: new_free };
+        become next <- Vault(ns);
+    }
+
+    // P12: per-vault liquidation. `repay` = debt cleared by the liquidator in this tx (any amount 1..debt, no close factor).
+    // Liquidator receives collateral worth repay*(1+fee) (fee = CLEAN if repay == debt else DIRTY); the rest stays in the vault.
+    entry liquidate(int repay, pubkey liquidator)
+    observes oracle by self.oracle_covid {
+        inputs { round: OracleFeed::PriceRound, }
+        outputs { round: OracleFeed::PriceRound, }
+    }
+    emits { next: Vault, pay: Pay, } {
+        PriceRoundState pr = state(oracle.inputs.round);
+        require oracle.outputs become { round <- OracleFeed::PriceRound(pr), };
+        int p = oracle.inputs.round.value;
+        require(p >= P_LO); require(p <= P_HI);
+        require(debt > 0);
+        require(icr_percent(self.value, p, debt) < MCR_TRIGGER);
+        require(repay > 0); require(repay <= debt); require(repay <= X_MAX);
+        int fee = DIRTY_BPS;
+        if (repay == debt) { fee = CLEAN_BPS; }
+        int cv = coll_of(repay, p);
+        int seize = cv + mulbps(cv, fee);
+        if (seize > self.value) { seize = self.value; }
+        require(pay.value == seize);
+        int left = debt - repay;
+        require(next.value == self.value - seize);
+        VaultState ns = { owner: owner, oracle_covid: oracle_covid, debt: left, free: free };
+        unrestricted(pay.value);
+        become { next <- Vault(ns), pay <- Pay(PayState{ to: liquidator }), };
+    }
+}
+app RVault { actor Vault; actor Pay; }

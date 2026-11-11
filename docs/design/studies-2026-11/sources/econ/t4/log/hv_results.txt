@@ -1,0 +1,30 @@
+local: harvest fee 0.959 KAS (<MIN_NOTE 1 KAS): BUILD_FAILED input 0 script failed: script ran, but verification failed
+local: original MCR guard 'next.value*p*100/PRICE_SCALE/debt' with next=10.8 KAS, p=1e8: BUILD_FAILED input 0 script failed: Number too big: Product exceeds 64-bit signed integer range
+RESULT[hv_harvest_K1] REJECTED RPC Server (remote error) -> Rejected transaction 872efebdaacbe3a5ce618166f2510d9e80f94304dfb6915d4365d51e8ae62a60: failed to verify the signature script: false stack entry at end of script execution
+RESULT[hv_reclaim_v13] REJECTED RPC Server (remote error) -> Rejected transaction f60de97076faaf5e53defa7921d2143f5a245bfd4e0acabf39b5d30bd3c37a84: failed to verify the signature script: false stack entry at end of script execution
+RESULT[hv_reclaim_all14] REJECTED RPC Server (remote error) -> Rejected transaction 852a4a40a57f29aac1bbd77bbfe31cb20bccd69402d02be68b742b34f03dd34c: transaction 852a4a40a57f29aac1bbd77bbfe31cb20bccd69402d02be68b742b34f03dd34c is not standard: transaction has 3000000 fees which is under the required amount of 3704400 for normalized transient mass 37044 (proportional to transaction byte size)
+RESULT[hv_reclaim_all14] SUBMITTED 75a65cae47238972d7afe4482859241ee43cdfc6e1a6c1196c0fc9080faf03aa
+API_MASS 33882 accepted True block_time 1794383947525 accepting_daa 608834013
+CONFIRM_SECONDS 7.8
+RESULT[hv_harvest_K1] SUBMITTED d69e6bd4154d84519c8b091f105aaa3b01165d3a51d12c4f9bfad61461c1df3e
+API_MASS 5234 accepted True block_time 1794384050194 accepting_daa 608835059
+CONFIRM_SECONDS 46.7
+RESULT[hv_harvest_K2_lowfee] SUBMITTED b2a718f91474848485434c67ef2adb65d5d8d5eca4aac28ef6c3d9f935c39234
+API_MASS 8052 accepted True block_time 1794384069743 accepting_daa 608835247
+CONFIRM_SECONDS 8.3
+RESULT[hv_harvest_K3] REJECTED RPC Server (remote error) -> Rejected transaction 7cdfab5eb1445958eace052a76f247d6be576785fa18edb21b363732ec4d08a3: transaction 7cdfab5eb1445958eace052a76f247d6be576785fa18edb21b363732ec4d08a3 is not standard: transaction has 1000000 fees which is under the required amount of 1102000 for normalized transient mass 11020 (proportional to transaction byte size)
+RESULT[hv_harvest_K4] REJECTED RPC Server (remote error) -> Rejected transaction e0c030a874fbd5644d2786fd57035ea7da2da02070737b1e1796ada6114d7089: transaction e0c030a874fbd5644d2786fd57035ea7da2da02070737b1e1796ada6114d7089 is not standard: transaction has 1000000 fees which is under the required amount of 1423600 for normalized transient mass 14236 (proportional to transaction byte size)
+RESULT[hv_harvest_K3] SUBMITTED 8b67e15480d8ab862eebf1a8dd229bd3935d07306dfb7bf3930148f037cea94e
+API_MASS 10870 accepted True block_time 1794384210829 accepting_daa 608836656
+CONFIRM_SECONDS 67.1
+RESULT[hv_harvest_K4] SUBMITTED 872dea0acb85b15fd59a4cddce6fc0d36b5243872224bbbc60a343d28d3c997d
+API_MASS 13688 accepted True block_time 1794384222933 accepting_daa 608836781
+CONFIRM_SECONDS 7.3
+RESULT[hv_harvest_K5] SUBMITTED 363e77f38752c86c0ff6e3a5233af9aa8a0540ff1dc4888680e739a6fa9664db
+API_MASS 16506 accepted True block_time 1794384372614 accepting_daa 608838320
+CONFIRM_SECONDS 7.1
+RESULT[hv_harvest_K6] REJECTED RPC Server (remote error) -> Rejected transaction ec527c3f64eca45b1b124cb5669ab2ef6d7b500666523e68da057a30ce327735: transaction storage mass of 706350 is larger than max allowed size of 500000
+K6 rejected: transaction storage mass of 706350 is larger than max allowed size of 500000 (see above); K5 accepted storage 477301
+RESULT[hv_reclaim_v2_all14] SUBMITTED 15de5635dc391e447d2292e94bb1c642589027ee970bb658d20cfaecb4aa6c19
+API_MASS 33882 accepted True block_time 1794384703081 accepting_daa 608841626
+CONFIRM_SECONDS 29.9

@@ -1,0 +1,12 @@
+ABI KCC20: present among probes = ["transfer"]
+ABI MinterProxy: present among probes = ["mint"]
+ABI Minter: present among probes = ["mint", "rotate"]
+RESULT [A honest mint 17 of cap 100] ACCEPT
+RESULT [B mint 101 > cap 100 (must reject)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [C NEGATIVE mint -5: cap rises 100 -> 105] ACCEPT
+RESULT [D proxy recipient 50 while controller approves 17 (must reject)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [E non-owner signature (must reject)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [F CAP BYPASS: controller spent via rotate(), proxy mints 1e12 (cap 100)] ACCEPT
+RESULT [G KCC20 transfer 100 -> output amount 0 (burn attempt, must reject)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [H KCC20 transfer 100 -> output 101 (inflate, must reject)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [I KCC20 transfer amount kept 100] ACCEPT

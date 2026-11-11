@@ -1,0 +1,45 @@
+// T4 test 2 (TEST COPY of A3 s7). Constants are TEST-ONLY values chosen so a short real-time interval yields a fee above MIN_NOTE; they are not proposals.
+// Differences from s7: (a) elapsed time in seconds (the s7 product debt*ms*rate overflows int64 at realistic debt); (b) FeeNote/Tip are spendable by a keeper key so test funds are recoverable; (c) test-only owner `reclaim`.
+import "./oracle.ag";
+const int PRICE_SCALE = 100000000;
+const int RATE_NUM = 24000;  const int RATE_DEN = 1;      // TEST-ONLY multiplier
+const int SEC_PER_YEAR = 31536000;
+const int MIN_NOTE = 100000000;                          // 1 KAS
+const int BOUNTY_PCT = 40;                               // TEST-ONLY
+const int MCR = 150;
+state VaultState { pubkey owner; cov_id oracle_covid; int debt; int anchor; }
+state NoteState { pubkey keeper; }
+state TipState { pubkey keeper; int tag; }
+actor FeeNote owns NoteState { entry take(sig s) emits none { require(checkSig(s, keeper)); } }
+actor Tip owns TipState { entry take(sig s) emits none { require(checkSig(s, keeper)); } }
+actor Vault owns VaultState {
+    entry reclaim(sig s) emits none { require(checkSig(s, owner)); }
+    entry harvest(pubkey keeper)
+    observes oracle by self.oracle_covid {
+        inputs { round: OracleFeed::PriceRound, }
+        outputs { round: OracleFeed::PriceRound, }
+    }
+    emits { next: Vault, note: FeeNote, tip: Tip, } {
+        PriceRoundState pr = state(oracle.inputs.round);
+        require oracle.outputs become { round <- OracleFeed::PriceRound(pr), };
+        require(tx.time >= temporal(anchor));
+        int now_ms = OpTxLockTime();
+        require(now_ms >= pr.clock);
+        int p = oracle.inputs.round.value;
+        int dt_s = (now_ms - anchor) / 1000;
+        int fee_units = debt * dt_s * RATE_NUM / RATE_DEN / SEC_PER_YEAR;
+        int fee_kas = fee_units * PRICE_SCALE / p;
+        require(fee_kas >= MIN_NOTE);
+        int bounty = fee_kas * BOUNTY_PCT / 100;
+        require(tip.value == bounty);
+        require(note.value == fee_kas - bounty);
+        require(next.value == self.value - fee_kas);
+        require(next.value * p / PRICE_SCALE * 100 / debt >= MCR);   // reordered: the s7 order overflows int64 at 10.8 KAS x p=1e8
+        become {
+            next <- Vault(VaultState{owner: owner, oracle_covid: oracle_covid, debt: debt, anchor: now_ms}),
+            note <- FeeNote(NoteState{keeper: keeper}),
+            tip <- Tip(TipState{keeper: keeper, tag: 7}),
+        };
+    }
+}
+app Harvest { actor Vault; actor FeeNote; actor Tip; }

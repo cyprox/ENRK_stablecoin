@@ -1,0 +1,4 @@
+(1,2) original-vs-extended: 6300 field comparisons x2, differences: 0
+(3) cache/snapshot checks: 90, differences: 0
+(4) SP special cases vs S1/S2/S3: 60, differences: 0
+check: OK

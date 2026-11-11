@@ -1,0 +1,5 @@
+(b,c) 30240 field comparisons, differences: 0
+(d) cache checks: 10, differences: 0
+(d2) shared-snapshot checks: 80, differences: 0
+(e) proc final peg 0.914 flat 0.9999999999999999 det2 breaker_days 51 final 2.0
+check_t3: OK

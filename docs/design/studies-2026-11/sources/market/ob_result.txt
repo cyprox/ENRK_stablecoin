@@ -1,0 +1,39 @@
+kraken best bid 0.02956 levels 283 lowest px 1e-05 (100.0% below) bid KAS 116836586 24h KAS vol 15584289.40194
+   bid depth within 1%: 4554536 KAS (134139 USD)
+   bid depth within 2%: 8206487 KAS (240557 USD)
+   bid depth within 5%: 9208869 KAS (269265 USD)
+   sell 0.1% ADV=15584 KAS: avg slippage 0.000% k=0.000; marginal px 0.000%
+   sell 1.0% ADV=155843 KAS: avg slippage 0.051% k=0.005; marginal px 0.068%
+   sell 5.0% ADV=779214 KAS: avg slippage 0.070% k=0.003; marginal px 0.135%
+kucoin best bid 0.02958 levels 100 lowest px 0.02838 (4.1% below) bid KAS 1351095 24h KAS vol 26673847.421200875
+   bid depth within 1%: 652159 KAS (19241 USD)
+   bid depth within 2%: 993850 KAS (29192 USD)
+   bid depth within 5%: 1351095 KAS (39460 USD)
+   sell 0.1% ADV=26674 KAS: avg slippage 0.000% k=0.000; marginal px 0.000%
+   sell 1.0% ADV=266738 KAS: avg slippage 0.075% k=0.007; marginal px 0.135%
+   sell 5.0% ADV=1333692 KAS: avg slippage 1.232% k=0.055; marginal px 3.651%
+gate best bid 0.02959 levels 100 lowest px 0.02855 (3.5% below) bid KAS 1434409 24h KAS vol 10553990.2
+   bid depth within 1%: 239638 KAS (7042 USD)
+   bid depth within 2%: 747799 KAS (21844 USD)
+   bid depth within 5%: 1434409 KAS (41627 USD)
+   sell 0.1% ADV=10554 KAS: avg slippage 0.060% k=0.019; marginal px 0.101%
+   sell 1.0% ADV=105540 KAS: avg slippage 0.389% k=0.039; marginal px 0.845%
+   sell 5.0% ADV=527700 KAS: avg slippage 1.040% k=0.047; marginal px 1.656%
+mexc best bid 0.029552 levels 266 lowest px 1e-06 (100.0% below) bid KAS 264295774 24h KAS vol 6194082.53
+   bid depth within 1%: 133870 KAS (3945 USD)
+   bid depth within 2%: 485958 KAS (14233 USD)
+   bid depth within 5%: 937096 KAS (27127 USD)
+   sell 0.1% ADV=6194 KAS: avg slippage 0.040% k=0.013; marginal px 0.115%
+   sell 1.0% ADV=61941 KAS: avg slippage 0.108% k=0.011; marginal px 0.115%
+   sell 5.0% ADV=309704 KAS: avg slippage 0.702% k=0.031; marginal px 1.019%
+bybit best bid 0.02962 levels 200 lowest px 0.0275 (7.2% below) bid KAS 2843713 24h KAS vol 29771404.05
+   bid depth within 1%: 903501 KAS (26584 USD)
+   bid depth within 2%: 1415044 KAS (41525 USD)
+   bid depth within 5%: 2029219 KAS (59053 USD)
+   sell 0.1% ADV=29771 KAS: avg slippage 0.048% k=0.015; marginal px 0.135%
+   sell 1.0% ADV=297714 KAS: avg slippage 0.300% k=0.030; marginal px 0.675%
+   sell 5.0% ADV=1488570 KAS: avg slippage 0.988% k=0.044; marginal px 2.431%
+bitget best bid 0.02961 levels 150 lowest px 0.02777 (6.2% below) bid KAS 1379025 24h KAS vol None
+   bid depth within 1%: 449485 KAS (13262 USD)
+   bid depth within 2%: 495369 KAS (14604 USD)
+   bid depth within 5%: 1216566 KAS (35254 USD)

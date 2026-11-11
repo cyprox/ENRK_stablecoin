@@ -1,0 +1,9 @@
+state TokState { pubkey owner; int amount; int idx_paid; }
+actor Tok owns TokState {
+    entry transfer(sig s, pubkey new_owner) emits next: Tok {
+        require(checkSig(s, owner));
+        unrestricted(next.value);
+        become next <- Tok(TokState{owner: new_owner, amount: amount, idx_paid: idx_paid});
+    }
+}
+app KF { actor Tok; }

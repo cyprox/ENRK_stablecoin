@@ -1,0 +1,41 @@
+// T4 test 3 (TEST COPY of A3 s4). S1/S2 percentages are placeholders from s4, not proposals.
+// Differences from s4: Pot/Refund spendable by the test key (recoverable funds); ICR product reordered to avoid int64 overflow; test-only owner `reclaim`.
+import "./oracle.ag";
+const int PRICE_SCALE = 100000000;
+const int MCR = 150;
+const int S1_PCT = 50; const int S2_PCT = 30;   // S3 = remainder
+
+state VaultState { pubkey owner; cov_id oracle_covid; int debt; }
+state RefundState { pubkey owner; }
+state PotState { pubkey keeper; int tag; }
+actor Refund owns RefundState { entry claim(sig s) emits none { require(checkSig(s, owner)); } }
+actor Pot owns PotState { entry take(sig s) emits none { require(checkSig(s, keeper)); } }
+
+actor Vault owns VaultState {
+    entry reclaim(sig s) emits none { require(checkSig(s, owner)); }
+    entry liquidate()
+    observes oracle by self.oracle_covid {
+        inputs { round: OracleFeed::PriceRound, }
+        outputs { round: OracleFeed::PriceRound, }
+    }
+    emits { refund: Refund, junior: Pot, reserve: Pot, } {
+        PriceRoundState prev_round = state(oracle.inputs.round);
+        require oracle.outputs become { round <- OracleFeed::PriceRound(prev_round), };
+        int p = oracle.inputs.round.value;
+        require(self.value * p / PRICE_SCALE * 100 / debt < MCR);
+        int owed = debt * PRICE_SCALE / p;
+        int surplus = self.value - owed;
+        require(surplus >= 0);
+        int s1 = surplus * S1_PCT / 100;
+        int s2 = surplus * S2_PCT / 100;
+        require(refund.value == s1);
+        require(junior.value == s2);
+        require(reserve.value == surplus - s1 - s2);
+        become {
+            refund <- Refund(RefundState{owner: owner}),
+            junior <- Pot(PotState{keeper: owner, tag: 1}),
+            reserve <- Pot(PotState{keeper: owner, tag: 2}),
+        };
+    }
+}
+app Liq { actor Vault; actor Refund; actor Pot; }

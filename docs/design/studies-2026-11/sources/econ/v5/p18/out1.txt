@@ -1,0 +1,23 @@
+0 ACCEPT
+1 REJECT input 0 script failed: script ran, but verification failed
+2 REJECT input 0 script failed: script ran, but verification failed
+3 REJECT input 0 script failed: script ran, but verification failed
+4 ACCEPT
+5 REJECT input 0 script failed: script ran, but verification failed
+6 ACCEPT
+7 ACCEPT
+8 ACCEPT
+9 ACCEPT
+10 ACCEPT
+11 ACCEPT
+12 ACCEPT
+13 ACCEPT
+14 ACCEPT
+15 REJECT input 0 script failed: Number too big: Product exceeds 64-bit signed integer range
+16 ACCEPT
+17 ACCEPT
+18 REJECT input 0 script failed: Number too big: Product exceeds 64-bit signed integer range
+19 ACCEPT
+20 ACCEPT
+21 REJECT input 0 script failed: Number too big: Product exceeds 64-bit signed integer range
+22 REJECT input 0 script failed: Number too big: Product exceeds 64-bit signed integer range

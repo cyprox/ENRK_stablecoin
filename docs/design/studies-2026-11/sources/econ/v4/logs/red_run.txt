@@ -1,0 +1,19 @@
+RESULT [redeem ICR250 x=1e8 (fee capped 10%): net 9e7] ACCEPT compute 4658 transient 13392 storage Some(74295)
+RESULT [redeem ICR111 x=1e8 (fee 1.6%): net 98.4e6] ACCEPT compute 4658 transient 13392 storage Some(63946)
+RESULT [redeem PAID vault (must reject)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [redeem x > debt (must reject)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [redeem leaves dust debt 5e7 (must reject)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [redeem full debt x=4e8] ACCEPT compute 4658 transient 13392 storage Some(42817)
+RESULT [redeem pay over by 1 sompi (must reject)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [redeem x below MIN_REDEEM (must reject)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [redeem price below P_LO=1e6 (must reject)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [redeem at stale-LOW sibling p=0.9: net 1e8/0.9*0.9=1e8] ACCEPT compute 4658 transient 13392 storage Some(74212)
+RESULT [redeem from UNDERWATER vault ICR 80% (guard absent)] ACCEPT compute 4658 transient 13392 storage Some(60776)
+RESULT [liquidate ICR120 FULL repay=4.5e8 clean fee 10%: seize 4.95e8] ACCEPT compute 4658 transient 13392 storage Some(111968)
+RESULT [liquidate ICR120 PARTIAL repay=1e8 dirty 9%: seize 1.09e8] ACCEPT compute 4658 transient 13392 storage Some(60977)
+RESULT [liquidate PARTIAL claiming clean fee (must reject)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [liquidate repay=0 (must reject)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [liquidate repay>debt (must reject)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [liquidate healthy ICR250 (must reject)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [liquidate repay=1 unit (no close factor, dust)] ACCEPT compute 4654 transient 13376 storage Some(4000000022407)
+RESULT [liquidate UNDERWATER ICR90 full: seize capped at all collateral] ACCEPT by script engine; storage-mass calculator PANICS (zero-value covenant output)

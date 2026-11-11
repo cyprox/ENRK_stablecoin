@@ -1,0 +1,17 @@
+// Probe: 2-of-3 publisher quorum (compile only). Two real signatures + two distinct key indices.
+state Q { pubkey k1; pubkey k2; pubkey k3; int round; int price; }
+actor Qx owns Q {
+    entry update(sig sa, sig sb, int ia, int ib, int next_price) emits next: Qx {
+        require(ia >= 0); require(ib <= 2); require(ia < ib);
+        pubkey ka = k3;
+        if (ia == 0) { ka = k1; } else { if (ia == 1) { ka = k2; } }
+        pubkey kb = k3;
+        if (ib == 1) { kb = k2; }
+        require(checkSig(sa, ka));
+        require(checkSig(sb, kb));
+        require(next_price > 0);
+        require(next.value == self.value);
+        become next <- Qx(Q{k1: k1, k2: k2, k3: k3, round: round + 1, price: next_price});
+    }
+}
+app Probe { actor Qx; }

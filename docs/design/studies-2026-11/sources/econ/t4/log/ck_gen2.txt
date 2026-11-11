@@ -1,0 +1,6 @@
+
+COVENANT_ID 726946f376c83055c168a5291d75b01b5665d2f9b264e7cc8688aa0d446299be
+TXID cfe099fe1c7208324df8c98a21f56937ad1d35cf719767898ec76d05d80fad70
+LOCAL_MASS compute 2083 transient 1412 inputs 1 outputs 2 json=t4_ck_genesis.json
+
+

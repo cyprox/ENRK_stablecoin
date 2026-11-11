@@ -1,0 +1,46 @@
+// Consumer sketch: reads the ENRK price UTXO through the declared-outputs pattern.
+// TEST constants. `target` is a placeholder for the peg target (index-derived); how it is
+// obtained is exactly the open point P15.
+import "./price.ag";
+
+const int DEPEG_BAND_BPS = 300;
+const int MAX_AGE_DAA = 36000;   // placeholder: about 1 h at 10 DAA/s
+
+state GateState {
+    pubkey owner;
+    cov_id price_covid;
+    int target;      // peg target in the same unit as the oracle price
+}
+
+actor Gate owns GateState {
+    // Depeg trigger (P6/P7 style): provable from the price alone. Manipulating the price DOWN
+    // (within the per-update bound) is what an attacker needs.
+    entry depeg_trigger()
+    observes oracle by self.price_covid {
+        inputs { p: EnrkPriceFeed::EnrkPrice, }
+        outputs { p: EnrkPriceFeed::EnrkPrice, }
+    }
+    emits next: Gate {
+        EnrkPriceState prev = state(oracle.inputs.p);
+        require oracle.outputs become { p <- EnrkPriceFeed::EnrkPrice(prev), };
+        require(oracle.inputs.p.price * 10000 < target * (10000 - DEPEG_BAND_BPS));
+        require(next.value == self.value);
+        become next <- self;
+    }
+
+    // Staleness is PROVABLE (claimed lock_time is bounded above by real DAA), freshness is not.
+    entry oracle_dead()
+    observes oracle by self.price_covid {
+        inputs { p: EnrkPriceFeed::EnrkPrice, }
+        outputs { p: EnrkPriceFeed::EnrkPrice, }
+    }
+    emits next: Gate {
+        EnrkPriceState prev = state(oracle.inputs.p);
+        require oracle.outputs become { p <- EnrkPriceFeed::EnrkPrice(prev), };
+        require(tx.daa >= oracle.inputs.p.stamp + MAX_AGE_DAA);
+        require(next.value == self.value);
+        become next <- self;
+    }
+}
+
+app EnrkGate { actor Gate; }

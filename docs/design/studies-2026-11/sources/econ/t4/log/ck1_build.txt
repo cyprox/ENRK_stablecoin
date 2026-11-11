@@ -1,0 +1,5 @@
+
+COV_SPK aa204a0c00457bb0d6c13855d1ebcd32e7b42f2e91fbdf144ffd0120890cd33484c287
+BUILD_FAILED input 0 script failed: script ran, but verification failed
+
+

@@ -1,0 +1,7 @@
+(1) v1-vs-t3 features off: 17280 field comparisons, differences: 0
+(2) SP special cases == S1/S2/S3: 60 cases, differences: 0
+(3) cache == full with new features ON: 56 cases, differences: 0
+(4) ENRK accounting identity (waterfall configs): 200 cases, differences: 0
+(5) carry-over legacy basis == p3 patch: 180 cases, differences: 0
+check_v1: OK
+python3 -B check_v1.py  64.62s user 0.53s system 96% cpu 1:07.55 total

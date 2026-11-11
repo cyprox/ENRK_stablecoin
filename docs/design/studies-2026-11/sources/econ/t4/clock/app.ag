@@ -1,0 +1,22 @@
+// T4 test 1: CLTV + OpTxLockTime read, three entries (time domain, daa domain, raw without CLTV)
+state CkState { pubkey owner; int anchor_ms; int anchor_daa; int raw_seen; }
+actor Ck owns CkState {
+    entry poke_time() emits next: Ck {
+        require(tx.time >= temporal(anchor_ms));
+        int now_c = OpTxLockTime();
+        require(next.value == self.value);
+        become next <- Ck(CkState{owner: owner, anchor_ms: now_c, anchor_daa: anchor_daa, raw_seen: raw_seen});
+    }
+    entry poke_daa() emits next: Ck {
+        require(tx.daa >= anchor_daa);
+        int now_c = OpTxLockTime();
+        require(next.value == self.value);
+        become next <- Ck(CkState{owner: owner, anchor_ms: anchor_ms, anchor_daa: now_c, raw_seen: raw_seen});
+    }
+    entry raw_read() emits next: Ck {
+        int now_c = OpTxLockTime();
+        require(next.value == self.value);
+        become next <- Ck(CkState{owner: owner, anchor_ms: anchor_ms, anchor_daa: anchor_daa, raw_seen: now_c});
+    }
+}
+app Clock { actor Ck; }

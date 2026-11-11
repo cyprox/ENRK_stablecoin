@@ -1,0 +1,39 @@
+// v4 P20/P10: variant-A price UTXO (price = value) with bounded sweep, rate-limited by a DAA clock, publisher rotation.
+// All constants are TEST values, not proposals.
+const int P_MIN = 1000;              // price floor (scale 1e8)
+const int P_MAX = 500000000;         // price ceiling
+const int MOVE_BPS = 1000;           // max move per sweep: 10.00 %
+const int GAP = 600;                 // min DAA between sweeps of one lineage (~1 min at 10/s)
+
+state PriceRoundState { pubkey publisher; int round; int last; }
+
+actor PriceRound owns PriceRoundState {
+    entry use() emits next: PriceRound {
+        require(next.value == self.value);
+        become next <- self;
+    }
+    entry sweep(sig publisher_sig) emits { left: PriceRound, right: PriceRound, } {
+        require(checkSig(publisher_sig, publisher));
+        require(tx.daa >= last + GAP);
+        int now_c = OpTxLockTime();
+        require(left.value == right.value);
+        require(left.value >= P_MIN);
+        require(left.value <= P_MAX);
+        require(self.value <= P_MAX);
+        require(left.value * 10000 <= self.value * (10000 + MOVE_BPS));
+        require(left.value * 10000 >= self.value * (10000 - MOVE_BPS));
+        PriceRoundState ns = { publisher: publisher, round: round + 1, last: now_c };
+        unrestricted(left.value);
+        unrestricted(right.value);
+        become { left <- PriceRound(ns), right <- PriceRound(ns), };
+    }
+    // two-key hand-over: old and new publisher must both sign; value and round unchanged
+    entry rotate(sig old_sig, pubkey new_pub, sig new_sig) emits next: PriceRound {
+        require(checkSig(old_sig, publisher));
+        require(checkSig(new_sig, new_pub));
+        require(next.value == self.value);
+        PriceRoundState ns = { publisher: new_pub, round: round, last: last };
+        become next <- PriceRound(ns);
+    }
+}
+app OracleFeed { actor PriceRound; }

@@ -1,0 +1,5 @@
+WALL_START_MS 1794386054118
+SUBMITTED 0 a23bdfc80c67a6f2618a9de85c47253c0c7e6808d8b902b25b172b5f99755704 t_ms 75
+REJECTED 1 57e8e32f81c0e12cc466a719601eaed36aad1049f76219255229bc203e9c3b3a t_ms 158 :: RPC Server (remote error) -> Rejected transaction 57e8e32f81c0e12cc466a719601eaed36aad1049f76219255229bc203e9c3b3a: output (795b832ba33fd8bb08c373e730773c3e84d3e3ab5397a500bfce9bfb7538a193, 0) already spent by transaction a23bdfc80c67a6f2618a9de85c47253c0c7e6808d8b902b25b172b5f99755704 in the mempool
+WALL_START_MS 1794386100407
+REJECTED 0 57e8e32f81c0e12cc466a719601eaed36aad1049f76219255229bc203e9c3b3a t_ms 88 :: RPC Server (remote error) -> Rejected transaction 57e8e32f81c0e12cc466a719601eaed36aad1049f76219255229bc203e9c3b3a: transaction 57e8e32f81c0e12cc466a719601eaed36aad1049f76219255229bc203e9c3b3a is an orphan where orphan is disallowed

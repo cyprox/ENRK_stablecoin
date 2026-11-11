@@ -1,0 +1,16 @@
+RESULT [sweep +10.00% (lock = last+GAP)] ACCEPT compute 2638 transient 3592 storage Some(32726)
+RESULT [sweep -10.00%] ACCEPT compute 2638 transient 3592 storage Some(48888)
+RESULT [sweep +10.01% (must reject)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [sweep -10.01% (must reject)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [sweep to price 0 (must reject)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [sweep to 900 < P_MIN from 1000 (must reject)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [sweep with non-publisher key (must reject)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [sweep one block-gap too early (must reject)] REJECT input 0 script failed: Unsatisfied lock time: locktime requirement not satisfied -- locktime is greater than the transac
+RESULT [unequal siblings (must reject)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [parent above P_MAX (must reject)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [child above P_MAX from P_MAX (must reject)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [rotate old+new sig] ACCEPT compute 3280 transient 3640 storage Some(0)
+RESULT [rotate, new key did not sign (must reject)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [rotate, old key did not sign (must reject)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [after rotation: sweep by OLD key (must reject)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [after rotation: sweep by NEW key] ACCEPT compute 2638 transient 3592 storage Some(36190)

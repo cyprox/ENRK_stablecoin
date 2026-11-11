@@ -1,0 +1,47 @@
+// T4 test 4 (TEST COPY of A3 s3). Paired mint: ENRK and kFIAT minted in one entry at a fixed 30% kFIAT share (placeholder).
+// Difference from s3: the two asset covenant ids are entry arguments (cov_id), not Issuer state. With the ids in state, Issuer's covenant id and the proxies' controller_id would depend on each other (cyclic hash), so the three covenants could not be created.
+import "./kcc20_asset.ag";
+
+const int KFIAT_SHARE_PCT = 30;
+
+state VaultState { pubkey owner; int debt_enrk; int debt_kfiat; }
+actor Vault owns VaultState {
+    entry noop(sig s) emits next: Vault {
+        require(checkSig(s, owner));
+        unrestricted(next.value);
+        become next <- Vault(VaultState{owner: owner, debt_enrk: debt_enrk, debt_kfiat: debt_kfiat});
+    }
+}
+
+state IssuerState { pubkey owner; }
+actor Issuer owns IssuerState {
+    entry open(int total_debt, byte[32] recipient_owner, pubkey vault_owner, cov_id enrk_covid, cov_id kfiat_covid)
+    observes enrk by enrk_covid {
+        inputs { proxy: KCC20Asset::MinterProxy, }
+        outputs { proxy: KCC20Asset::MinterProxy, recipient: KCC20Asset::KCC20, }
+    }
+    observes kfiat by kfiat_covid {
+        inputs { proxy: KCC20Asset::MinterProxy, }
+        outputs { proxy: KCC20Asset::MinterProxy, recipient: KCC20Asset::KCC20, }
+    }
+    emits { issuer: Issuer, vault: Vault, } {
+        int k = total_debt * KFIAT_SHARE_PCT / 100;
+        int e = total_debt - k;
+        require(e > 0);
+        MinterProxyState pe = state(enrk.inputs.proxy);
+        MinterProxyState pk = state(kfiat.inputs.proxy);
+        require(pe.controller_id == self.cov_id);
+        require(pk.controller_id == self.cov_id);
+        KCC20State re = { owner_identifier: recipient_owner, identifier_type: IDENTIFIER_PUBKEY, amount: e };
+        KCC20State rk = { owner_identifier: recipient_owner, identifier_type: IDENTIFIER_PUBKEY, amount: k };
+        require enrk.outputs become { proxy <- KCC20Asset::MinterProxy(pe), recipient <- KCC20Asset::KCC20(re), };
+        require kfiat.outputs become { proxy <- KCC20Asset::MinterProxy(pk), recipient <- KCC20Asset::KCC20(rk), };
+        unrestricted(issuer.value);
+        unrestricted(vault.value);
+        become {
+            issuer <- Issuer(IssuerState{owner: owner}),
+            vault <- Vault(VaultState{owner: vault_owner, debt_enrk: e, debt_kfiat: k}),
+        };
+    }
+}
+app TwoMint { actor Issuer; actor Vault; }

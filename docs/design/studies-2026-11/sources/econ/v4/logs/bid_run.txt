@@ -1,0 +1,7 @@
+RESULT [bid 2e8 retired by holder: seize 2.18e8] ACCEPT compute 5221 transient 11644 storage Some(18600)
+RESULT [bid 4.5e8 (full): seize 4.905e8] ACCEPT compute 5221 transient 11644 storage Some(76792)
+RESULT [pay over by 1 sompi (must reject)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [note retired alone, no vault co-spent (must reject)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [note names a different controller id (must reject)] REJECT input 2 script failed: script ran, but verification failed
+RESULT [healthy vault ICR 250 (must reject)] REJECT input 0 script failed: script ran, but verification failed
+RESULT [NOTE KEPT: note spent by transfer() while the vault pays the liquidator] REJECT observe `enrk` expects 0 outputs for its covenant id, found 1

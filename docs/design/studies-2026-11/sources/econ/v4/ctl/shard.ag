@@ -1,0 +1,10 @@
+// v4 P7: debt-total shard. Only the unchanged-recreate path is modelled (read = spend+recreate).
+// The write path (vault open/close/switch) is NOT modelled here: see report (authentication problem).
+state ShardState { int free; int paid; }
+actor Cnt owns ShardState {
+    entry use() emits next: Cnt {
+        require(next.value == self.value);
+        become next <- self;
+    }
+}
+app Shards { actor Cnt; }

@@ -1,0 +1,35 @@
+RESULT[sp_vault_genesis] SUBMITTED 8e6a6535407a25c4400b4e7cb0c28be0fd086018439cd05af0be1648309eeabd
+API_MASS 6196 accepted True block_time 1794384810512 accepting_daa 608842746
+CONFIRM_SECONDS 7.2
+RESULT[sp_liq_K1] SUBMITTED 0f5566f1145f302db16562946e5ace984ab08fa32110fa1170cb2fe2fa7e7b82
+API_MASS 5103 accepted True block_time 1794384839691 accepting_daa 608843049
+CONFIRM_SECONDS 27.2
+RESULT[sp_liq_K2] SUBMITTED 25ed2e850c600ff717010c60b71cbf1d49f25d59e29fa0abc8e6ab3408ae4baa
+API_MASS 7790 accepted True block_time 1794384852776 accepting_daa 608843176
+CONFIRM_SECONDS 7.3
+RESULT[sp_liq_K3] SUBMITTED 2ebcf64311d7670d4009a8eb6a06521fce3e18815d496e826e25c578539426eb
+API_MASS 10477 accepted True block_time 1794384881342 accepting_daa 608843464
+CONFIRM_SECONDS 27.0
+RESULT[sp_liq_K4] REJECTED RPC Server (remote error) -> Rejected transaction 2c0c9424d3933af2050f2d31c085db15889cf2ad1f1c7118e5c6afcbc2aa8865: transaction storage mass of 511612 is larger than max allowed size of 500000
+K4 rejected: storage mass of 511612 > 500000 (12 KAS vaults, surplus 3.5 KAS)
+RESULT[sp_vault_genesis_50] REJECTED RPC Server (remote error) -> Rejected transaction a13acf088f7dd6bd23599b90bc31ec0bf776a4a4700a248a39819fcd9497cd57: transaction storage mass of 666651 is larger than max allowed size of 500000
+RESULT[sp_vault_genesis_25_1] SUBMITTED 200e47e4aa5f589fb7714907e6f24a37bc3d57a21cffdd95f6ce8d9ea2303c5a
+API_MASS 13051 accepted True block_time 1794384982834 accepting_daa 608844435
+CONFIRM_SECONDS 7.4
+RESULT[sp_vault_genesis_25_2] SUBMITTED 333dee2c9254c7e43d3e54af3bf3ed81cc8d034bc792d573ef408fbf18161c85
+API_MASS 13051 accepted True block_time 1794385011723 accepting_daa 608844736
+CONFIRM_SECONDS 27.4
+RESULT[sp_liq_K50] REJECTED RPC Server (remote error) -> Rejected transaction d60cd3c356ecd4a3c97c495b12fe606cabf6086179ef80486dbc1b9262607bd8: transaction storage mass of 22933072 is larger than max allowed size of 500000
+K50 (3 KAS vaults, surplus 0.9 KAS): storage 22933072 > 500000 rejected
+RESULT[sp_liq_K1_small] SUBMITTED 84dcae83e2a039504346d3de8a83c10e08eac412c228ae29f3b26d2d7d63c942
+API_MASS 5103 accepted True block_time 1794385094103 accepting_daa 608845553
+CONFIRM_SECONDS 51.5
+RESULT[sp_liq_K2_small] REJECTED RPC Server (remote error) -> Rejected transaction 642216748adadbf2723c659c4d572486994c39173bd516a08a036aad41c13ab7: transaction storage mass of 958173 is larger than max allowed size of 500000
+K1 small (3 KAS vault) accepted storage 499085; K2 small rejected storage 958173 > 500000
+RESULT[sp_reclaim_53] SUBMITTED daa81e989382ec6651063a823ebe11cf2e88defca7345a01305ad757dd011bcb
+API_MASS 118544 accepted True block_time 1794385138046 accepting_daa 608845998
+CONFIRM_SECONDS 7.3
+RESULT[sp_take_pots] thread 'main' (23119554) panicked at src/bin/submit.rs:9:69:
+RESULT[sp_take_pots] SUBMITTED 3b94f9d828a1c977bed065f5efaa6b29802deacca373e8cd628a098a1f6fc26c
+API_MASS 26833 accepted True block_time 1794386235850 accepting_daa 608856996
+CONFIRM_SECONDS 46.9

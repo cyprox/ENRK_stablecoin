@@ -1,0 +1,69 @@
+// v4 P7: controller poke reading K=4 shard siblings (same covenant id), CLTV-bounded elapsed time, exponential step.
+import "./shard.ag";
+const int Q = 1073741824;
+const int LN2_Q = 744261118;
+const int H = 2592000;
+const int DT_MIN = 3600;
+const int DT_MAX = 1296000;
+const int RMIN = 5000000;
+const int RMAX = 1000000000;
+const int LO_PPM = 300000;
+const int HI_PPM = 700000;
+const int SUM_MAX = 9000000000000000;   // 9e15 units per total (bound for ratio arithmetic)
+
+state CtlState { cov_id shard_covid; int r; int last; }
+
+actor Ctl owns CtlState {
+    fn exp_q(int x) -> int {
+        int a = Q + x / 6;
+        a = Q + x * a / Q / 5;
+        a = Q + x * a / Q / 4;
+        a = Q + x * a / Q / 3;
+        a = Q + x * a / Q / 2;
+        return Q + x * a / Q;
+    }
+    fn step(int rr, int dtt, int dd) -> int {
+        int d1 = dtt;
+        if (d1 > DT_MAX) { d1 = DT_MAX; }
+        int x = d1 * LN2_Q / H;
+        int e = exp_q(x);
+        int nr = rr;
+        if (dd > 0) { nr = rr * e / Q; }
+        if (dd < 0) { nr = rr * Q / e; }
+        if (nr < RMIN) { nr = RMIN; }
+        if (nr > RMAX) { nr = RMAX; }
+        return nr;
+    }
+    entry poke()
+    observes sh by self.shard_covid {
+        inputs { s0: Shards::Cnt, s1: Shards::Cnt, s2: Shards::Cnt, s3: Shards::Cnt, }
+        outputs { o0: Shards::Cnt, o1: Shards::Cnt, o2: Shards::Cnt, o3: Shards::Cnt, }
+    }
+    emits next: Ctl {
+        ShardState a = state(sh.inputs.s0);
+        ShardState b = state(sh.inputs.s1);
+        ShardState c = state(sh.inputs.s2);
+        ShardState d = state(sh.inputs.s3);
+        require sh.outputs become {
+            o0 <- Shards::Cnt(a), o1 <- Shards::Cnt(b), o2 <- Shards::Cnt(c), o3 <- Shards::Cnt(d),
+        };
+        require(tx.daa >= last);
+        int now_c = OpTxLockTime();
+        require(now_c - last >= DT_MIN);
+        int fr = a.free + b.free + c.free + d.free;
+        int pd = a.paid + b.paid + c.paid + d.paid;
+        require(fr >= 0); require(pd >= 0);
+        require(fr <= SUM_MAX); require(pd <= SUM_MAX);
+        int dir = 0;
+        int tot = fr + pd;
+        if (tot > 0) {
+            int ratio = (fr / 1000) * 1000000 / (tot / 1000 + 1);
+            if (ratio < LO_PPM) { dir = 1; }
+            if (ratio > HI_PPM) { dir = -1; }
+        }
+        CtlState ns = { shard_covid: shard_covid, r: step(r, now_c - last, dir), last: now_c };
+        require(next.value == self.value);
+        become next <- Ctl(ns);
+    }
+}
+app Controller { actor Ctl; }

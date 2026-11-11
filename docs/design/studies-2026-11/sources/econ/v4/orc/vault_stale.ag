@@ -1,0 +1,60 @@
+// v4 P10: vault using the oracle's clock field `last` (DAA at sweep) for lower-bound staleness (CLTV-guarded lock_time).
+// Fixed-copy pattern (declared oracle outputs) as in AUDIT 13.4. Test constants.
+import "./oracle.ag";
+const int PRICE_SCALE = 100000000;
+const int MCR_TRIGGER = 150;
+const int ICR_MINIMUM = 200;
+const int DECAY = 864000;            // DAA over which the price decays linearly to 0 (24 h at 10/s)
+
+state VaultState { pubkey owner; cov_id oracle_covid; int debt; }
+
+actor Vault owns VaultState {
+    fn icr_percent(int c, int p, int d) -> int {
+        int hi = c / PRICE_SCALE;
+        int lo = c % PRICE_SCALE;
+        int num = hi * p * 100 + lo * p * 100 / PRICE_SCALE;
+        return num / d;
+    }
+    fn eff_price(int p, int age) -> int {
+        int a = age;
+        if (a > DECAY) { a = DECAY; }
+        return p * (DECAY - a) / DECAY;
+    }
+    // permissionless; claimed staleness = lock_time - last (lower bound on real staleness, CLTV-guarded)
+    entry liquidate()
+    observes oracle by self.oracle_covid {
+        inputs { round: OracleFeed::PriceRound, }
+        outputs { round: OracleFeed::PriceRound, }
+    }
+    emits none {
+        PriceRoundState pr = state(oracle.inputs.round);
+        require oracle.outputs become { round <- OracleFeed::PriceRound(pr), };
+        require(debt > 0);
+        require(oracle.inputs.round.value > 0);
+        require(oracle.inputs.round.value <= 500000000);
+        require(tx.daa >= pr.last);
+        int age = OpTxLockTime() - pr.last;
+        require(icr_percent(self.value, eff_price(oracle.inputs.round.value, age), debt) < MCR_TRIGGER);
+    }
+    // owner: the owner chooses the claimed age, so staleness cannot restrict the owner
+    entry withdraw(sig owner_sig, int withdrawn)
+    observes oracle by self.oracle_covid {
+        inputs { round: OracleFeed::PriceRound, }
+        outputs { round: OracleFeed::PriceRound, }
+    }
+    emits next: Vault {
+        PriceRoundState pr = state(oracle.inputs.round);
+        require oracle.outputs become { round <- OracleFeed::PriceRound(pr), };
+        require(checkSig(owner_sig, owner));
+        require(withdrawn > 0);
+        require(debt > 0);
+        require(oracle.inputs.round.value > 0);
+        require(oracle.inputs.round.value <= 500000000);
+        require(tx.daa >= pr.last);
+        int age = OpTxLockTime() - pr.last;
+        require(next.value == self.value - withdrawn);
+        require(icr_percent(next.value, eff_price(oracle.inputs.round.value, age), debt) >= ICR_MINIMUM);
+        become next <- self;
+    }
+}
+app StaleVault { actor Vault; }

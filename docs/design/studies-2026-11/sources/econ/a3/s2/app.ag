@@ -1,0 +1,15 @@
+import "./oracle.ag";
+const int FEE_PPM = 1;
+state VaultState { pubkey owner; cov_id oracle_covid; int debt; int anchor; }
+actor Vault owns VaultState {
+    entry poke()
+    emits next: Vault {
+        require(tx.daa >= anchor);          // CLTV: rejects finalized (sequence==MAX) input, domain DAA, lock_time>=anchor
+        int now_c = OpTxLockTime();
+        int fee_debt = debt * (now_c - anchor) * FEE_PPM / 1000000;
+        VaultState ns = { owner: owner, oracle_covid: oracle_covid, debt: debt + fee_debt, anchor: now_c };
+        require(next.value == self.value);
+        become next <- Vault(ns);
+    }
+}
+app Fee { actor Vault; }

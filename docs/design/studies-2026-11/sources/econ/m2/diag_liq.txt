@@ -1,0 +1,8 @@
+r=2.5%: vaults liquidated in the calm year (of 1000) mean    0.0  min 0 max 0
+r=3%: vaults liquidated in the calm year (of 1000) mean    0.0  min 0 max 0
+r=3.05%: vaults liquidated in the calm year (of 1000) mean  111.4  min 84 max 143
+r=3.5%: vaults liquidated in the calm year (of 1000) mean  113.9  min 88 max 144
+r=4%: vaults liquidated in the calm year (of 1000) mean  116.6  min 91 max 147
+r=5%: vaults liquidated in the calm year (of 1000) mean  122.2  min 93 max 153
+r=7%: vaults liquidated in the calm year (of 1000) mean  133.8  min 105 max 165
+r=10%: vaults liquidated in the calm year (of 1000) mean  152.9  min 121 max 187

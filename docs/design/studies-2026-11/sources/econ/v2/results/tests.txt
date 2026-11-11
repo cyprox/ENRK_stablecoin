@@ -1,0 +1,13 @@
+PASS quiet market: p stays within 3 pts (max dep mean 0.94 pts) 
+PASS unlimited arb capital: max depth below f-driven depth (1.50 vs 1.78 pts) 
+PASS arb capital 0.01 gives deeper depeg than 10 (7.93 > 1.50) 
+PASS depth rises with f: 10% 1.78 < 30% 10.95 
+PASS no fee, no friction, deep market, huge capital: depth ~ 0 (0.000 pts) 
+PASS reserve accrual: 6.01 pts after 1 y at g=6% 
+PASS spending never exceeds inflow+0: min reserve ratio >= 0 (0.0000) 
+PASS absorption <= loss: absorbed 0.060 <= 0.10 and <= reserve at shock 0.060 
+PASS same seed -> identical baseline irrespective of other cells 
+PASS cell order irrelevant 
+PASS controller idle at equilibrium: rate stays 3% (max 0.030) 
+PASS controller growth: r(day 90)/r(day 60)=2.00 (expect 2.0 after half-life 30 d) 
+PASS explicit max rate binds: max 0.200 == 0.20 

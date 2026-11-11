@@ -1,0 +1,4 @@
+0 ACCEPT
+1 REJECT input 0 script failed: Number too big: Product exceeds 64-bit signed integer range
+2 ACCEPT
+3 REJECT input 0 script failed: script ran, but verification failed

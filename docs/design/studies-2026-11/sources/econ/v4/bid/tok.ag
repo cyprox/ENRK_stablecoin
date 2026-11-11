@@ -1,0 +1,17 @@
+// v4 P19: ENRK note with a holder-consented retire path usable only when a given controller covenant id is co-spent.
+const byte ID_PUBKEY = 0x00;
+state NoteState { pubkey holder; cov_id controller_id; int amount; }
+actor Note owns NoteState {
+    entry transfer(pubkey new_holder, sig s) emits { next: Note, } {
+        require(checkSig(s, holder));
+        NoteState ns = { holder: new_holder, controller_id: controller_id, amount: amount };
+        unrestricted(next.value);
+        become next <- Note(ns);
+    }
+    // retire = destroy the note. Needs the holder's signature AND the controller co-spent (presence only).
+    entry retire(sig s) emits none {
+        require(checkSig(s, holder));
+        require(controller_id.co_spent());
+    }
+}
+app Tok { actor Note; }

@@ -1,0 +1,35 @@
+// v4 P18 test bench: icr_percent unguarded (as in examples/enrk/a/vault.ag) vs guarded.
+// Test constants, not proposals.
+const int PRICE_SCALE = 100000000;
+const int C_MAX = 10000000000000000;   // 1e16 sompi (100M KAS)  [bound under test]
+const int P_MAX = 500000000;           // 5e8 (price 5.0 at scale 1e8) [bound under test]
+const int D_MAX = 4000000000000000000; // 4e18
+
+state AState { int c; int p; int d; int expect; }
+
+actor A owns AState {
+    // exact copy of the audited expression
+    fn icr_unguarded(int cc, int pp, int dd) -> int {
+        return cc * pp * 100 / PRICE_SCALE / dd;
+    }
+    // exact floor(cc*pp*100/(SCALE*dd)) with hi/lo split of cc on the price scale
+    fn icr_guarded(int cc, int pp, int dd) -> int {
+        int hi = cc / PRICE_SCALE;
+        int lo = cc % PRICE_SCALE;
+        int num = hi * pp * 100 + lo * pp * 100 / PRICE_SCALE;
+        return num / dd;
+    }
+    entry unguarded() emits none {
+        require(icr_unguarded(c, p, d) == expect);
+    }
+    entry guarded() emits none {
+        require(c >= 0);
+        require(c <= C_MAX);
+        require(p > 0);
+        require(p <= P_MAX);
+        require(d > 0);
+        require(d <= D_MAX);
+        require(icr_guarded(c, p, d) == expect);
+    }
+}
+app Arith { actor A; }

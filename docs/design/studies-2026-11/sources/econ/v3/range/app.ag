@@ -1,0 +1,26 @@
+// Probe: counted consumes/emits range, N -> N price refresh with per-sibling bounded move.
+const int MAXN = 8;
+const int MAX_MOVE_BPS = 200;
+state P { pubkey publisher; int round; int price; int stamp; int n; }
+actor Px owns P {
+    entry refresh(sig s, P[] next_states)
+    consumes { olds: Px[1..=MAXN], }
+    emits { news: Px[1..=MAXN], } {
+        require(checkSig(s, publisher));
+        require(olds.length == next_states.length);
+        require(olds.length == n);   // consume the WHOLE population (n copies exist)
+        for (i, 0, olds.length, MAXN) {
+            P o = state(olds[i]);
+            require(o.price > 0);
+            require(next_states[i].price > 0);
+            require(next_states[i].price * 10000 <= o.price * (10000 + MAX_MOVE_BPS));
+            require(next_states[i].price * 10000 >= o.price * (10000 - MAX_MOVE_BPS));
+            require(next_states[i].round == o.round + 1);
+            require(news[i].value == olds[i].value);
+            require(next_states[i].n == o.n);
+            require(o.n == n);
+        }
+        become news <- Px[](next_states);
+    }
+}
+app Probe { actor Px; }
