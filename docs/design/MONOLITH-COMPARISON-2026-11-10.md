@@ -74,10 +74,10 @@ handling, an unproven peg mechanism and no verifiable adoption.
    40,000).
 6. **Documentation vs code drift.** README says redemption is pro-rata, code targets one
    borrower per call; README says Vault fee up to 25 %, code 10 %; README says write-off
-   "equally", code pro-rata by shares. A commit dated 2026-05-18 is titled "Remove free
-   debt and add permanent event trigger mode" while `main` still contains free debt, so the
-   design may be moving. Open issue #62 reports a DoS in `redeem` through the `minDebt`
-   check (title only read).
+   "equally", code pro-rata by shares. A commit of 2026-05-18 "Remove free
+   debt and add permanent event trigger mode" was merged then reverted on 2026-05-28, so
+   the design is being explored. Open issue #62 reports a DoS in `redeem` through the
+   `minDebt` check; the condition is still in the code (`Lender.sol:447`).
 7. **Audit record (now read).**
    - **Electisec, 20-27 May 2025, dev branch.** 1 Critical (`lastAccrue` uninitialised, so
      the first accrual computes about 55 years of interest; fixed `395e6d9`), 1 Medium
@@ -108,8 +108,58 @@ handling, an unproven peg mechanism and no verifiable adoption.
      outlive all debt (insolvent restart). These are "risk accepted" and are real
      design limits.
    - **Gap:** the DAO contracts are in no audit scope (redeployed 2026-10-22). Both
-     ChainSecurity PDFs are DRAFT, and no document ties the mainnet deployment to
-     commit `f5a6fa6a`.
+     ChainSecurity PDFs are DRAFT.
+
+   **Fix verification (2026-11-10, shallow clone of `main` HEAD `3511ab5`, code read,
+   nothing executed, no test run).** All audited commits exist in `main` history
+   (`b36e9ef0`, `41eb720e`, `f5a6fa6a`, `38ce8ee7`). Sherlock states its fixes are in PR
+   #42, but that PR shows no diff and 0 commits on GitHub, and `main` was force-pushed
+   on 2026-05-08, so I checked the code instead:
+
+   | Finding | Sherlock status | State at HEAD (my reading) |
+   |---|---|---|
+   | H-1 rounding / unbacked borrow | fixed (PR #42) | Epoch rescaling removed: 21 `epoch` occurrences in `Lender.sol` at the audited commit, 0 at HEAD. Redemption is per borrower. Structural fix. |
+   | M-1 single bad-debt user mints unbacked | fixed | `totalDebt > totalCollateralValue` forces `reduceOnly` (`Lender.sol:694-696`, PR #44 merge `41eb720e`, 16 Mar 2026). |
+   | M-2 inconsistent health checks | fixed | `adjust` requires `debt <= borrowingPower` (l.292); liquidation returns 0 when `borrowingPower >= debt` (l.616). Consistent at equality. |
+   | M-3 ERC-4626 `totalAssets` | **acknowledged, not fixed** | `totalAssets` unchanged (`balanceOf + pending interest`). |
+   | M-4 redeem with bad-debt position | fixed | The epoch-based pooled redemption it relied on no longer exists. |
+   | M-5 interest through `MIN_RATE` | fixed | Piecewise integral at `InterestModel.sol` matches `(r0 - rmin)/k` plus a flat part; commit `f211ea6` (2026-02-25). I checked the formula by reading only, no numeric test. |
+   | M-6 `wadExp` underflow | fixed | `if (growthDecay == 0) growthDecay = 1;` present; commit `aa6d2fa` (2026-02-25). |
+   | Issue #62 (`minDebt` check in `redeem`) | open, no maintainer reply | Condition still present (`Lender.sol:447`). Not fixed. |
+
+   **Execution (forge 1.9.0, `main` HEAD `3511ab5`, fork test `LenderFork.t.sol` excluded
+   because it needs an RPC).** 164 tests: 163 pass, 1 fails
+   (`test_repay_withInterestAccrual`). The failure is a test artifact: it also fails at
+   the final audited commit `f5a6fa6a` and at the mainnet deployment commit `857f8d0`,
+   and it passes with `FOUNDRY_VIA_IR=false` (256 fuzz runs). With `via-ir`, the line
+   `initialTimestamp = block.timestamp` is evaluated after the `vm.warp`, so the
+   assertion compares the wrong value; `lastAccrue` itself is updated correctly.
+   Passing tests that cover the fixes: `test_calculateInterest_wadExpUnderflow` (M-6),
+   `test_writeOff_singleBadDebtBorrowerCannotMintUnbackedTokens` (M-1),
+   `test_writeOff_success` / `notDeepEnoughUnderwater`, the reduce-only tests, the
+   `test_redeem_*` tests (per-borrower redemption, replacing the pooled one in H-1/M-4).
+   I did not rebuild the original H-1 or M-4 exploits: the code they target (epoch
+   rescaling) is gone, so the fix rests on absence of that code plus the passing tests.
+   **Issue #62, executed PoC** (scratch test, not in the repo): borrower with 5000
+   collateral and 1500 debt, price dropped to 0.25 (collateral value 1250). Redeeming
+   "everything" reverts with `Debt below minimum and larger than 0`; redeeming 400
+   succeeds and leaves 1100. So #62 is real but limited to a position that is already
+   undercollateralised: a redeemer can still choose a smaller amount, it is not an
+   unconditional DoS.
+
+   ChainSecurity's own statuses are those listed above (1 High and 5 Low "risk
+   accepted"); I did not re-check each of the 13 Low and 5 Medium against the code.
+
+   **Deployed code vs audited code.** Mainnet deployment commit is `857f8d0` (2026-04-24),
+   10 days after the final ChainSecurity commit `f5a6fa6a` (2026-04-14). Between the two,
+   `Lender.sol` and `Factory.sol` changed (diff read): events added (`InterestAccrued`,
+   `ReservesPulled`), `minTotalSupply` renamed `psmVaultMinTotalSupply`,
+   `timeUntilImmutability` bound `<` changed to `<=`, and **`pullLocalReserves` made
+   permissionless and now mints to the operator** (was `onlyOperator`, minting to the
+   caller). These look minor but are unaudited. A new `Metadata.sol` (214 lines) is also
+   unaudited. I did **not** compare the deployed bytecode on Etherscan with the source.
+   The later "remove free debt" work (May 2026) was reverted on `main` (`3511ab5`), so
+   `main` still has free debt.
 8. **Licence and traction.** LICENSE.md is a non-commercial audit licence (SPDX
    UNLICENSED), not open source; 1 GitHub star at the time of reading. Operator status
    (EOA / multisig / timelock) of Factory V2 is undocumented.
@@ -163,6 +213,8 @@ Each item needs a feasibility check on Kaspa covenants before any decision.
 
 ## 5. Next steps (need owner go)
 
-- Read the Sherlock issues' fix status one by one, and the three AI reports.
-- Check the mainnet deployed bytecode against commit `f5a6fa6a`.
-- Read `Lens.sol`, the tests and issue #62.
+- Read the three AI reports.
+- Compare the mainnet deployed bytecode with commit `857f8d0` (Etherscan/Sourcify).
+- Rebuild the original H-1 and M-4 exploits against the audited commit `b36e9ef0` to
+  show they fail at HEAD (not done: only the fix tests were run).
+- Read `Lens.sol` and the tests.
