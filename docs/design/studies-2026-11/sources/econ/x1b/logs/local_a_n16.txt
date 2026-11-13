@@ -1,0 +1,26 @@
+VARIANT a N 16 value_each 160000000
+RESULT[positive +5%] REJECT transaction transient mass 1057220 exceeds limit 1000000
+RESULT[positive -10% (bound edge)] REJECT transaction transient mass 1057220 exceeds limit 1000000
+RESULT[positive +10% (bound edge)] REJECT transaction transient mass 1057220 exceeds limit 1000000
+RESULT[wrong signer] REJECT input 0 script failed: script ran, but verification failed
+RESULT[price +10.01% (out of bound)] REJECT input 0 script failed: script ran, but verification failed
+RESULT[price -10.01% (out of bound)] REJECT input 0 script failed: script ran, but verification failed
+RESULT[price 0] REJECT input 0 script failed: script ran, but verification failed
+RESULT[output price differs from argument] REJECT input 0 script failed: script ran, but verification failed
+RESULT[output round not +1 (last sibling)] REJECT input 0 script failed: script ran, but verification failed
+RESULT[one output at a different price] REJECT input 0 script failed: script ran, but verification failed
+RESULT[missing sibling (N-1 in, N-1 out, n unchanged)] REJECT input 0 script failed: script ran, but verification failed
+RESULT[missing middle sibling (N-1 in, N-1 out)] REJECT input 0 script failed: script ran, but verification failed
+RESULT[N inputs, N-1 outputs (sibling dropped)] REJECT input 0 script failed: script ran, but verification failed
+RESULT[extra output sibling (N inputs, N+1 outputs)] REJECT input 0 script failed: script ran, but verification failed
+RESULT[extra input sibling (N+1 inputs)] REJECT actor input 0 `oracle_feed::PriceRound::refresh` requires between 1 and 16 same-covenant inputs, found 17; actor is a leader actor trusted by delegate
+RESULT[duplicated output slot] REJECT input 0 script failed: script ran, but verification failed
+RESULT[duplicated input slot (two inputs slot 1)] REJECT input 0 script failed: script ran, but verification failed
+RESULT[mixed rounds (last sibling at round-1)] REJECT input 0 script failed: script ran, but verification failed
+RESULT[mixed rounds (sibling 1 at round+4)] REJECT input 0 script failed: script ran, but verification failed
+RESULT[mixed prices (last sibling stale price)] REJECT input 0 script failed: script ran, but verification failed
+RESULT[value of one sibling changed] REJECT input 0 script failed: script ran, but verification failed
+RESULT[n changed in one output] REJECT input 0 script failed: script ran, but verification failed
+RESULT[inputs out of order (slot 1 first)] REJECT input 0 script failed: script ran, but verification failed
+RESULT[drain publisher] REJECT transaction transient mass 1051632 exceeds limit 1000000
+RESULT[drain wrong signer] REJECT input 0 script failed: script ran, but verification failed

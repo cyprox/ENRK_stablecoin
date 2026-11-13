@@ -1,0 +1,52 @@
+// x1b variant (a): single actor, counted-range N-to-N refresh. TEST constants.
+const int MAXF = 7;      // max followers (N-1)
+const int MAXO = 8;      // max outputs (N)
+const int MOVE_BPS = 1000;    // max move per refresh 10.00 %
+
+state PriceRoundState { pubkey publisher; int round; int price; int slot; int n; }
+
+actor PriceRound owns PriceRoundState {
+    entry use() emits next: PriceRound {
+        require(next.value == self.value);
+        become next <- self;
+    }
+    // followers of a refresh / drain are spent with this delegate; the leader entry checks everything
+    delegate follow() consumes { lead: PriceRound, } { require(lead.round == round); }
+
+    entry refresh(sig publisher_sig, int new_price)
+    consumes { olds: PriceRound[0..=MAXF], }
+    emits { news: PriceRound[1..=MAXO], } {
+        require(checkSig(publisher_sig, publisher));
+        require(new_price > 0);
+        require(new_price * 10000 <= price * (10000 + MOVE_BPS));
+        require(new_price * 10000 >= price * (10000 - MOVE_BPS));
+        require(slot == 0);
+        require(olds.length + 1 == n);
+        require(news.length == olds.length + 1);
+        require(news[0].value == self.value);
+        unrestricted(news[0].value);
+        PriceRoundState[] ns;
+        PriceRoundState me = { publisher: publisher, round: round + 1, price: new_price, slot: 0, n: n, };
+        ns = ns.append(me);
+        for (i, 0, olds.length, MAXF) {
+            PriceRoundState o = state(olds[i]);
+            require(o.publisher == publisher);
+            require(o.round == round);
+            require(o.price == price);
+            require(o.slot == i + 1);
+            require(o.n == n);
+            require(news[i + 1].value == olds[i].value);
+            PriceRoundState nx = { publisher: publisher, round: round + 1, price: new_price, slot: i + 1, n: n, };
+            ns = ns.append(nx);
+        }
+        become news <- PriceRound[](ns);
+    }
+
+    // test-only publisher drain (returns all locked value to the key address)
+    entry drain(sig publisher_sig)
+    consumes { olds: PriceRound[0..=MAXF], }
+    emits none {
+        require(checkSig(publisher_sig, publisher));
+    }
+}
+app OracleFeed { actor PriceRound; }

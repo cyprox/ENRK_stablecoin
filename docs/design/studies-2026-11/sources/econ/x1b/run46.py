@@ -1,0 +1,7 @@
+import sc
+t='4d37909dde2fa15d23d5b7670c98d39ba0e3a64cbede0d3a03c0f6c58f54b585'
+sc.scenario('b',46,'b',[105000000,99750000],tag='b46',gf=('fa10cd8e235c112be72901bf61f91e074352886bc0d0fff8c429e034841f1c69',0,31770000000),rf=[(t,i,840000000) for i in range(4)])
+# b32 afterwards
+v=15_000_000*32
+rf=sc.split('b32r',4,v+150_000_000)
+sc.scenario('b',32,'b',[105000000,99750000],tag='b32',gf=('f1a66adc2c1817a68c30f9e8619cc8e2450caf6829eb307713012eee28e72d72',0,15390000000),rf=rf)

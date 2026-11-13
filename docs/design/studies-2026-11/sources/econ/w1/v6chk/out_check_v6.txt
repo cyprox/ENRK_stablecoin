@@ -1,0 +1,7 @@
+(1-3) 7848 field comparisons, differences: 0
+(4) shaping values exact: OK
+   trigger hyst days 41 first 19
+   trigger mkt days 52 first 8
+   trigger fresh days 2 first 55
+   A2 flat: index_end 0.504 ratio-form 0.000 kFIAT loss 49.6 uncovered 49.6
+check_v6: OK

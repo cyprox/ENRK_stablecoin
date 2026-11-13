@@ -1,0 +1,53 @@
+// x1b variant (b): leader + follower actors, counted-range N-to-N refresh. TEST constants.
+const int MAXF = 63;      // max followers (N-1)
+const int MOVE_BPS = 1000;    // max move per refresh 10.00 %
+
+state PriceRoundState { pubkey publisher; int round; int price; int slot; int n; }
+
+actor Leader owns PriceRoundState {
+    entry use() emits next: Leader {
+        require(next.value == self.value);
+        become next <- self;
+    }
+    entry refresh(sig publisher_sig, int new_price)
+    consumes { olds: Follower[0..=MAXF], }
+    emits { lead: Leader, news: Follower[0..=MAXF], } {
+        require(checkSig(publisher_sig, publisher));
+        require(new_price > 0);
+        require(new_price * 10000 <= price * (10000 + MOVE_BPS));
+        require(new_price * 10000 >= price * (10000 - MOVE_BPS));
+        require(slot == 0);
+        require(olds.length + 1 == n);
+        require(news.length == olds.length);
+        require(lead.value == self.value);
+        unrestricted(lead.value);
+        PriceRoundState me = { publisher: publisher, round: round + 1, price: new_price, slot: 0, n: n, };
+        PriceRoundState[] ns;
+        for (i, 0, olds.length, MAXF) {
+            PriceRoundState o = state(olds[i]);
+            require(o.publisher == publisher);
+            require(o.round == round);
+            require(o.price == price);
+            require(o.slot == i + 1);
+            require(o.n == n);
+            require(news[i].value == olds[i].value);
+            PriceRoundState nx = { publisher: publisher, round: round + 1, price: new_price, slot: i + 1, n: n, };
+            ns = ns.append(nx);
+        }
+        unrestricted(news[0].value);
+        become { lead <- Leader(me), news <- Follower[](ns), };
+    }
+    entry drain(sig publisher_sig)
+    consumes { olds: Follower[0..=MAXF], }
+    emits none {
+        require(checkSig(publisher_sig, publisher));
+    }
+}
+actor Follower owns PriceRoundState {
+    entry use() emits next: Follower {
+        require(next.value == self.value);
+        become next <- self;
+    }
+    delegate follow() consumes { lead: Leader, } { require(lead.round == round); }
+}
+app OracleFeed { actor Leader; actor Follower; }

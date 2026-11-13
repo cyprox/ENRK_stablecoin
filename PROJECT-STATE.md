@@ -1,6 +1,6 @@
 # ENRK — Project State
 
-**Last updated:** November 11, 2026
+**Last updated:** November 13, 2026
 **Author:** cyprox
 **Repository:** https://github.com/cyprox/ENRK_stablecoin
 
@@ -149,6 +149,13 @@ Full record: [`docs/design/ECONOMICS-VERIFICATION-2026-11-11.md`](docs/design/EC
   Argent issuance-cap example is bypassable (negative mint, extra controller entry); the
   `icr_percent` guard is exact (10,716 engine runs); an oracle sweep bound alone permits
   ~117–300× per hour at one-minute gaps.
+- **Second round (Nov 13):** the unit of account (USD, CNY, baskets) does not change crash
+  safety, KAS risk dominates; a RUB leg adds revaluation risk and legal exposure for no
+  measured gain. A whole-population oracle refresh at a changed price was executed on
+  testnet-10 (max N = 46 in one transaction; the all-N completeness guard is essential,
+  shown by a negative control that accepted a stale price on chain; ~20× the cost per UTXO
+  of a plain round). KAS order-book collection has started (manual snapshots, data outside
+  the repository). See §10 of the verification document.
 - **Open decisions** are listed in §9 of the verification document.
 
 ---

@@ -1,6 +1,6 @@
 # ENRK — Economic and mechanism verification round
 
-**Date:** November 11, 2026
+**Date:** November 11, 2026 (second round added November 13, 2026, §10)
 **Status:** Findings. **No design decision is taken here.** Every "proposal" is awaiting the owner. Companion to [`AUDIT-2026-11-09.md`](AUDIT-2026-11-09.md) (§13 holds the Kaspa fact base and the testnet-10 results).
 **What this is:** the consolidation of a round of simulations, local executions and research made by AI sub-agents under the lead session, each proposal tested and then reviewed by an independent adversarial pass. Raw reports and the scripts that produced them are in [`studies-2026-11/`](studies-2026-11/) (see §7). All numbers are **model outputs under stated assumptions, not forecasts**.
 
@@ -111,3 +111,35 @@ Verdict and confidence are the independent reviewer's (`econ-v5`), with the auth
 6. The debt ceiling and how liquidator capital is measured (data collection first).
 7. The issuance-cap design (not the Argent example).
 8. Whether to run the three gap-fillers: reactive borrowers, re-basing `m2`/`t1`/`t2` on a non-cushioned index, executing the whole-population refresh on testnet-10.
+
+---
+
+## 10. Second round: units of account, whole-population oracle refresh, market data (owner-approved steps 0, 1a, 1b)
+
+Reports: [`econ-w1-unit-variants-rebase.md`](studies-2026-11/reports/econ-w1-unit-variants-rebase.md), [`econ-x1b-population-refresh.md`](studies-2026-11/reports/econ-x1b-population-refresh.md); sources under `studies-2026-11/sources/econ/{w1,x1b}/` and `sources/market/collect_orderbooks.py`. These two reports have **not** yet been through the independent review that covered the first round.
+
+### 10.1 The unit of account does not change crash safety (W1)
+- Units tested: the coded index (without the hidden cushion), USD, CNY, USD/EUR/CNY, USD/CNY/RUB (equal and 50/30/20), electricity only, gold, and a bounded "slow-up" index. Data: FRED (CNY onshore, EUR, electricity), the Central Bank of Russia official XML (RUB), futures for gold (unofficial), keyless public GETs on 2026-11-11.
+- **KAS risk dominates** (KAS volatility 97 % against 3.0 % for CNY, 4.5 % for the USD/CNY/RUB basket). Crash simulation of the candidate (fee 3 %, junior 30 %, KAS −85 %): ENRK p95 loss 13.7–14.5 % in every stable unit (USD 13.8 %); paired differences against USD −0.03 to +0.05 points. The ordering of architectures is the same on every unit.
+- **What depends on the unit:** a large and *fast* revaluation of the unit inside the crash (speed matters about 4.7× more than level: +20 % in one step on day 5 adds 10.3 points of unbacked debt, +20 % ramped over 60 days adds 2.2). Worst 60-day revaluations since 2005: CNY +6.8 %, USD/EUR/CNY +5.2 %, USD/CNY/RUB equal +24.8 % (50/30/20: +14.3 %), RUB alone +80.6 %, gold +33 %, electricity +9 %. Devaluations of the unit (CNY 2015–16 −10.6 %, 2018 −9.9 %, 2022 −13.2 %) lower debt value and help the system but cost holders.
+- A RUB leg raises the basket's worst 60-day revaluation about five-fold without measured benefit. Oracle and legal facts (listed, **not assessed**): Pyth and Chainlink list USD/CNY, EUR/USD and gold, no RUB feed; the official RUB rate lies up to 16.3 % below the market quote on stress days; OFAC Directive 4 (2022-02-28) prohibits transactions with the Central Bank of Russia and the scope for publishing a rate derived from it was not assessed. No keyless offshore-yuan (CNH) history exists, so the onshore/offshore gap is not quantified.
+- Holders (USD terms, A3 crash): USD −3.2 % mean (p5 −13.6 %), CNY −3.0 %, USD/CNY/RUB −3.1 %, gold −1.0 %, coded index −3.3 % (p5 −18.6 %); a unit that loses 10–20 % dominates the crash loss from about 5 %.
+- **Re-based conclusions (no cushion, r ≤ 3 %, so the 153 % artefact is not involved):** junior expected return at s = 30 %, crash probability 10 %/yr: −2.7 / +0.6 / +3.9 / +7.4 for r = 0 / 1 / 2 / 3 %; voluntary junior share s* at r = 3 %: 44 % (hurdle 5 %), 26 % (10 %), none (20 %); fee at which a 30 % junior clears: 2.3 % / about 3.7 % / about 6.5 % (T2 had 1.8 / 3.3 / 6.8). The self-consistency gap remains: s* ≈ 26 % gives ENRK p95 14–19 %, while s = 50 % gives 5.4 %.
+- At KAS −70 % the exploratory stack sits at the survive edge (unbacked 2.8–2.9 %) and flips to 3.2–3.6 % with a +10 to +20 % unit revaluation, with gold, or with the coded index.
+
+### 10.2 Whole-population oracle refresh executed on testnet-10 (X1B)
+- A single transaction that consumes all N sibling price UTXOs and recreates them at a **changed price** works on chain, in two forms: (b) a leader entry with follower inputs (max **N = 46**: compute 487,182 = 97.4 % of the limit, 6.9 s to confirm, fee 0.487 TKAS; N = 47 refused on compute 507,273; N = 128 does not compile, the script exceeds the 250,000-byte limit) and (a) a single actor (max N = 15: transient 1,057,220 > 1,000,000 at N = 16). Form (b) is cheaper at every N.
+- The accepted form for the consumed range: the first input runs `refresh(sig, new_price)` with the other siblings consumed through a no-argument delegate entry; the earlier failure (V3) came from spending the other inputs through the leader entry.
+- **The completeness guard is essential and was demonstrated by a negative control on chain**: a variant without the all-N check refreshed two of four siblings, and a vault withdrawal was accepted on chain against the stale sibling at the old price (mass 11,990). With the guard (count equals n, slot equals index, equal round and price among siblings), a missing, extra, duplicated or mixed sibling is rejected (20+ local negatives); an attempt to spend an old sibling after a refresh is refused by the node with its generic missing-input message ("consumed, therefore gone" is derived, not stated by the node).
+- Cost: about 20× more per UTXO than a plain value-preserving `use` round; at one refresh every 10 s the floor fee is 187 TKAS/day (b, N = 4) to 4,209 TKAS/day (b, N = 46), divided by 6 at one refresh per minute. **A 640-UTXO population cannot be refreshed in one transaction with this form**: the design must aim at a few dozen siblings or a single price UTXO.
+- A vault liquidation reads the new price after a refresh (b, N = 8, price 0.891, ICR 142.6, mass 3,369); at the old prices the liquidation does not build.
+- Net spend 5.104 TKAS, all fees (72 accepted transactions); every test contract was drained. Limits: lightly loaded testnet, one sample per row, constants are test values, publisher-key compromise not tested, transient and storage mass from the local calculator, N > 46 derived.
+
+### 10.3 Order-book collection started (step 0)
+`sources/market/collect_orderbooks.py` takes a manual one-shot snapshot of six KAS venues (public GETs, no scheduler) into `~/ENRK_market_data/` (raw JSON files read-only, plus `index.csv`). The first snapshot (calm, 2026-11-11): merged bid depth within 5 % of the best bid about 621,000 USD (about 480,000 on 2026-11-10), Kraken more than half; per-venue impact coefficient at 1 % of daily volume 0.009–0.043, merged 0.013. The data folder is outside the repository; it can be moved on the owner's instruction. A calm snapshot does not measure stressed depth: extra snapshots are to be taken on days when KAS moves more than 8 %.
+
+### 10.4 What this changes
+- The choice of the unit (USD, CNY, basket) is a **trust, oracle and consistency decision** (the founding thesis states "no USD, no fiat"), not a crash-safety decision; a RUB leg adds revaluation risk and legal exposure for no measured gain.
+- The oracle design must carry the all-N completeness guard, must accept that populations are limited to dozens of siblings (or a single price UTXO), and must budget its refresh cost; who pays remains open in a system without governance.
+- Still open from the first round: reactive borrowers, correlated shocks, the oracle dependence of the unfreeze, and a calibrated liquidator capital (the market data above is the first input).
+

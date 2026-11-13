@@ -1,0 +1,5 @@
+Dec 2014: 9 common days; official/market-1 median -0.09%, p95 |dev| 10.60%, max |dev| 10.9% on 2014-12-16 (CBR 58.3 vs market 65.5)
+2022-02-22..04-15: 29 common days; official/market-1 median -1.58%, p95 |dev| 13.60%, max |dev| 16.3% on 2022-03-10 (CBR 116.1 vs market 138.7)
+2023-2026 (calm): 759 common days; official/market-1 median -0.03%, p95 |dev| 1.72%, max |dev| 1414.9% on 2023-03-16 (CBR 75.7 vs market 5.0)
+official series: first 2005-01-01 last 2026-11-11 obs 5409 max gap days 13 (weekend/holiday set rates are in the file: CBR publishes an official rate for the next day, incl. non-trading days)
+largest 1-obs moves of the official rate: [('2022-03-03', '+12.5%'), ('2014-12-19', '-12.1%'), ('2022-03-01', '+12.0%'), ('2015-01-13', '+11.6%'), ('2014-12-18', '+10.8%')]
