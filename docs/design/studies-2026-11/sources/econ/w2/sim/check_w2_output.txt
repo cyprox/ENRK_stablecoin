@@ -1,0 +1,6 @@
+(1) W2 off == W1: 23688 field comparisons, differences: 0
+(2) inert rb options == off: 6016 comparisons, differences: 0
+(3) cached pre-year == full run with rb ON: 56 cases, differences: 0
+(4) ENRK accounting identity with rb: 240 cases, differences: 0
+(5) hand checks: 60 checks, differences: 0
+check_w2: OK total comparisons 30060 differences 0

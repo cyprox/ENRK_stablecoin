@@ -1,6 +1,6 @@
 # econ-x1b: all-N oracle population refresh at a changed price (testnet-10)
 
-Date 2026-11-11. Testnet-10 only, owner-approved step 1b. Findings and measurements only, no design decision.
+Review 2026-11-14 (review-w1-x1b-w2-independent.md): masses, fees, confirm times and txids reproduce from ledger.jsonl; corrections are listed in 'Review corrections' at the end. Date 2026-11-11. Testnet-10 only, owner-approved step 1b. Findings and measurements only, no design decision.
 Tags: EXECUTED-ON-CHAIN (txid + API mass), EXECUTED-LOCALLY (builder runs the real script engine, MAINNET mass params), COMPILED, DERIVED.
 Sources and logs: SP/econ/x1b (oracle.tmpl in a/ and b/, a/oracle_ctl.tmpl, x1b.rs harness copied to SP/w/argent/tests/x1b.rs, drv.py, sc.py, vsc.py, csc.py, ledger.jsonl, logs/local_*.txt, out/*.json). Key file used only through the Rust harness; not printed or copied. Repo untouched.
 
@@ -72,3 +72,12 @@ Start balance 1,326,675,492,643 sompi (13,266.75 TKAS); end 1,326,165,126,043; *
 
 ## 9. Limits and unverified points
 Testnet-10 lightly loaded, single sample per row; mass for transient/storage is the local calculator, not read from the node (the API reports compute only). Constants (MOVE_BPS, value sizing) are test values. Extra input sibling and "not liquidatable" cases exist only as builder refusals. The publisher key signs everything: this tests structure, not key compromise. Large-N behaviour beyond 46 is DERIVED (refused locally). Mixed-round refusal is by the leader loop; the delegate `follow` adds its own round check.
+
+## Review corrections (2026-11-14, from review-w1-x1b-w2-independent.md; text corrections only, nothing re-run on chain)
+- X-3: the refusal figures for form (b) at N = 47, 48, 64, 96, 128 are not in any saved log, ledger or script (only the (a) N = 16 message is). The on-chain pass at N = 46 is recorded; the N >= 47 refusals are reported but unrecorded. The quadratic fit predicts 504,178 at N = 47 (0.6% below the reported 507,273) and is 3% off at N = 4; "within 0.2 %" holds only at the three fitted points 16, 32, 46.
+- X-4: "max N = 46" is a property of this contract form (quadratic compute from the array append inside the loop; compute-bound at 500k while transient would allow about 83), not a limit of Kaspa L1. Other layouts were not tested.
+- X-2: the fees of the 72 accepted transactions sum to 510,039,000 sompi against the stated net spend 510,366,600; the gap of 327,600 sompi (one split fee) is unexplained ("all transaction fees" holds to 0.064%).
+- X-5: negative control: the stale withdraw accepted on chain (mass 11,990) is well recorded; the "fresh sibling rejected, ICR 189" comparison is local only (stated parameters give ICR 180), the guarded counterpart's refusal is engine-only, and the control removes the n and slot checks together.
+- X-6: "a price that is two rounds old" is wrong: in csc.py the stale withdraw follows the FIRST partial refresh, so the sibling is one round behind. "Forever" (never refreshable by the guarded entry) stands.
+- X-7: the three stale-sibling "orphan" refusals show only that a consumed outpoint cannot be spent again (base layer), not the covenant guard; a mempool race with a pending vault transaction was not tested.
+- Cost ratio: the "20x" is a compute ratio; on transient it is about 7.8x.

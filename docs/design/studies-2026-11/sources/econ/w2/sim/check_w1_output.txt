@@ -1,0 +1,5 @@
+(1) W1 off == V1: 9024 field comparisons, differences: 0
+(2)(3) path==det, path(1)==flat: 1880 comparisons, differences: 0
+(4) up-limit off/large inert, binds exactly, falls unlimited: 1430 comparisons, differences: 0
+(5) cached pre-year == full run: 2256 comparisons, differences: 0
+check_w1: OK total comparisons 14590 differences 0

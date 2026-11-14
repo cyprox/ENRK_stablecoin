@@ -11,8 +11,9 @@ where things stand, what is decided, what is blocked, and what to do next.
 
 ## One-line status
 
-Design and specification complete. Implementation not started, and deliberately so:
-the execution layer is undecided. The oracle construction has been measured against
+Design and specification complete. Implementation not started, and deliberately so.
+**Execution layer decided by the owner (2026-11-13): Kaspa L1; Igra is not retained.**
+Several design questions remain open (see "Open" below). The oracle construction has been measured against
 the real Kaspa script engine, which answered three of the four questions it was
 blocked on. One remains open, and no core developer has confirmed the reading yet.
 
@@ -156,6 +157,16 @@ Full record: [`docs/design/ECONOMICS-VERIFICATION-2026-11-11.md`](docs/design/EC
   shown by a negative control that accepted a stale price on chain; ~20× the cost per UTXO
   of a plain round). KAS order-book collection has started (manual snapshots, data outside
   the repository). See §10 of the verification document.
+- **Third round (Nov 13-14), reactive borrowers (W2)** ([`econ-w2-reactive-borrowers.md`](docs/design/studies-2026-11/reports/econ-w2-reactive-borrowers.md)):
+  owners, miners, speculators and ENRK holders that react, all parameters swept, none measured.
+  Without the exogenous redemption schedule, A3 on flat index at KAS -85 % gives ENRK p95 20.0
+  (13.8 with the schedule). Behaviour moves the result by more than any architecture lever
+  (A3 flat85 ENRK p95 from 0.2 for an optimistic profile to 25.2), the architecture ordering is
+  unchanged in point estimates, and the holder-run lever is the biggest and least verified.
+  Independent review ([`review-w1-x1b-w2-independent.md`](docs/design/studies-2026-11/reports/review-w1-x1b-w2-independent.md)):
+  numbers reproduce, no code bug found, but several statements were over-claimed and have been
+  corrected in the reports; the W1 re-base still runs with the redemption schedule ON; "max N = 46"
+  is a property of the contract form tested, not of L1; the validation of the ON behaviours is thin.
 - **Open decisions** are listed in §9 of the verification document.
 
 ---
@@ -179,9 +190,9 @@ Full justifications: [`docs/design/FROZEN_PARAMETERS.md`](docs/design/FROZEN_PAR
 
 ---
 
-## Open, all blocked on the layer decision
+## Open (the layer decision is taken: Kaspa L1, Igra not retained, owner 2026-11-13)
 
-1. Execution layer — Kaspa L1 covenants vs Igra EVM
+1. ~~Execution layer — Kaspa L1 covenants vs Igra EVM~~ — **decided: L1** (the "pro-rata reserve on Igra" branch of item 2 no longer applies; the owner's fee rule is recorded in the verification document)
 2. Fee destination after the treasury cap — burn on L1, pro-rata reserve on Igra
 3. Stability Pool — fix it or remove it
 
