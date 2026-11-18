@@ -124,8 +124,7 @@ and the only way to "game" it is to reach it faster — which ends the treasury
 sooner, at the gamer's expense. An immutable protocol has nothing to fund after
 launch; a perpetual claim with no corresponding obligation is a rent.
 
-The destination of fees after the cap is still open and follows the execution-layer
-decision.
+The destination of fees after the cap is open. Owner rules (2026-11-13): a recurring stability fee exists; fees are never burned and must remunerate; recipient(s) and rate are not decided.
 
 ### 5. Circuit breaker
 
@@ -135,6 +134,8 @@ IF oracle feed down > 6 hours   → circuit breaker engages
 
 No human override. No DAO vote. No multi-sig.
 ```
+
+Note (2026-11-17): ECONOMICS-VERIFICATION finds the coded breaker harmful when it halts liquidations; whether and when the breaker may act is an open owner decision.
 
 **Why immutable?** These are technical thresholds, not policy. Too aggressive
 means false positives; too lenient means manipulation succeeds before the pause
@@ -165,17 +166,9 @@ decisions** made about the protocol.
 
 The peg requires two indices that the chain cannot produce by itself: the global
 energy price and a crypto adoption measure. Hashrate and fees are native to Kaspa
-and need no oracle.
+and need no oracle. A second, separate oracle question is the KAS collateral price (publisher key, bound, sources); see ORACLE-SHEET-2026-11-17 in `peer-studies-2026-11/` (study sheet, no decision).
 
-**The oracle design depends on the execution layer, which is not yet decided.**
-On Kaspa L1 the construction is a covenant-lineage price feed described in
-[`L1_NATIVE_REDUCED_SPEC.md`](L1_NATIVE_REDUCED_SPEC.md) §2 — authenticity comes
-from covenant ID lineage rather than from a signature, and round transitions are
-atomic so no stale-price window exists. That construction has been compiled and
-measured against the real Kaspa mainnet script engine (see
-[`GITHUB-ISSUE-46-UPDATE.md`](GITHUB-ISSUE-46-UPDATE.md)), but it has not been
-reviewed by anyone who wrote the KIPs it relies on, and that review is the current
-blocker for the entire project.
+**The execution layer is decided: Kaspa L1 (owner, 2026-11-13).** The construction is a covenant-lineage price feed ([`L1_NATIVE_REDUCED_SPEC.md`](L1_NATIVE_REDUCED_SPEC.md) §2): authenticity comes from covenant ID lineage rather than a signature. It has been compiled and measured against the real Kaspa script engine and run on testnet-10 ([`GITHUB-ISSUE-46-UPDATE.md`](GITHUB-ISSUE-46-UPDATE.md), AUDIT section 13.3b), but its atomic round transition does not hold as written (REMEASUREMENT section 6.1) and nobody who wrote the KIPs it relies on has confirmed the reading (issue #46 unanswered).
 
 One consequence of the measurement belongs here, because it touches what can be
 frozen: the oracle's `covenant_id` **cannot** be a compile-time constant. Each
@@ -189,8 +182,7 @@ no vote on which oracle to trust, and no multi-sig can override the circuit
 breaker. If the feed degrades, the circuit breaker engages and the system pauses
 rather than accepting a suspect price.
 
-The worst case for the oracle is mispriced liquidations — bad, bounded, and
-recoverable. That is a different category of risk from a custodial bridge, whose
+The worst case for the oracle is mispriced liquidations — bad, and not yet bounded: neither oracle variant limits a single-round price move (AUDIT I26); how to bound it is an open design decision. That is a different category of risk from a custodial bridge, whose
 worst case is total loss of collateral. It is the reason the L1 path is being
 pursued despite being first-of-its-kind.
 

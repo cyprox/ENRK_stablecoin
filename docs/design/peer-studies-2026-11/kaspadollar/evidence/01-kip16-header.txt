@@ -1,0 +1,8 @@
+```
+  KIP: 16
+  Layer: Script Engine, ZK
+  Title: New Transaction Opcodes for Verifiable Computation
+  Authors: Alexander Safstrom (@saefstroem)
+  Status: Active
+```
+

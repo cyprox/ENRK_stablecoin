@@ -127,6 +127,8 @@ Candidate signals: redemption volume per window, mint/redeem fee levels, Monolit
 | Genesis | storage 4e12/value per covenant output: N=128 at 10 KAS refused; 25 per genesis at 3 KAS | econ-t4 section 3, AUDIT |
 The price-changing N to N refresh is not measured on chain. The cost per day above assumes a refresh transaction of the same mass as the `use` round. Whether an immutable system can fund 20-130 USD per day is open (compare the harvest tip mechanism in econ-t4 section 2 and P16).
 
+Superseded 2026-11-13/14 by econ-x1b: the refresh was executed (form (b) N = 46 refresh at 487,182 compute = 97.4 % of the limit; about 20x the compute per UTXO of a use round); the cost rows for N = 256 and 425 and the 19-128 USD/day range assume a mass that was not met and an N that one transaction cannot refresh with the tested forms.
+
 ## 7. How comparable systems price their own stablecoin or avoid it (primary sources read this session)
 | System | Own-coin market price used? | Evidence |
 |---|---|---|

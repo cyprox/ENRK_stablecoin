@@ -1,4 +1,6 @@
 # ECON-V5 Independent adversarial review of the econ reports (m1 m2 t1 t2 t3 t4 a3 a4 v1 v2 v3 v4 v6, p3-sim, ledger P1-P21)
+
+Follow-up 2026-11-14: blind spot 1 modelled in econ-w2; the all-N refresh (section 2 item 8, blind spot 3) executed in econ-x1b; econ-w1, econ-x1b and econ-w2 reviewed in review-w1-x1b-w2-independent.md.
 Date 2026-11-11. Reviewer did not write any of the material. Repo and owner docs untouched; scratchpad/tn10 not read; no secrets; no background process left; max 3 processes.
 SP = /private/tmp/claude-501/-Users-simoes-ENRK-stablecoin/2186f877-edaf-4d28-afb8-7195b5d7c758/scratchpad ; work dir SP/econ/v5 (copies of v1/v2/v6 scripts, my cell definitions, outputs). No design decision. Every number is a model output unless marked.
 

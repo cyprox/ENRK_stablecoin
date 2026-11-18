@@ -1,6 +1,6 @@
 # Frax Finance — durability review and comparison with ENRK
 
-**Date:** 2026-11-11. **Status:** read-only study, uncommitted. Nothing here is a design
+**Date:** 2026-11-11. **Status:** read-only study. Nothing here is a design
 decision: every "idea for ENRK" is a proposal awaiting owner validation.
 
 **Revision note (same day):** first draft was written from docs and the
@@ -184,8 +184,8 @@ have been changed after genesis.
 | Backing | Custodial RWA / fiat-equivalent reserves | Over-collateralised vaults |
 | Peg | Redemption against reserves | Oracle price UTXO, liquidation, loss waterfall |
 | Trust | Issuer, custodians, KYC edge; owner can freeze, pause, burn, recover backing | Covenant-enforced; no issuer reserves |
-| Upgrade | Proxy; 4-of-7 Safe + 24 h timelock (frxUSD), 3-of-5 Safe (sfrxUSD) | Not implemented; execution layer undecided |
-| Bad debt | Fraxlend: lenders absorb; stablecoin side: case-by-case DAO | Waterfall (cascade not yet implemented per audit) |
+| Upgrade | Proxy; 4-of-7 Safe + 24 h timelock (frxUSD), 3-of-5 Safe (sfrxUSD) | Not implemented; execution layer decided: Kaspa L1 (owner, 2026-11-13) |
+| Bad debt | Fraxlend: lenders absorb; stablecoin side: case-by-case DAO | Waterfall (cascade not yet implemented per audit; loss-absorption structure is an open owner decision, the waterfall is the current candidate) |
 | Liquidation | Fraxlend: no close factor, fee 10 % clean / 9 % dirty, pausable | 180 vaults in one tx on one price (TN10) |
 | Footprint | 26 chains via LayerZero / CCTP | One chain, no bridge |
 
@@ -198,12 +198,12 @@ and for a few mechanics.
 1. **State the opposite of Frax's admin powers as design invariants:** no freeze, no
    pause, no owner burn from arbitrary accounts, no sweep of backing. These are
    precisely the powers Zellic lists on frxUSD; a covenant can refuse them by
-   construction. Candidate property to write into the specification.
+   construction. Candidate property to write into the specification. (ENRK's frozen circuit breaker does pause mint and burn; whether it may ever act on liquidations is an open owner decision, ECONOMICS-VERIFICATION section 9 item 2.)
 2. **Constrained upgrades if any upgrade exists:** the frxUSD pattern (multisig behind a
    24 h timelock) shows a minimum; ENRK, being UTXO-based, may not need upgrades at all.
 3. **Per-family issuance caps** (custodian caps) compared with ENRK's `MinterProxy` and
    Q1c oracle-binding question; Frax's caps are owner-settable and unbounded, ENRK's
-   should be covenant-fixed.
+   should be covenant-fixed (the Argent issuance-cap example is bypassable, ECONOMICS-VERIFICATION P11; the cap design is open).
 4. **Fraxlend bad-debt rule** (write-off against suppliers) as a data point next to
    Monolith (write-off against all borrowers) when choosing who absorbs a loss.
 5. **No close factor plus clean/dirty fee** (full liquidation pays more) as an incentive

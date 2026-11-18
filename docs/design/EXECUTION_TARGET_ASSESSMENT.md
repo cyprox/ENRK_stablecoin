@@ -10,7 +10,7 @@
 > The protocol does not need to read without spending: it can spend an oracle UTXO
 > published for that purpose, in the same transaction as the operation needing the
 > price. KIP-10 introspection reads sibling inputs by index and KIP-20 covenant IDs
-> authenticate their lineage — both shipped with Toccata in June 2026.
+> authenticate their lineage. KIP-20 covenant IDs shipped with Toccata (activated 2026-06-30); KIP-10 introspection opcodes were active before Toccata (KIP-17).
 >
 > **The L1 path is open.** See `L1_NATIVE_REDUCED_SPEC.md` §2 for the construction,
 > which is the design this project now pursues and the subject of §7.1 of the
@@ -18,16 +18,16 @@
 >
 > Everything else here — the bridge analysis, the custody model, the throughput
 > ceilings, the KIP citations — stands and is why the L1 path is worth the risk.
+>
+> **Decision (owner, 2026-11-13): execution layer = Kaspa L1; Igra is not retained.** Sections 3 to 5 and 8 below are kept as history of the comparison.
 
-**Verdict in one line:** neither layer can currently carry this protocol. Kaspa L1
-cannot express a shared price oracle; Igra cannot move collateral in or out fast
-enough or safely enough to back a stablecoin of meaningful size.
+**Original verdict (overturned, see the banner):** neither layer could carry this protocol, because Kaspa L1 was believed unable to express a shared price oracle, and Igra cannot move collateral in or out fast enough or safely enough to back a stablecoin of meaningful size. The L1 construction in L1_NATIVE_REDUCED_SPEC section 2 reopened the path.
 
 ---
 
 ## 1. What Kaspa L1 gained with Toccata
 
-The covenant hardfork activated on mainnet around **June 5–20, 2026** (feature
+The covenant hardfork activated on mainnet at DAA score 474,165,565, about **2026-06-30** (rusty-kaspa `params.rs`; AUDIT section 13.1) (feature
 freeze April 15). It shipped:
 
 | KIP | What it adds |
@@ -45,7 +45,7 @@ native Kaspa Script.
 
 **KIP-10:** *"There are no opcodes to read unspent UTXOs without spending them.
 The introspection capabilities are limited to examining and validating transaction
-properties of the current transaction being validated."*
+properties of the current transaction being validated."* [quote not found in KIP-10 or KIP-17 (AUDIT I21); treat as unverified]
 
 **KIP-17:** no mention of reading other UTXOs without spending them. The system
 introspects only the current transaction and the inputs being spent.
@@ -55,7 +55,7 @@ only inspect its own spending transaction; no KIP gives it a shared-state read."
 And on oracles: *"A proof checks only the signature. Kaspa's L1 has none."*
 
 ENRK's peg requires a shared price oracle read concurrently by many transactions.
-**It is not expressible on Kaspa L1 today.** This is not difficulty — it is
+Original reading, overturned below: **it is not expressible on Kaspa L1 today.** This is not difficulty — it is
 absence of the primitive.
 
 SilverScript independently confirms the same boundary: not Turing-complete, no
@@ -120,6 +120,8 @@ The stress-test population holds roughly **102,700,000 KAS** of collateral.
 102,700,000 KAS / 200,000 KAS per ~25h  ≈  513 days to unwind
 ```
 
+**Correction (2026-11-17, AUDIT sections 13.3 and 13.5):** the exit figures above are stale (250,000 KAS per exit, 1,000,000 KAS per 86,400-block window; unwind about 103 days if a window is about one day, window wall-clock length unverified). The size table is not recomputed here.
+
 In a crisis, the exit is throttled to about **0.2% of the collateral base per day**.
 
 This compounds the failure the model already found. `stress_test_crash.py` showed
@@ -162,8 +164,7 @@ pending a Native Assets & ICC proof of concept.
 
 Two further cautions on the L1 asset track:
 
-- **KCC-0020**, the fungible-token standard for native L1 assets, is a draft with a
-  **known supply-split defect**. Not a foundation for immutable money.
+- **KCC-20**, the fungible-token standard for native L1 assets, is Final (2026-08-21) but defines no mint, burn, supply or controller binding; issuance must be covenant-specific logic.
 - No documented pattern exists for an L1-native asset whose issuance policy is
   enforced by L2 logic or an external proof.
 
@@ -188,13 +189,13 @@ one as a dependency of immutable code, with no prior art, is a research project.
 |---|---|---|
 | Vault (collateral custody) | **Yes** | A UTXO with spending conditions is the advertised covenant use case |
 | Dutch auction | **Probably** | Local to one vault; price descent is a function of time |
-| ENRK / kFIAT as tokens | **Qualified yes** | Native assets shipped, but KCC-0020 has a known defect |
+| ENRK / kFIAT as tokens | **Qualified yes** | Native assets shipped; KCC-20 is Final but defines no mint, burn or supply |
 | kFIAT 30% cap | **Plausible by redesign** | Via conservation of quota tokens rather than reading a counter |
 | Redemption (mechanism #1) | **Yes** | Per-vault operation, no aggregate state needed |
 | 75% auction floor | **Yes** | A static compile-time constant — and it is the fix for the freeze. Identical on both layers |
 | Stability Pool | **Uncertain** | Shared mutable balance. Possible via KIP-20 leader delegation — and the pool is defective anyway |
 | Recovery Mode | **No — costs nothing** | Requires system-wide aggregate ICR. Modelled improvement: **zero points** |
-| Pro-rata insurance reserve | **No** | Requires global aggregate state. This is the one real argument for Igra |
+| Pro-rata insurance reserve | **No** | Requires global aggregate state. (Argument for Igra, now moot: layer decided on L1; the reserve's L1 form is open, ECONOMICS-VERIFICATION P5.) |
 | Oracle / peg feed | **Yes, measured** | Covenant-lineage construction, compiled and measured; core-dev review pending. Was "No — gating"; see §2, §9 |
 
 ## 8. Where the decision actually stands
@@ -202,6 +203,8 @@ one as a dependency of immutable code, with no prior art, is a research project.
 The three paths this section originally proposed — deploy on Igra with a capped size,
 wait for the infrastructure, or investigate KAT Bridge — were written when L1 was
 believed closed. They are superseded.
+
+**Decided 2026-11-13: Kaspa L1; Igra not retained.** The decision was taken while issue #46 remained unanswered by Kaspa core developers; their confirmation of the sibling-covenant-id reading is still outstanding. The two branches below are history.
 
 **If issue #46 is answered yes** → Kaspa L1 native. No custodian, no bridge, no size
 ceiling, exact doctrinal fit. The remaining costs are non-technical: no prior art, and
@@ -213,7 +216,7 @@ and publish the reasoning. That does not pretend the bridge is safe; it sizes th
 protocol so the bridge cannot become a trap, converting an unbounded hidden risk into
 a bounded disclosed one. Or wait for a KIP-16 trustless bridge.
 
-**Nothing else is open.** The layer decision is one external confirmation away.
+**Nothing else was open at the time of this assessment.** (Superseded: the layer was decided on 2026-11-13.)
 The reading of the KIPs has since been tested by compilation and measurement rather
 than left as a reading — see §9 and `docs/design/GITHUB-ISSUE-46-UPDATE.md`.
 
@@ -229,8 +232,8 @@ than left as a reading — see §9 and `docs/design/GITHUB-ISSUE-46-UPDATE.md`.
   negligible at 0.1% of the limit. Re-measured September 15, 2026 against Argent
   `e76ee07` and Silverscript v1.0.0, reproducing to the unit — see
   `docs/design/REMEASUREMENT-2026-09-15.md`. **Block inclusion under contention
-  remains open** and requires Testnet-10. **New:** these ceilings describe a pure
-  oracle round; the mass of a liquidation transaction has never been measured.
+  remains open** and requires Testnet-10 (Update 2026-11-17: executed on testnet-10, AUDIT section 13.3b; mainnet contention not tested). **New:** these ceilings describe a pure
+  oracle round; the mass of a liquidation transaction had not been measured at the time of writing (since measured, AUDIT section 13.3b).
 - **New: the oracle identity binding (Q1c).** `covenant_id` cannot be a
   compile-time constant, so each vault carries it in its own state. Reframed
   September 15, 2026: the binding to secure is asset → vault, not vault → oracle.

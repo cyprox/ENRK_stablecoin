@@ -1,5 +1,7 @@
 # ECON-M2 - Crash simulator with stability fee, junior ledger and surplus rules
 
+Status 2026-11-17: headline values are for the cushioned index (original simulator, index falls with KAS to about 0.54 at -85 %); on a flat index ENRK p95 13.8 %, junior net -15.5 % (econ-t3, econ-v1). Not re-based except in part by econ-w1 section 4 (with the redemption schedule ON). See ECONOMICS-VERIFICATION-2026-11-11.md section 2.
+
 Findings and trade-offs only; no design decision. Every number is a model output. Date 2026-11-10.
 Work dir: /private/tmp/claude-501/-Users-simoes-ENRK-stablecoin/2186f877-edaf-4d28-afb8-7195b5d7c758/scratchpad/econ/m2
 Repo untouched (git status: only the pre-existing untracked analyse_projet/). Nothing read under scratchpad/tn10, no secrets.

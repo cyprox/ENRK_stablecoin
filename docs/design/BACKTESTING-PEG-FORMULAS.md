@@ -1,7 +1,7 @@
 # Backtesting and Resilience — Selecting the Peg Formula
 
 **Date:** September 3, 2026
-**Status:** Selection closed. The chosen formula is **Alternative 3.5**.
+**Status:** Alternative 3.5 selected on 2026-09-03. The design of the index (unit of account, baseline, energy source, bounds) is under review: see ECONOMICS-VERIFICATION sections 5 and 9 (open owner decision).
 
 > **How to read this.** This is the exploratory analysis that led to the choice of
 > formula. The performance figures given here in Phase 4 and Phase 5 are
@@ -183,6 +183,8 @@ rises 20%, the peg moves −24% instead of −50%.
 | Bitcoin correlation | +0.60 | +0.92 |
 | Death-spiral risk | Low | Extreme |
 
+Note (2026-11-17): 'Low' refers to the pro-cyclical spiral of a pure Kaspa index. The verification round finds that index drift in a crash (not noise) is the dominant solvency risk (ECONOMICS-VERIFICATION section 1, item 2).
+
 ---
 
 ## Phase 5 — 30-year black scenarios
@@ -210,6 +212,8 @@ Kaspa becomes the second chain after Bitcoin.
 
 - **Under Alt 3:** peg +580%, and a bubble is likely.
 - **Under Alt 3.5:** peg +386%. More sustainable growth, less volatile.
+
+(Scenario figures here are illustrative and differ from PEG-FORMULA-RECOMMENDATION scenario 2 (+600% for Alt 3, +211% for Alt 3.5 in its own scenario definition); where they differ, that document governs.)
 
 **The hybrid formula dominates in all three scenarios.**
 

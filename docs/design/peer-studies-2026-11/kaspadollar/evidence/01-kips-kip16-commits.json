@@ -1,0 +1,44 @@
+[
+  {
+    "sha": "e4ae2332117b5cb68bd6188e065ef885b6d17939",
+    "date": "2026-07-15T12:19:57Z",
+    "login": "michaelsutton",
+    "msg": "Mark kips 16,17,20,21 as active (#45)"
+  },
+  {
+    "sha": "09d3615ef0c519b31f9eaf606f461267f1e98c75",
+    "date": "2026-05-28T18:50:29Z",
+    "login": "michaelsutton",
+    "msg": "update status"
+  },
+  {
+    "sha": "c5ec7ff1060de4192b4092cdee3523088d76d8af",
+    "date": "2026-05-13T16:36:05Z",
+    "login": "saefstroem",
+    "msg": "Update kip-0016.md"
+  },
+  {
+    "sha": "a12b87493def4c4b245f6585ee260dc90b4317f6",
+    "date": "2026-05-11T17:40:52Z",
+    "login": "saefstroem",
+    "msg": "Update kip-0016.md"
+  },
+  {
+    "sha": "498f70265ed6cc8185f422f4f00506a1d4d30aa5",
+    "date": "2026-05-11T17:37:57Z",
+    "login": "saefstroem",
+    "msg": "Update kip-0016.md"
+  },
+  {
+    "sha": "6e366ef880f3e8b5dc9ec0f7eca9b4a29c668cc7",
+    "date": "2025-12-17T06:14:03Z",
+    "login": "saefstroem",
+    "msg": "Adjust groth16 pricing due to encoding/decoding"
+  },
+  {
+    "sha": "fda6f36dbd94b437214cae38f22de26f0550f8e3",
+    "date": "2025-12-07T07:04:53Z",
+    "login": "saefstroem",
+    "msg": "Add kip16"
+  }
+]

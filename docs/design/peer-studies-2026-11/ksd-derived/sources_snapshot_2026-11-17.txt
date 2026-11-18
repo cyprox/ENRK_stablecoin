@@ -1,0 +1,11 @@
+Public ticker snapshot, fetched 2026-11-17T20:37Z (one request per endpoint, no key, read-only). Prices in USD or USDT, volume in KAS/24h.
+Kraken KAS/USD        last 0.02714   vol 19,957,298 KAS   (HTTP 200)
+KuCoin KAS/USDT       last 0.02722   vol 17,946,832 KAS   (HTTP 200)
+Bybit KAS/USDT        last 0.02720   vol 19,127,021 KAS   (HTTP 200)
+Gate KAS/USDT         last 0.02717   vol 15,956,218 KAS   (HTTP 200)
+Bitget KAS/USDT       last 0.02721   vol  7,115,640 KAS   (HTTP 200)
+MEXC KAS/USDT         no response (curl code 000, single attempt; reason UNVERIFIED)
+CoinGecko aggregate   last 0.0271669 vol (USD) 9,152,247 per 24h (HTTP 200)
+Spread among the five venues that answered: min 0.02714, max 0.02722, i.e. 0.29% of the median 0.02720.
+Reference: 2026-11-10 price 0.02951 (r4-market.md): -8% in 7 days.
+Note: last-trade tickers only. Depth data below is from r4-market.md (2026-11-10) and is NOT refreshed here.

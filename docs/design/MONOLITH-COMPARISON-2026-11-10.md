@@ -1,6 +1,6 @@
 # Monolith Market — durability review and comparison with ENRK
 
-**Date:** 2026-11-10. **Status:** read-only study, uncommitted. Nothing here is a design
+**Date:** 2026-11-10. **Status:** read-only study. Nothing here is a design
 decision: every "idea for ENRK" is a proposal awaiting owner validation.
 
 **Sources:** https://docs.monolith.market/ (16 pages + FAQ, bug bounty, risks) and the
@@ -177,11 +177,11 @@ check on-chain history (Etherscan/DefiLlama).
 
 | Topic | Monolith | ENRK (per repo state) |
 |---|---|---|
-| Loss absorption | Pro-rata socialization to all borrowers | Waterfall / seniority design (cascade not yet implemented per audit) |
+| Loss absorption | Pro-rata socialization to all borrowers | Waterfall / seniority design (cascade not yet implemented per audit; loss-absorption structure is an open owner decision, the waterfall is the current candidate) |
 | Peg signal | Free-debt ratio, no price | Oracle-based (price UTXO, measured on TN10) |
 | Liquidation | Fixed 0–10 % incentive, 25 % chunks | 180 vaults in one tx on a single price (TN10) |
 | Redemption | Single targeted borrower, free-debt only | Specified, not implemented |
-| Upgrade / admin | None; operator bounded and time-limited | Not implemented; execution layer undecided |
+| Upgrade / admin | None; operator bounded and time-limited | Not implemented; execution layer decided: Kaspa L1 (owner, 2026-11-13) |
 | Execution env. | EVM, accounts | Kaspa UTXO covenants |
 
 ## 4. Ideas for ENRK — proposals only, none validated

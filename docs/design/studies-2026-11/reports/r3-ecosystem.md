@@ -1,4 +1,6 @@
 # R3 Ecosystem facts (research, 2026-11-10). Read-only; nothing in the repo modified.
+
+Status 2026-11-17: owner decisions since this report: execution layer is Kaspa L1, Igra not retained (2026-11-13); stability fee recurring, fees never burned (a burn option is excluded). Passages on Igra and on burning are kept as history.
 Tags: VERIFIED = primary page/API read this session; SECONDARY = news/aggregator; UNVERIFIED = single/promotional/unread.
 
 ## 1. Token standards
@@ -45,4 +47,4 @@ Tags: VERIFIED = primary page/API read this session; SECONDARY = news/aggregator
 - Other channels: Kaspa Discord (#testnet), kccs repo issues/PRs. Direct contact path to Sutton/Newman/Billot unknown; consider a PR on kccs or a comment on kips #49 (KIP-20 covenant ID work) to reach reviewers. (suggestion, not a fact)
 
 ## Remains unknown
-KIP-20 sibling-ID reading endorsed? Block inclusion of N~640 txs on TN10; Igra window wall-clock length and release-actor identity; any covenant-capable auditor; wallet support; KEF audit funding; status of KaspaDollar design vs ENRK; whether Final KCC-20 has later revisions beyond c0bb8f3-era main.
+KIP-20 sibling-ID reading endorsed? Block inclusion of N~640 txs on TN10; Igra window wall-clock length and release-actor identity; any covenant-capable auditor; wallet support; KEF audit funding; status of KaspaDollar design vs ENRK; whether Final KCC-20 has later revisions beyond c0bb8f3-era main. (Update 2026-11-17: N~640 refresh not possible in one tx, econ-x1b; KaspaDollar reviewed in docs/design/peer-studies-2026-11; Igra not retained.)

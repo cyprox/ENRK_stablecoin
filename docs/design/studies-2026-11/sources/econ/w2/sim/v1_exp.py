@@ -2,7 +2,6 @@
 A cell = (key, kwargs for stress_fee.Scenario).  All cells of one experiment are run on the same paths (path i = SEED+i): paired.
 Adverse bases (frozen: floor 75%, redemption on, ICR 200%, 1000 vaults, 365-day calm pre-year, stress 0.18, impact .08, capacity 5%/day):
   flat85/flat70 (I=1), d85_x1.5/x2, d70_x1.5/x2 (index ramps to the multiple by day 60), ep2024 (KAS -50%, 97 d, I +52%), orig85 = cushioned reference."""
-import sys
 import t3_scen as T
 
 SCEN8 = ("orig85", "flat85", "d85_x1.5", "d85_x2", "flat70", "d70_x1.5", "d70_x2", "ep2024_kas-50_I+52")

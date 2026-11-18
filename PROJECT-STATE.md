@@ -1,21 +1,23 @@
 # ENRK — Project State
 
-**Last updated:** November 13, 2026
+**Last updated:** November 17, 2026
 **Author:** cyprox
 **Repository:** https://github.com/cyprox/ENRK_stablecoin
 
-**Read this first.** The project now holds a dozen analyses. This document says
+**Read this first.** The project now holds several dozen analyses and reports. This document says
 where things stand, what is decided, what is blocked, and what to do next.
 
 ---
 
 ## One-line status
 
-Design and specification complete. Implementation not started, and deliberately so.
+Design and specification are written; several design questions remain open (see "Open" below).
+Implementation not started, and deliberately so.
 **Execution layer decided by the owner (2026-11-13): Kaspa L1; Igra is not retained.**
-Several design questions remain open (see "Open" below). The oracle construction has been measured against
-the real Kaspa script engine, which answered three of the four questions it was
-blocked on. One remains open, and no core developer has confirmed the reading yet.
+The oracle construction has been measured against the real Kaspa script engine, which
+answered three of the four questions it was blocked on; the fourth (block inclusion) was
+answered on testnet-10 but not on mainnet. What remains open is confirmation of the
+reading by a Kaspa core developer, which has not happened.
 
 **Audit of November 9–10, 2026** ([`docs/design/AUDIT-2026-11-09.md`](docs/design/AUDIT-2026-11-09.md)).
 As written, a vault and an oracle price UTXO could not be co-spent: the vault demanded
@@ -111,9 +113,15 @@ saying so, and the KEF ask still depends on that.
    disabled, while the language's undefined-behaviour specification allows a future
    compiler to drop it (audit §13.2).
 
-The layer decision still depends on core-developer confirmation, and settles two
-other open items (fee destination, Stability Pool's fate) plus the implementation
-language.
+The layer decision is taken (Kaspa L1, owner, 2026-11-13). Fee destination and the
+Stability Pool's fate stay open on L1 (items 2 and 3 below). Core-developer confirmation
+of the oracle reading is still wanted; the layer no longer waits for it.
+
+---
+
+## Oracle status (2026-11-17)
+
+The collateral oracle prototype has one publisher key; a single-round price move is unbounded in variant A (accepts 0) and unbounded in range in variant B (audit I26, open); a per-sweep bound alone permits about ×117 to ×300 per hour at one-minute gaps. Options studied and compared, nothing decided: single publisher, median of three signed prints (kUSD research code on testnet-10, keys held by one deployer), miner vote (Kaspa Dollar, specification only), existing oracle networks read by a publisher. Owner decisions open: floor, ceiling and price > 0; a per-time bound; the combination rule; independence criteria for operators; source criteria; whether to refresh the depth measurement first (`docs/design/peer-studies-2026-11/ORACLE-SHEET-2026-11-17.md` §10). Separately, the owner decided that ENRK must have its own price oracle (the ENRK price); its phasing is open.
 
 ---
 
@@ -132,7 +140,7 @@ sources: [`docs/design/AUDIT-2026-11-09.md`](docs/design/AUDIT-2026-11-09.md) §
 ## Economics and mechanism verification (November 11, 2026)
 
 Full record: [`docs/design/ECONOMICS-VERIFICATION-2026-11-11.md`](docs/design/ECONOMICS-VERIFICATION-2026-11-11.md); reports and scripts in
-[`docs/design/studies-2026-11/`](docs/design/studies-2026-11/). Model outputs, not forecasts; **no design decision taken**.
+[`docs/design/studies-2026-11/`](docs/design/studies-2026-11/). Model outputs, not forecasts; the reports take no design decision. Owner directions are recorded in the list below.
 
 - **The stress-test figures in `FROZEN_PARAMETERS.md` inherit a hidden cushion.** The
   simulator's default index response makes the peg index fall to about 0.54 when KAS falls
@@ -143,9 +151,10 @@ Full record: [`docs/design/ECONOMICS-VERIFICATION-2026-11-11.md`](docs/design/EC
   redemption) holds, and 70 % is above any voluntary junior share (23–28 %).
 - **The index is the dominant risk**, through its drift in a crash, not its noise. The coded
   circuit breaker is harmful (it can halt liquidations: unbacked debt 19.9 % → 86.8 % at index ×2).
-- **Owner directions recorded:** a recurring stability fee; fees are never burned and must
-  remunerate; ENRK must have its own price oracle; the Monolith free/paid-debt avenue is to be
-  explored; stay on testnet-10.
+- **Owner directions recorded:** execution layer Kaspa L1, Igra not retained (2026-11-13); a
+  recurring stability fee (rate not decided); fees are never burned and must remunerate; ENRK
+  must have its own price oracle; the Monolith free/paid-debt avenue is to be explored; stay on
+  testnet-10.
 - **Mechanism checks on L1:** declared-outputs co-spend fix confirmed on testnet-10; the
   Argent issuance-cap example is bypassable (negative mint, extra controller entry); the
   `icr_percent` guard is exact (10,716 engine runs); an oracle sweep bound alone permits
@@ -153,7 +162,7 @@ Full record: [`docs/design/ECONOMICS-VERIFICATION-2026-11-11.md`](docs/design/EC
 - **Second round (Nov 13):** the unit of account (USD, CNY, baskets) does not change crash
   safety, KAS risk dominates; a RUB leg adds revaluation risk and legal exposure for no
   measured gain. A whole-population oracle refresh at a changed price was executed on
-  testnet-10 (max N = 46 in one transaction; the all-N completeness guard is essential,
+  testnet-10 (max N = 46 in one transaction for the contract form tested, not an L1 limit; the refusal outputs for N >= 47 were not saved; the all-N completeness guard is essential,
   shown by a negative control that accepted a stale price on chain; ~20× the cost per UTXO
   of a plain round). KAS order-book collection has started (manual snapshots, data outside
   the repository). See §10 of the verification document.
@@ -166,22 +175,24 @@ Full record: [`docs/design/ECONOMICS-VERIFICATION-2026-11-11.md`](docs/design/EC
   Independent review ([`review-w1-x1b-w2-independent.md`](docs/design/studies-2026-11/reports/review-w1-x1b-w2-independent.md)):
   numbers reproduce, no code bug found, but several statements were over-claimed and have been
   corrected in the reports; the W1 re-base still runs with the redemption schedule ON; "max N = 46"
-  is a property of the contract form tested, not of L1; the validation of the ON behaviours is thin.
+  is a property of the contract form tested on testnet-10, not of L1 (the N >= 47 refusal outputs were not saved); the validation of the ON behaviours is thin.
 - **Open decisions** are listed in §9 of the verification document.
 
 ---
 
 ## Decided and frozen
 
+These are the values of `FROZEN_PARAMETERS.md`. Three of them are under owner review since the November rounds and stay unchanged until he decides: the peg formula (fate of the peg index), the circuit breaker (the tests say it must never halt liquidations) and the junior share / kFIAT cap (30 % is not enough on adverse index bases). See `ECONOMICS-VERIFICATION` §9.
+
 | | |
 |---|---|
 | Peg formula | 40 hashrate / 30 energy / 20 fees / 10 adoption, clipped [0.1, 5.0] |
-| ICR minimum | 200% (250% rejected — buys nothing, costs 25% capital efficiency) |
+| ICR minimum | 200% (250% rejected on capital efficiency; it protects slightly more in the model, audit I2) |
 | MCR | 150% (raising it buys almost no protection) |
 | kFIAT cap | 30% of debt **at mint**, not a permanent guarantee |
 | Auction | 120 min, 100% → **75%** (changed from 85%) |
 | Redemption | Lowest-ICR-first, 100% floor, ENRK only, 1% fee |
-| Fees | 2% mint / 4% liquidation / 1% redemption, **taken in KAS from collateral** |
+| Fees | 2% mint / 4% liquidation / 1% redemption, **taken in KAS from collateral**; plus a recurring stability fee (decided yes by the owner; rate and destination not decided; never burned) |
 | Treasury | 20% until **2,500,000 peg units**, then 0% forever |
 | Circuit breaker | 10% peg deviation, 6h oracle downtime, no override |
 | Governance | None. Ever. Forks only. |
@@ -192,8 +203,8 @@ Full justifications: [`docs/design/FROZEN_PARAMETERS.md`](docs/design/FROZEN_PAR
 
 ## Open (the layer decision is taken: Kaspa L1, Igra not retained, owner 2026-11-13)
 
-1. ~~Execution layer — Kaspa L1 covenants vs Igra EVM~~ — **decided: L1** (the "pro-rata reserve on Igra" branch of item 2 no longer applies; the owner's fee rule is recorded in the verification document)
-2. Fee destination after the treasury cap — burn on L1, pro-rata reserve on Igra
+1. Execution layer: **decided, Kaspa L1 (owner, 2026-11-13); Igra is not retained.**
+2. Fee destination after the treasury cap: open; fees are never burned (owner decision).
 3. Stability Pool — fix it or remove it
 
 Opened by the November audit and by `KFIAT-DEFINITION-GAP.md`:
@@ -204,13 +215,20 @@ Opened by the November audit and by `KFIAT-DEFINITION-GAP.md`:
 10. A reason to hold kFIAT: nothing forces or rewards minting it today.
 11. A hard debt ceiling or ramp sized from measured KAS liquidity.
 12. An unfreeze mechanism and the Stability Pool's fate.
+13. The fate of the peg index (fixed unit, slow-up bound, or another form; baseline and energy source).
+14. Whether the circuit breaker may ever act on liquidations, and on what trigger.
+15. The role of the fee reserve (loss absorption or incentives).
+16. The ENRK price oracle: phasing, and the oracle bound. Collateral-oracle options are in `docs/design/peer-studies-2026-11/ORACLE-SHEET-2026-11-17.md` (nothing decided).
+17. The issuance-cap design (not the Argent example, found bypassable).
+
+Also open and the owner's, not design: contacting Kaspa core developers; follow-ups of the Kaspa Dollar review; whether and how to fix known repository defects (auction floor 85 in `types.rs` and `lib.rs` against 75 in the frozen document; `icr_percent`).
 
 Independent of the layer, and opened by the September 15 re-measurement:
 
 4. The form of the oracle round transition (binary sweep, or N sweeps batched)
 5. The asset → vault minting binding
 6. An arithmetic discipline for immutable Argent code, and its audit scope
-7. The mass cost of the liquidation transaction, never measured
+7. The mass cost of the full liquidation transaction with real signatures and the auction distribution rules: a fixed vault-plus-price transaction was measured (about 2,053 compute / 6,732 transient, variant A, local; 180 vaults in one transaction on testnet-10), which gives lower bounds
 
 ---
 
@@ -227,7 +245,7 @@ Independent of the layer, and opened by the September 15 re-measurement:
 
 - a gold reserve (LFG precedent: $3B consumed in seven days)
 - Recovery Mode (47 of 60 days active, zero points of improvement)
-- 250% ICR (buys nothing, costs 25% capital efficiency)
+- 250% ICR (rejected on capital efficiency; the model shows it slightly protective, audit I2)
 
 **One fix, quantified:** auction floor at 75% plus redemption. Together they take
 the p95 latent hole from 46% to zero and halve the losses.
@@ -259,7 +277,7 @@ built only on shipped opcodes, which reopened an L1 path previously declared clo
 |---|---|
 | [`docs/ENRK-System-Map.pdf`](docs/ENRK-System-Map.pdf) | The protocol in 12 pages, **as of September 5** — it predates the oracle measurements and the November audit; use it for the overview only. |
 | [`docs/design/FROZEN_PARAMETERS.md`](docs/design/FROZEN_PARAMETERS.md) | Every parameter, its value, its evidence. **Start here for implementation.** |
-| [`docs/ENRK_ECOSYSTEM_PROPOSAL.md`](docs/ENRK_ECOSYSTEM_PROPOSAL.md) | The dossier for Kaspa core devs and KEF |
+| [`docs/ENRK_ECOSYSTEM_PROPOSAL.md`](docs/ENRK_ECOSYSTEM_PROPOSAL.md) | The dossier for Kaspa core devs and KEF. Dated September 2026; not updated for the November audit and economics results. Sending it to anyone is a separate owner decision. |
 | [`docs/design/EXECUTION_TARGET_ASSESSMENT.md`](docs/design/EXECUTION_TARGET_ASSESSMENT.md) | Kaspa L1 vs Igra, primary KIP citations, bridges, throughput ceilings |
 | [`docs/design/L1_NATIVE_REDUCED_SPEC.md`](docs/design/L1_NATIVE_REDUCED_SPEC.md) | The L1 design, with the covenant oracle construction |
 | [`docs/design/STRESS-TEST-CRASH-RESULTS.md`](docs/design/STRESS-TEST-CRASH-RESULTS.md) | The freeze finding, and the three modelling errors corrected |
@@ -267,11 +285,14 @@ built only on shipped opcodes, which reopened an L1 path previously declared clo
 | [`docs/design/REDEMPTION-ANALYSIS.md`](docs/design/REDEMPTION-ANALYSIS.md) | Mechanism #1: its structural limit, and the halved losses |
 | [`docs/design/PHASE_4_ARCHITECTURE_PROPOSAL.md`](docs/design/PHASE_4_ARCHITECTURE_PROPOSAL.md) | The double-bookkeeping problem, the master invariant, the seniority waterfall |
 | [`docs/design/Immutable-By-Design.md`](docs/design/Immutable-By-Design.md) | Why there is no governance, what is frozen, and what forking replaces it with |
-| [`docs/design/REMEASUREMENT-2026-09-15.md`](docs/design/REMEASUREMENT-2026-09-15.md) | **The current state of the measurement.** Re-measurement on Argent `e76ee07` + Silverscript v1.0.0, corrections, what is open and in what order. Start here to resume the work. |
+| [`docs/design/REMEASUREMENT-2026-09-15.md`](docs/design/REMEASUREMENT-2026-09-15.md) | Re-measurement of the oracle construction on Argent `e76ee07` + Silverscript v1.0.0, corrections, what was open and in what order. The current state is in the audit and the handoff log below. |
 | [`docs/design/UNDEFINED-BEHAVIOUR-EXPOSURE.md`](docs/design/UNDEFINED-BEHAVIOUR-EXPOSURE.md) | Line-by-line audit of both variants against Silverscript's undefined-behaviour specification |
 | [`docs/design/ORACLE-BINDING.md`](docs/design/ORACLE-BINDING.md) | Q1c reframed: the asset → vault binding, Argent's `spawns` lineage, and what Argent does not yet provide |
 | [`docs/design/ECONOMICS-VERIFICATION-2026-11-11.md`](docs/design/ECONOMICS-VERIFICATION-2026-11-11.md) | **Economic and mechanism verification round**: 21 proposals with verdicts, the index cushion finding, corrections registry, blind spots, decisions. Reports and scripts: `docs/design/studies-2026-11/`. |
-| [`docs/design/AUDIT-2026-11-09.md`](docs/design/AUDIT-2026-11-09.md) | **The current audit.** Findings by severity, the Kaspa fact base, testnet-10 results, options and the decisions that belong to the owner. Start here to resume. |
+| [`docs/design/AUDIT-2026-11-09.md`](docs/design/AUDIT-2026-11-09.md) | **The current audit.** Findings by severity, the Kaspa fact base, testnet-10 results, options and the decisions that belong to the owner. Start here for the technical state; for the November work lots use the handoff log. |
+| [`docs/design/studies-2026-11/`](docs/design/studies-2026-11/) | The 29 reports and the scripts of the economics rounds. `HANDOFF.md`: dated log of the work lots; `CODE_MAP.md`: map of the simulator family. |
+| [`docs/design/peer-studies-2026-11/`](docs/design/peer-studies-2026-11/) | Kaspa Dollar review, four-way comparison with Monolith and Frax, oracle sheet (2026-11-17), independent fact-check. Nothing decided. See its `README.md`. |
+| [`docs/design/GITHUB-ISSUE-46-COMMENT-2.md`](docs/design/GITHUB-ISSUE-46-COMMENT-2.md) | Draft re-measurement comment for issue #46. **Not posted.** |
 | [`KFIAT-DEFINITION-GAP.md`](KFIAT-DEFINITION-GAP.md) | The undefined denomination of kFIAT, the two ICRs, the unimplemented waterfall. |
 | [`docs/design/GITHUB-ISSUE-46-UPDATE.md`](docs/design/GITHUB-ISSUE-46-UPDATE.md) | Oracle validation: method, tables, the KIP-9 asymmetry, reproduction steps |
 | [`docs/design/GITHUB-ISSUE-46-COMMENT.md`](docs/design/GITHUB-ISSUE-46-COMMENT.md) | The same, as summarised for issue #46 |
@@ -288,8 +309,10 @@ variants) and `tests/enrk_mass.rs` (the mass measurement harness).
 
 ## Known non-technical risks
 
-**No prior art.** Nobody has shipped a CDP stablecoin on Kaspa covenants. First of
-its kind plus never-patchable is the combination that should worry us most.
+**No production prior art.** Nobody has shipped a CDP stablecoin on Kaspa covenants.
+Peer designs exist before launch: Kaspa Dollar (specification, no public code on 2026-11-15)
+and kUSD (testnet-10 research code, not audited). First of its kind plus never-patchable is
+still the combination that should worry us most.
 
 **Almost no auditors.** Silverscript reached **v1.0.0 on September 9, 2026**, with
 a tagged release and an explicit SemVer commitment — a real improvement over

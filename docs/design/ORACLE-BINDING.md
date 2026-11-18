@@ -2,7 +2,7 @@
 
 **Date:** September 15, 2026
 **Status:** Open. This document records what is known, what changed, and why the
-question as previously written was the wrong one. It proposes no decision.
+question as previously written was the wrong one. It proposes no decision. Layer decided 2026-11-13 (Kaspa L1), so this question is now on the critical path. Sending the section 8 question to Kaspa core developers is an outward step that needs a separate owner go.
 
 ---
 

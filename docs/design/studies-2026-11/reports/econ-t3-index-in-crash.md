@@ -1,5 +1,7 @@
 # ECON-T3 - Peg-index dynamics inside the crash simulator (TEST only, no design decision)
 
+Note 2026-11-17: the exogenous redemption schedule is a second built-in cushion (econ-v5 section 1; W2 profile N0: A3 flat85 ENRK p95 20.0 instead of 13.8).
+
 Every number is a model output. Date 2026-11-11. Repo untouched; nothing read under scratchpad/tn10; no secrets.
 Work dir: /private/tmp/claude-501/-Users-simoes-ENRK-stablecoin/2186f877-edaf-4d28-afb8-7195b5d7c758/scratchpad/econ/t3
 Tables: tables_t3.txt (T1-T8), cells_t3.csv (1424 main cells). Per-path data: main.pkl, sstar.pkl, cap.pkl (500 paths/cell, paired: path i = seed+i in every cell).

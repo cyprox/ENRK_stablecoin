@@ -1,0 +1,284 @@
+ 
+ KSD: A Dollar Token on Kaspa L1 Backed by KAS and Its Miners 
+ Kaspa Dollar Menu Home 
+ Why stablecoins 
+ How it works 
+ Whitepaper 
+ Roadmap and funding 
+ Contact 
+ KSD: A Dollar Token on Kaspa L1 Backed by KAS and Its Miners
+ Alexander Säfström
+ A. Säfström is an independent researcher and a core contributor to the Kaspa network. E-mail: [PERSONAL E-MAIL REDACTED].
+ This is a working document that awaits peer review. It is updated in place as the design matures, which means that parameters, proofs, wording and design can change.
+ We hereby introduce KSD, a decentralized stablecoin token on the Kaspa base layer. In its technical terms it is a virtual asset which grants a claim to a certain amount of Kaspa locked in a virtual safe. For this stablecoin to function as intended, it consists of two interacting components which can be categorized as the covenant contracts and the decentralized miner oracle (DMO). The covenant contracts are a set of special UTXOs which govern the spending of the locked collateral. More specifically, they maintain the debt-collateral ratio at a certain level, which is a requirement to keep the peg. The second component is the decentralized miner oracle. It functions through miner votes, who publish a vote within the miner payload field in each mined block, which then, via the KIP-21 commitment is further validated within a ZK proof. Finally, this ZK proof is used to update the price within the covenant contracts. In this paper we show, under stated assumptions, that every unit stays backed through any crash slower than the oracle’s catch-up rate and from a calm market through any crash shallower than 1-1/R_{\ell} , where R_{\ell} is the liquidation threshold, and that an attacker needs, in expectation, at least half of the voting hashrate to control a price as well as a majority of the network to stop the oracle when vote participation is 100%.
+ Keywords: stablecoin, covenant, UTXO, oracle, proof of work, zero-knowledge proof, Kaspa.
+ 1 Introduction
+ Kaspa’s Toccata hard fork added a vast range of new functionality to the base layer. The ones that are relevant for us are covenants, KIP-16 and KIP-21  [1] , [2] , [3] , [4] . These primitives together unlock a diverse set of applications that can now be built upon Kaspa. One of them is known as a CDP stablecoin (collateralized debt position). This is a decentralized stablecoin that uses an overcollateralization principle to maintain its fiat peg. However, in order to determine when a position is undercollateralized, it needs to know the current price of the collateral. Existing designs obtain it from a committee of signers, from a token-gated pool or from a validator set  [5] , [6] , [7] , [8] . Each of these adds a trust domain that the host chain does not have and introduces additional risk for the stability of the stablecoin, and for each individual user. Instead, we choose a more decentralized approach, through the network’s already most decentralized feature, namely, its miners.
+ This paper describes KSD, the Kaspa Dollar. Simply put, one KSD token is a claim on one dollar worth of KAS that is held in a special UTXO on Kaspa’s base layer. Our goal throughout the design of this protocol is that we want to inherit as much of the trust assumptions and security properties as Kaspa itself. We believe that this is one of the few true ways to give a sound basis for the security of a decentralized stablecoin protocol.
+ Our Contributions
+ A covenant design for overcollateralized vaults on a UTXO ledger (Section  6 ).
+ A decentralized proof-of-work price oracle on Kaspa’s base layer (Section  5 ).
+ An analysis of the protocol’s invariants and the oracle’s thresholds, with proofs (Section  8 ).
+ 2 Related Work
+ Maker’s vault design (MCD) and Liquity’s design describe the vault mechanics that we reuse in KaspaDollar. This entails liquidation at a penalty in Maker’s case, and redemption as the peg floor and no interest in Liquity’s case  [5] , [9] . However, both of these protocols read prices from signed feeds. A differentiator to the previous, Terra and Slinky, let block producers vote prices into consensus (PoS-style) with a stake-weighted median, slashing or vote-extension liveness, and a participation threshold of one half or two thirds  [7] , [8] . SchellingCoin proposed the median and the reward band but delegated Sybil resistance to an assumed proof-of-work or proof-of-stake layer  [10] . BIP 100 is the closest proof-of-work precedent: a number voted in coinbases, a supermajority rule and a capped step, applied to the block size  [11] . Therefore, to our knowledge no deployed system has taken a price from the host chain’s own miners without a consensus change, nor proved completeness of the aggregation to a covenant.
+ 3 Model and Assumptions
+ Below we state the properties of Kaspa that the protocol depends on, the script primitives it uses, and the relevant assumptions that we make when we reason about its security, followed by the adversary model and the notation used in the rest of the paper.
+ Ledger
+ Kaspa is a proof-of-work blockDAG that orders blocks with GHOSTDAG  [12] . The protocol relies on these properties of the ledger:
+ the network produces about 10 blocks per second;
+ consensus bounds a block timestamp from below by the past median time and from above by the local clock plus a tolerance of 132 seconds;
+ a transaction with a lock time in timestamp mode is valid only in blocks whose past median time exceeds the lock time.
+ Script primitives
+ We use the following Toccata features without restating them, as we assume the reader to be familiar with their properties and intricacies:
+ OpChainblockSeqCommit allows us to attest that a miner has voted within some block. More specifically, it returns the KIP-21 sequencing commitment of a block that is on the selected-parent chain of the accepting block and within the finality depth of the accepting block’s selected parent.
+ The sequencing commitment is a hash chain along the selected-parent chain. Each chain block commits, among other fields, to:
+ the DAA score and the blue score of the block;
+ the timestamp of its selected parent;
+ \mathit{MinerPayloadRoot} , the root of a Merkle tree over the mergeset of the block, with one leaf per mergeset block in consensus order. Each leaf commits to the hash of the block, its blue work and the digest of its coinbase payload  [4] .
+ OpZkPrecompile of KIP-16 verifies a ZK proof on Kaspa L1, either a Groth16 proof or a RISC Zero succinct receipt  [1] , [13] , [14] . This one is used to offload the complex verification required to attest to the votes.
+ OpCheckLockTimeVerify enforces an absolute lower bound on time.
+ Assumptions
+ A1 Kaspa consensus is safe and live. A block inside the access window of OpChainblockSeqCommit is probabilistically final.
+ A2 The opcodes and the covenant IDs behave as specified. The conventions KCC-1, KCC-2 and KCC-20 have the security properties that they state  [15] , [16] , [17] .
+ A3 The zero-knowledge system is sound and the hash functions are collision resistant.
+ A4 More than half of the hashrate that votes reads prices from independent exchange sources.
+ A5 Liquidators, redeemers, provers and keepers are rational actors that exploit profitable opportunities.
+ A6 The exchange price is the reference against which we measure the correctness of the oracle’s price. In practice the reference is the quote asset of the pairs the voters read.
+ Adversary
+ The adversary controls a fraction a of the network hashrate, any number of identities and any amount of KAS and KSD. We assume that the adversary cannot break A1 through A3.
+ Notation
+ We use the following notation in the rest of the paper:
+ P represents the market price in USD per KAS.
+ A vault UTXO holds collateral c in KAS and debt d in KSD. Its ratio at price Q is defined as: \rho(Q)=cQ/d .
+ R_{\mathrm{o}} is the open ratio.
+ R_{\ell} is the liquidation threshold.
+ p is the liquidation penalty.
+ The oracle stores a mint price m and a liquidation price \ell .
+ All constants can be found in Table  3 .
+ 4 Overview
+ The protocol has six different types of covenant contracts. Each covenant is a set of one or more UTXOs.
+ Vault : one UTXO per position with its value being the collateral for that position.
+ Factory : k replicas that allow the creation of vaults, ensuring that each new vault inherits the specified properties.
+ Minting UTXO : k replicas of the price UTXO. It is responsible for minting and withdrawal operations.
+ Liquidation UTXO : k replicas of the price UTXO. It is responsible for liquidation and redemption actions.
+ Token : KCC-20 tokens. KCC-20 does not define a mint or a burn, so these tokens are to be considered as extended.
+ Fee treasury : one UTXO that pays miners, provers and keepers. Fees and bounties arrive as separate outputs.
+ The figure below shows how these parts work together. It starts off with miners voting on the price in the blocks they mine. These votes are aggregated and a prover proves the median of these votes, which is then written as an update transaction to the price UTXOs. Finally, vaults read these prices when performing price-required operations and miners, keepers and provers may claim rewards from the fee treasury.
+ Miners 
+ votes ↓
+ Consensus 
+ commitments and payloads ↓
+ Prover 
+ proof ↓
+ payout root ↓
+ Price UTXOs 
+ price ↓
+ Vaults 
+ fees →
+ Fee treasury 
+ Figure 1. Data flow. 5 The Oracle
+ 5.1 Votes
+ Miners vote by inscribing price data in the extra-data field of the coinbase payload of every block they mine. In total, at its current state, the coinbase payload is at most 204 bytes, and the oracle vote will occupy 13 bytes (Table  1 ). A vote payload is considered to be well formed if its tag and version match Table  1 and its price is greater than zero.
+ As additional context, under KIP-21 each chain block commits the coinbase payload digest of every block in its mergeset, which results in every vote of a merged block being part of the canonical chain  [4] .
+ Table 1. Vote payload. Field Size Content 
+ Tag 4 B constant string KVOT 
+ Version 1 B 1 
+ Price 8 B USD per KAS in 6 decimal precision (e.g. 0.0366 = 36600), LE serialized 
+ 5.2 Window and prices
+ A window is defined as the W=6{,}000 blocks with the highest blue work, with ties broken by hash, among the blocks in the mergesets of the chain blocks up to an anchor block. At the current block rate, this corresponds to about 10 minutes.
+ Each block can give at most one vote. The window’s median \mu is at position \lfloor(n-1)/2\rfloor of its n sorted votes. However, in order for a window to be considered valid, its number of votes has to be at least g=1/2 of the number of blocks. It should also be noted that any anchor may end a window, which means that windows overlap and updates can occur more often than once per window.
+ The price UTXOs keep two prices derived from \mu , the mint and the liquidation price. The below equations explain how these are computed.
+ Let t_e be the window end stored in the UTXO, t_e^{+} the selected-parent timestamp of the new anchor, and \omega the window’s own duration between the selected-parent timestamps of its first and last chain blocks, all in hours. To compute the amount of proven time that is new we do: \Delta t=\min\!\big(t_e^{+}-t_e,\;\omega\big). (1) Then, to compute the mint and the liquidation price with the median \mu , m \leftarrow \min\!\big(\mu,\; m\,(1+U)^{\Delta t}\big), (2) \ell \leftarrow \max\!\big(\mu,\; \ell\,(1-F)^{\Delta t}\big). (3) The mint price follows the median down at once and up by at most U per hour of proven time. The liquidation price does the opposite: it follows the median up at once and down by at most F per hour of proven time. More about this is discussed in Theorem  4 .
+ 5.3 Proof
+ A prover is anyone with sufficient compute capacity to compute a proof over the relevant data. They collect, for the chain blocks of the window:
+ the hash, the blue work and the coinbase payload of each block in their mergesets;
+ the selected-parent timestamp, the DAA score, the blue score and the activity root of each chain block;
+ the commitment of the chain block before the first one.
+ With this data they execute a RISC Zero guest  [14] , which verifies:
+ every \mathit{MinerPayloadRoot} and every link of the commitment recurrence, so that the blocks it counted hash to the anchor’s commitment;
+ every payload, counting the blocks and the well-formed votes;
+ the median \mu of the votes and, among the votes within \theta of \mu , the block count of every payout script.
+ The journal is the guest’s public output which commits the following to it:
+ the anchor commitment C_e , the KIP-21 sequencing commitment of the anchor block e ;
+ the first and last DAA scores and selected-parent timestamps of the window;
+ the block count and the vote count;
+ \mu ;
+ the prover’s payout script;
+ the last DAA score of the previous accepted window, which the guest takes as an input;
+ the payout root, i.e. the Merkle root over the payout scripts of the votes within \theta of \mu with their block counts, which counts only the blocks of chain blocks with a DAA score above this input;
+ the old accumulator root it started from and the new one with this update appended.
+ The prover wraps the receipt in a Groth16 or STARK proof, depending on the conclusion about quantum readiness for the protocol, which is to be decided prior to its release. The selection of the proving system has a minor effect on the protocol’s functionality but a larger one on miner economics and transaction fees for the network (assuming full adoption).
+ OpChainblockSeqCommit supplies the anchor’s commitment and OpZkPrecompile verifies the proof. An update transaction spends the fee treasury and one or more price UTXOs, as the prover selects. The transaction is valid only if:
+ the proof is valid for the image ID of the guest, which is a constant of the covenants;
+ the two commitments are equal;
+ the vote count passes g ;
+ t_e^{+}>t_e for each price UTXO that it spends;
+ the old accumulator root and the last DAA score of the previous accepted window in the journal are equal to the values that the treasury stores;
+ the last DAA score of the new window is greater than the stored one;
+ the treasury pays the prover fee to the script in the journal.
+ Each price UTXO that the update spends stores t_e^{+} as t_e , the new anchor hash and its new price, and clears its frozen flag. During the update of the price within the spending script of the update, since the guest cannot tell whether its anchor is on the chain, we utilize OpChainblockSeqCommit with the anchor’s hash, which returns the anchor’s commitment only when the anchor is a chain block inside the access window of the accepting block, which ensures that the committed value in the journal is equal to C_e (Theorem  3 ). A proof over a fraudulent sequence of blocks would fail this check, because its commitment would differ. Once all checks pass, the treasury stores the new accumulator root, the last DAA score of the new window, and the window end t_e^{+} and the median of this update.
+ For additional context it is important to note that each leaf of a chain block’s \mathit{MinerPayloadRoot} tree carries the blue work of its block, and the leaves follow the consensus order of the mergeset, which means that the guest program has a consensus-backed topological order over every vote of the window.
+ Chunks and recursion
+ If updates occur frequently, almost all blocks of a window are also in the next window. For this reason, it means that the prover does not calculate each window from the beginning of it. Instead, the prover divides the window into chunks and uses each chunk proof again in later windows. A chunk is a series of consecutive chain blocks, with the full mergeset of each chain block. The smallest chunk is one chain block with its mergeset, due to the lower size bound in order to compute \mathit{MinerPayloadRoot} . Above this minimum, each prover selects the number of chain blocks in its chunks.
+ The proof uses two guest programs, the chunk guest and the window guest . Together, they do the checks and write the journal that we list above.
+ When the chunk guest proves the validity of one chunk, it does the following steps:
+ Starts from the commitment of the chain block before the chunk.
+ Computes the \mathit{MinerPayloadRoot} and the commitment of each chain block in the chunk.
+ Reads the payout script and the vote from each coinbase payload.
+ Writes the start commitment and the end commitment to its journal.
+ Writes the DAA score and the selected-parent timestamp of each chain block to its journal.
+ Writes one entry for each mergeset block to its journal, in consensus order: its hash, its blue work, its payout script, its vote and the DAA score of its chain block.
+ The window guest proves the validity of a number of chunks:
+ Verifies each chunk receipt against the image ID of the chunk guest.
+ Ensures that each start commitment is equal to the end commitment of the previous chunk.
+ Ensures that at least W entries have a higher blue work than the chain block before the first chunk.
+ Keeps the W entries with the highest blue work and removes all others.
+ Reads the DAA score and the selected-parent timestamp of the first and the last chain block of the window.
+ Computes the block count, the vote count and \mu from these entries, and the payout root from the entries after the previous accepted window.
+ Computes the new accumulator root and commits to the journal.
+ The computation of the median is done by the window guest, it computes \mu and the payout root again at each update.
+ More specifically, the window guest verifies each chunk receipt as an assumption. RISC Zero recursion resolves these assumptions and finalizes one receipt  [14] . On chain, this receipt is the one that is used to execute the price update, for any number of chunks.
+ Example: with chunks of about 600 blocks, a window has about ten chunks. The next update, one minute later, has one new chunk. The prover proves this chunk, uses the other chunk receipts again and runs the window guest one time. This is expected to significantly reduce proving time.
+ 5.4 Price UTXOs
+ Each price UTXO keeps the state that its actions need:
+ Minting UTXO : its state contains:
+ m , the mint price;
+ t_e , the timestamp of the window end;
+ the anchor block hash;
+ the launch flag and the frozen flag;
+ the net-mint budget b .
+ Liquidation UTXO : its state is similar to the state of the minting UTXO without the net-mint budget, and with the liquidation price \ell in place of m .
+ Freshness. A minting or liquidation UTXO is valid until t_e+S , with S=30 minutes. A spending script, as of the current state, is unable to check an upper bound on the time of the accepting block. Instead, every minting and liquidation UTXO carries a stale branch with lock time t_e+S in timestamp mode. Once it opens, keepers may spend the UTXO into a frozen state and collect a bounty from the fee treasury. A frozen minting or liquidation UTXO rejects priced actions until an accepted update unfreezes it. Keep in mind that non-priced actions are still valid to execute.
+ Should there be a scenario where a keeper does not freeze a minting or liquidation UTXO, this will be done automatically after about 12 hours due to the reliance of OpChainblockSeqCommit within each priced action.
+ 6 Vaults
+ 6.1 Actions
+ The state of a vault contains the vault owner and the debt. Table  2 lists the actions that users can take through the UTXOs of Section  4 . Every action leaves the debt of a vault at zero or at least the minimum debt of 10 KSD. Mint, withdraw, liquidate and redeem are priced actions, because they require a price of a minting or liquidation UTXO.
+ Table 2. Actions. Action Caller Requirement 
+ Open, mint owner \rho(m)\ge R_{\mathrm{o}} ; net mint budget 
+ Withdraw owner \rho(m)\ge R_{\mathrm{o}} 
+ Add collateral owner none 
+ Repay owner burns KSD; may credit a budget 
+ Close owner d=0 after repayment 
+ Liquidate anyone 1\le\rho(\ell)<R_{\ell} before; \rho(\ell)\ge R_{\ell} after if \rho(\ell)>1+p before 
+ Redeem anyone \rho(\ell)\ge 1 ; vault pays x/\ell KAS for x KSD 
+ Settle anyone 30 days elapsed without a valid price 
+ Arithmetic
+ Oracle prices are serialized as whole numbers with six decimal places, in USD per KAS: a price of 0.0366 is serialized as 36600. Ratio computation uses whole KAS rounded down and whole KSD rounded up.
+ 6.2 Liquidation
+ A vault with 1\le\rho(\ell)<R_{\ell} can be liquidated by anyone who holds KSD. The liquidator repays x units and receives (1+p)\,x/\ell KAS. The amount x required to return the vault to R_{\ell} is computed within the covenant as: x=\frac{R_{\ell}\,d-c\,\ell}{R_{\ell}-1-p}. (4) The covenant rounds x up, so the vault is at or just above R_{\ell} after the liquidation. If d-x is less than the minimum debt, the liquidator repays all of d and receives (1+p)\,d/\ell KAS, and the owner receives the rest of the collateral as the vault closes. If \rho(\ell)\le 1+p , equation  (4) has no admissible solution. If 1\le\rho(\ell)\le 1+p , the liquidator repays all of d and receives all the collateral, which closes the vault. A vault with \rho(\ell)<1 cannot be liquidated, and it keeps its collateral and its debt.
+ 6.3 Redemption
+ Any holder including the owner may redeem x KSD against any vault with \rho(\ell)\ge 1 of their choice, with no fee other than the oracle fee \beta , and receives x/\ell KAS. The amount x is limited by the vault’s debt, which decreases by x . If d-x is less than the minimum debt, x must be the whole debt. And, if x is the whole debt, the vault closes and the owner receives the rest of the collateral.
+ 6.4 Net issuance
+ Every minting UTXO carries a budget b\le B where B=M/(2k) in order to restrict the issuance rate. Although the issuance rate is restricted, it refills at a linear rate of B per day of proven time. An accepted update that spends the minting UTXO sets b\leftarrow\min(b+B\,\Delta t/24,\,B) , with the proven time \Delta t in hours from equation  (1) .
+ In order to mint x units of KSD it requires b\ge x and mutates b\leftarrow b-x . In contrast, a transaction that reduces the supply of KSD by x units may set b\leftarrow\min(b+x,\,B) on one minting UTXO. In combination with the aforementioned limits, the net supply increase over any 24-hour period is at most M , which is supported by Theorem  1 .
+ 7 Treasury and Lifecycle
+ 7.1 Fee treasury
+ The state of the fee treasury contains:
+ the root of a Merkle accumulator over every accepted update;
+ the last DAA score of the last accepted window;
+ the window end and the median of the last accepted update;
+ the launch streak and a launched flag;
+ a settled flag;
+ the root of the payout map.
+ Every priced action, that is, mint, withdraw, liquidate and redeem, pays a fee of \beta times its dollar value, in KAS at the price that the action uses (fetched from the oracle), with a floor of one KAS. The caller must pay the fee as a separate output, so that a priced action does not spend the treasury UTXO, which would limit parallelism. Similarly, anyone may merge fee outputs into the treasury UTXO. As a first estimate, the treasury will pay 85% to miners, 10% to provers and 5% to keepers.
+ Anyone may also create a bounty output for the next update, which an accepted update pays to its prover on top of the prover share. This is something that a liquidator is incentivized to get since they might need a fresh price in order to execute a liquidation during a fall. Similarly, a vault owner is incentivized to get a fresh price after a rise, because a stale low \ell allows liquidations and redemptions at the old price.
+ When it comes to miner rewards, they earn a fixed reward per block whose vote was within \theta of the median of the first accepted window that contains the block, and withdraw it from the treasury based on the zero-knowledge proof from the price update. That proof already fixes the payout root of each window in the accumulator, so a miner does not need to prove anything. The treasury keeps a map that records, for each payout script, the last window it has already been paid for, meaning a withdrawal can only claim windows after that one. A withdrawal therefore shows the miner’s block counts in those windows by Merkle paths against the treasury’s accumulator root, and it gives a new map root that moves the record forward to the last window claimed. The treasury checks these paths, pays the payout script and stores this new map root.
+ 7.2 Launch
+ In order to ensure a smooth launch of the protocol it is imperative that voting has been adopted by the majority of the network. To do this, the fee treasury keeps a launch gate in the form of a streak counter: consecutive accepted updates at most S apart whose vote count is at least g_0=0.9 of the block count. An update below g_0 or a gap longer than S resets the streak. The official launch of the protocol is when the streak covers 30 days. The treasury then sets its launched flag, and the launch is permanent. After it, every update sets the launch flag of the price UTXOs that it spends. Before launch, the protocol accepts only price updates: every action of Table  2 , every keeper freeze and every miner withdrawal is disabled. The deployer funds the treasury at genesis so that provers are paid during the streak. It is not yet decided whether votes before launch earn miner rewards.
+ 7.3 Settlement
+ If no update lands for S_{\mathrm{s}}=30 days, a branch with lock time S_{\mathrm{s}} after the window end of the last accepted update opens on the fee treasury, which anyone can advance to the settled state. Settlement is permanent and permanently stops updates, minting, withdrawals and liquidations. Every holder is allowed to redeem against any vault with a ratio of at least 1 at the last median that the treasury stores, with no time limit, and such a redemption spends the treasury in place of a liquidation UTXO. Owners can still repay, add collateral and close their vaults. This state is considered to be unwanted, as it would mean that the protocol has failed in execution, yet it exists as a mechanism for holders to recover some of the funds.
+ 8 Analysis
+ 8.1 Supply and vault actions
+ A mint adds the same amount to the supply of KSD and to the debt of its vault. A burn removes the same amount from both. For this reason, we state that the supply is equal to the sum of the debts of all vaults.
+ A liquidation and a redemption take place at the oracle price \ell , and only at \rho(\ell)\ge 1 . A liquidation with \rho(\ell)>1+p increases \rho(\ell) to R_{\ell} , and a liquidation with \rho(\ell)\le 1+p closes the vault. A redemption removes the same value at \ell from the collateral and from the debt, and this does not decrease \rho(\ell) . For this reason, the two trades do not decrease the collateral for each unit of debt, c/d , of a vault that keeps debt. The caller pays the oracle fee, so the fee does not change c/d .
+ Theorem 1 (Net issuance). In any period of 24 hours, measured in block timestamps, the supply of KSD increases by at most M . 
+ Proof. Only a mint creates units (Table  2 ). A mint moves units from the budget of a minting UTXO to the supply. A burn through this UTXO removes units from the supply and adds at most the same number to the budget. For this reason, only the refill increases the sum of the budget and the net units minted through this UTXO.
+ The budget cannot become negative. In 24 hours, the net units minted through this UTXO are then at most the budget at the start plus the refill. Each of these two values is at most B . For this reason, the net units are at most 2B=M/k , and the sum over the k minting UTXOs is at most M . Each update refills the budget for its proven time \Delta t , and \Delta t\le t_e^{+}-t_e by  (1) . The proven times in 24 hours of block timestamps then add up to at most 24 hours, so the refill is at most B . ◻
+ With M=50{,}000 and k=8 , B=M/(2k)=3{,}125 KSD. One minting UTXO then adds at most 2B=6{,}250 KSD in 24 hours, and the 8 minting UTXOs add at most 8\times6{,}250=50{,}000 KSD.
+ 8.2 Backing and liquidation
+ A KSD is backed while its vault has a ratio of at least 1 at the market price P . Let \ell_u be the last oracle price at which the vault had a ratio of at least R_{\ell} . Liquidations and redemptions do not decrease c/d (Section  8.1 ). For this reason, \rho(P)=(c/d)\,P\ge R_{\ell}P/\ell_u, (5) and each KSD of the vault is backed while P\ge\ell_u/R_{\ell} . In a calm market, \ell_u is close to P , so  (5) covers a fall of 1-1/R_{\ell}=1-1/2=50\% at any speed.
+ A liquidation returns the vault to R_{\ell} , and \ell_u becomes the current \ell . A liquidator receives (1+p)\,x/\ell KAS for x KSD, so the trade gives a profit only if \ell\le(1+p)P . In a fall, \ell is higher than P for two reasons:
+ the median shows the price from about \tau=\omega/2+\delta before the update, where \delta is the proof delay. With \omega=10 minutes and \delta=3 minutes, \tau=5+3=8 minutes;
+ the fall limit decreases \ell by at most F per hour.
+ The fall limit is necessary, because a false low \ell could allow an attacker to take collateral through liquidation and redemption (Section  8.3 ). Its cost is the time that a liquidation must wait in a real crash:
+ In a fall no faster than F per hour, \ell is at most (1-F)^{-\tau}P=0.75^{-8/60}P\approx 1.04P at each update. This is less than (1+p)P=1.05P , so each update gives a profit of at least 1%. Between two updates, P falls by at most 1-0.75^{10/60}\approx 4.7\% . Under A5 and with one update per period \omega , each KSD stays backed at any depth.
+ After a sudden fall by D , \ell reaches (1+p)P after about h hours, where (1-F)^h=(1+p)(1-D) . For D=20\% , 0.75^h=1.05\times0.8=0.84 gives h=\ln 0.84/\ln 0.75=0.61 hours, which is 36 minutes. For D=40\% , 0.75^h=1.05\times0.6=0.63 gives h=1.6 hours. Until then, only  (5) protects each KSD, and a fall deeper than 50% can leave debt unbacked.
+ Both cases need at least one update per \omega , because  (1) counts at most \omega for each update.
+ An owner who expects a liquidation can act first before a liquidator. The owner can only repay or add collateral, because a mint or a withdrawal needs \rho(m)\ge R_{\mathrm{o}} . Because both actions increase c/d , it is impossible for them to decrease the backing. A liquidator therefore gains only from vaults whose owners do not act in time, which is also why owners are penalized. It is expected that owners run monitoring systems for these kind of events, especially in market regimes of high volatility.
+ Example: The KAS price fell by 83% from its all-time high in July 2024 to October 2026. The price kept 17% of its value over about 27 months, or 19,700 hours. The average speed of this fall is 1-0.17^{1/19{,}700}\approx 0.009\% per hour, far below F=25\% per hour. We select R_{\ell}=2 to protect a vault during a long period without the oracle or without liquidators.
+ 8.3 Oracle
+ Theorem 2 (Thresholds). Let \pi be the share of the network hashrate with blocks that carry valid votes, with the adversary included. Let g be the participation gate. In expectation: 
+ (i) to control a price, the adversary needs a hashrate of a\ge\pi/2 . A valid window needs \pi\ge g , so a\ge g/2 in all cases; 
+ (ii) to stop the oracle, the adversary holds back its votes and needs a>\pi-g . 
+ Proof. A vote needs a block and a block needs work, so the share of the adversary in the valid votes is a/\pi in expectation. The window selects blocks by blue work, so that withheld blocks do not increase this share (Section  5.2 ). Therefore: (i) If the adversary casts fewer than half of the valid votes, the median is between the smallest and the largest honest vote. (ii) If the adversary holds back its votes, the share of the other votes is \pi-a . The window then fails the gate if and only if \pi-a<g . ◻
+ Figure  2 shows both thresholds. With g=1/2 and \pi=1 , both attacks need at least half of the hashrate, because \pi/2=\pi-g=1/2 . At the launch participation \pi=g_0=0.9 , an adversary needs \pi/2=45\% to control a price and more than \pi-g=0.9-0.5=40\% to stop the oracle.
+ On 29 October 2026, the largest miner was a pool with 32.7%, and the two largest miners together held 57.1%  [18] . On that date, a single miner could not do either attack, because 32.7% is less than 40%. The two largest miners together could do both attacks, because 57.1% is more than 45%. They also held a majority of the hashrate of Kaspa. It should be noted though that the centralization factor is not known within these pools, if it is low then individual miners are expected to retarget to other pools.
+ A higher g decreases the hashrate that can stop the oracle. A lower g decreases the hashrate that can control a price when participation falls. At g=1/2 and \pi=1 , both thresholds are equal to the majority threshold of the chain, which is also why the production participation gate is set to this.
+ Figure 2. The hashrate that an adversary needs, as a function of the share of the hashrate that votes, with g=1/2 . The miner share is from  [18] . Theorem 3 (Vote integrity). Under A1 to A3, the counts and the median in an accepted update are correct for the window before the anchor on the canonical chain. 
+ Proof. The anchor commitment is a public input of the proof. OpChainblockSeqCommit supplies this value, and it returns the value only for a block on the selected-parent chain of the accepting block (A1 and A2). The covenant fixes the image ID of the window guest, and the window guest fixes the image ID of the chunk guest. For this reason, the proof is exclusively for this computation.
+ The guest calculates the KIP-21 recurrence from the first chain block of the window to the anchor. A set of chain blocks that is not the canonical sequence below the anchor gives a different commitment or a hash collision (A3). For each chain block, the guest calculates \mathit{MinerPayloadRoot} from the leaves. This root commits to each mergeset block in consensus order. For this reason, a change to the leaves gives a different root or a hash collision (A3). The leaves also commit to the blue work of each block, which fixes the selection of the window.
+ By the soundness of the proof system (A3), the counts and the median in the journal are the ones that the guest computes from this window. ◻
+ Theorem 4 (Rate limits). Let m_0 and \ell_0 be the stored prices at one time, and let an adversary control all later windows. After any sequence of updates with window ends that span h hours of chain time, m\le m_0(1+U)^h and \ell\ge\ell_0(1-F)^h . This is true for any overlap of the windows. 
+ Proof. Each update multiplies m by at most (1+U)^{\Delta t} and \ell by at least (1-F)^{\Delta t} . By  (1) , \Delta t\le t_e^{+}-t_e . The UTXO accepts only t_e^{+}>t_e , so the sum of all \Delta t is at most h . ◻
+ The bound holds for each price UTXO, so it also holds when users select among the replicas.
+ With U=10\% /h, the mint price can double only after h hours with 1.1^h=2 , so an adversary needs at least h=\ln 2/\ln 1.1=7.3 hours of chain time. With F=25\% /h, the liquidation price can halve only after 0.75^h=1/2 , which gives h=\ln 2/\ln(1/0.75)=2.4 hours. It can decrease to a tenth only after 0.75^h=1/10 , which gives h=\ln 10/\ln(1/0.75)=8.0 hours. The unbacked issuance during the attack is at most M per day (Theorem  1 ).
+ Without the term t_e^{+}-t_e in  (1) , an adversary can prove a window after each chain block and count the same ten minutes again. This multiplies the exponent of both limits by the number of chain blocks in a window.
+ 9 Parameters
+ Table  3 lists each parameter with its value and the reason for this value.
+ Table 3. Parameters. Symbol Value Reason 
+ R_{\mathrm{o}} 250% a fall of 20% before liquidation 
+ R_{\ell} 200% debt stays backed after a fall of 50% without liquidation 
+ p 5% margin of the liquidator; covers the lag of \ell 
+ W 6 , 000 blocks 10 minutes at 10 blocks per second; constant proof cost per update 
+ g 50% both attacks need the majority threshold of the chain 
+ g_0 90%, 30 days the largest miner in October 2026 could not attack at launch 
+ U 10%/h a false high mint price needs hours 
+ F 25%/h a false low liquidation price needs hours; the lag at this speed is less than p 
+ S 30 min freeze after a missed update 
+ S_{\mathrm{s}} 30 days settlement 
+ M 50 , 000/day limit of the unbacked issuance from a false high mint price 
+ \theta 2% reward tolerance around the median 
+ \beta 0.1%, floor 1 KAS oracle fee; the floor sets a cost for spam 
+ k 8 replicas of each replicated UTXO; throughput and attack cost increase with k 
+ min debt 10 KSD dust limit 
+ 10 Conclusion
+ We described a dollar token on Kaspa L1 backed by KAS collateral and secured by a price oracle that uses the miners of Kaspa as voters. With each miner voting in the coinbase payload of its block we approach similar security properties to that of Kaspa itself. Given that, the final security of the price depends on the hashrate that votes which is why miners need to be given a sufficient incentive.
+ References
+ [1]
+ A. Säfström, “ KIP-16 : New transaction opcodes for verifiable computation.” https://github.com/kaspanet/kips/blob/master/kip-0016.md , 2026.
+ [2]
+ O. Newman, “ KIP-17 : Covenants and improved scripting capabilities.” https://github.com/kaspanet/kips/blob/master/kip-0017.md , 2026.
+ [3]
+ M. Sutton, “ KIP-20 : Covenant IDs .” https://github.com/kaspanet/kips/blob/master/kip-0020.md , 2026.
+ [4]
+ M. Sutton, M. Biryukov, and H. Moog, “ KIP-21 : Partitioned sequencing commitment with O(activity) proving.” https://github.com/kaspanet/kips/blob/master/kip-0021.md , 2026.
+ [5]
+ Maker Foundation, “The Maker protocol: MakerDAO ’s multi-collateral Dai ( MCD ) system.” White paper, 2020.
+ [6]
+ scalahub, greenhat, kettlebell, and SethDusek , “ EIP-0023 : Oracle pool 2.0.” https://github.com/ergoplatform/eips/pull/41 , 2021.
+ [7]
+ Terraform Labs, “Terra core: Oracle module specification.” https://github.com/terra-money/classic-core/tree/main/x/oracle/spec , 2020.
+ [8]
+ Skip Protocol, “ Slinky : Security properties.” https://web.archive.org/web/20240528132833/https://docs.skip.money/slinky/security-properties/ , 2024.
+ [9]
+ R. Lauko and R. Pardoe, “ Liquity : Decentralized borrowing protocol.” White paper, rev. 0.3, https://github.com/liquity/dev/tree/main/papers/whitepaper , 2021.
+ [10]
+ V. Buterin, “ SchellingCoin : A minimal-trust universal data feed.” Ethereum blog, 28 March, https://blog.ethereum.org/2014/03/28/schellingcoin-a-minimal-trust-universal-data-feed , 2014.
+ [11]
+ J. Garzik, T. Harding, and D. V. Johannsson, “ BIP 100 : Dynamic maximum block size by miner vote.” https://github.com/bitcoin/bips/blob/master/bip-0100.mediawiki , 2015.
+ [12]
+ Y. Sompolinsky, S. Wyborski, and A. Zohar, “ PHANTOM GHOSTDAG : A scalable generalization of Nakamoto consensus,” in Proceedings of the 3rd ACM conference on advances in financial technologies (AFT) , ACM, 2021, pp. 57–70. doi: 10.1145/3479722.3480990 .
+ [13]
+ J. Groth, “On the size of pairing-based non-interactive arguments,” in Advances in cryptology – EUROCRYPT 2016 , Springer, 2016, pp. 305–326. doi: 10.1007/978-3-662-49896-5_11 .
+ [14]
+ RISC Zero, “ RISC Zero developer docs, version 3.0.” https://dev.risczero.com/api , accessed 8 November, 2026.
+ [15]
+ R. Billot, M. Sutton, and O. Newman, “ KCC-1 : Covenant concepts, byte layouts, and ABI .” Final, 21 October, https://github.com/kaspanet/kccs , 2026.
+ [16]
+ R. Billot and M. Sutton, “ KCC-2 : Authority schemes.” Final, 21 October, https://github.com/kaspanet/kccs , 2026.
+ [17]
+ S. Helfer, M. Sutton, O. Newman, and R. Billot, “ KCC-20 : Fungible token covenant specification.” Final, 21 October, https://github.com/kaspanet/kccs , 2026.
+ [18]
+ MiningBoard, “Kaspa mining pools.” https://miningboard.com/mining/kaspa/pools , accessed 29 October, 2026.
+ Contact Refund terms X 
+

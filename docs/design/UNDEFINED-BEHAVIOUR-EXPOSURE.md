@@ -116,7 +116,7 @@ changes category, but not magnitude:
 
 That is the freeze found in the crash stress test, reached by a completely
 different route — arithmetic rather than auction economics — and hitting 100 % of
-vaults rather than 57 % of debt at p95. With no governance, there is nobody to
+vaults rather than 45 % of debt at p95 (KAS -85%; 57 % at -95%). With no governance, there is nobody to
 unfreeze it.
 
 Two reasons not to rest on the engine's behaviour:
@@ -249,3 +249,5 @@ None of this is currently recorded anywhere in the specification.
 - `kaspanet/rusty-kaspa` `crypto/txscript/src/opcodes/mod.rs` at `a41a333`
 - `argentc inspect` output, September 15, 2026 — see
   [`REMEASUREMENT-2026-09-15.md`](REMEASUREMENT-2026-09-15.md) §8
+
+Update 2026-11-17: a guarded form was tested (ECONOMICS-VERIFICATION P18: 10,716 engine runs, 0 mismatches); applying it, the precision choice and the written arithmetic discipline remain open owner decisions.

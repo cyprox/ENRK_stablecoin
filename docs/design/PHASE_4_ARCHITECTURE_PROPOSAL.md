@@ -8,8 +8,7 @@
 > fees minted as ENRK and credited to the Stability Pool. The frozen decision is
 > different: **fees are taken in KAS from vault collateral**, never minted, and the
 > Stability Pool is a known defect that must be fixed or removed — it burns ENRK it
-> already holds rather than bidding. The master invariant and seniority waterfall
-> described below are unaffected and still hold.
+> already holds rather than bidding. The master invariant is a design proposal; the seniority waterfall is one candidate of an open owner decision (loss-absorption structure, ECONOMICS-VERIFICATION section 9 item 3). The Rust implementation targets the Igra EVM, which is not retained; it survives as an executable specification.
 >
 > See `FROZEN_PARAMETERS.md` §6 and §9 for the decisions that replaced this section.
 
@@ -318,3 +317,9 @@ happy path; these protocols die on the rejected-halfway-through path.
    you want write-offs published rather than absorbed silently.
 
 Nothing gets implemented until these five are settled.
+
+Note (2026-11-17): ECONOMICS-VERIFICATION section 1 item 3: a breaker that halts liquidations is harmful; the gating rows for `liquidate` and `redeem_enrk` are in question (open owner decision, section 9 item 2).
+
+Resolved (2026-11-17): see FROZEN_PARAMETERS section 6 (20% until the cap, then 0% forever). The 'burn' option is excluded by the owner rule that fees are never burned (2026-11-13).
+
+Status 2026-11-17: items 2 and 4 settled in FROZEN_PARAMETERS section 6; implementation on the Igra EVM is not retained; this proposal is kept as design history.

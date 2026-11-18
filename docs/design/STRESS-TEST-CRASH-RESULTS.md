@@ -1,5 +1,7 @@
 # Crash Stress Test — Method and Results
 
+> Note (2026-11-17): all figures use the simulator's default index, which falls with KAS (about 0.54 at -85%): a hidden 46% reduction of debt value. With a flat index the architecture loses far more (ECONOMICS-VERIFICATION sections 1 and 2).
+
 **Script:** `tests/backtesting/stress_test_crash.py` (standard library only, fixed seed)
 **Date:** September 3, 2026
 
@@ -49,12 +51,12 @@ reasons.
                     median      p95     worst
 KAS -85%
   ENRK loss              0%       0%       0%
-  kFIAT loss             5%      12%      15%
+  kFIAT loss             5%      10%      14%
   latent hole           16%      45%      63%
 
 KAS -95%
   ENRK loss              0%       0%       0%
-  kFIAT loss             3%       7%       9%
+  kFIAT loss             3%       6%       7%
   latent hole           30%      57%      72%
 ```
 
@@ -127,8 +129,5 @@ number here.
 - The Stability Pool was found to be non-functional: it burns ENRK it already
   holds rather than bidding, and its ammunition is denominated in the asset it
   defends. Losing it in the L1 design therefore costs less than it appears.
-- Recovery Mode (Liquity-style, automatic and governance-free) became the
-  identified fix for the freeze — and its unavailability on Kaspa L1 is the most
-  significant loss in that path.
-- The 250% ICR result is what made an uncorrelated gold reserve unnecessary:
-  the same protection, with no trusted party.
+- Recovery Mode was first identified as the fix; RECOVERY-MODE-ANALYSIS disproved this (zero improvement), and the auction floor at 75% is the lever.
+- The 250% ICR recommendation was rejected (see FROZEN_PARAMETERS); the gold reserve is not part of the design.

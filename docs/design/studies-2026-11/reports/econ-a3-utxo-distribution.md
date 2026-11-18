@@ -1,5 +1,9 @@
 # econ-a3: stability fee, junior remuneration, surplus routing on an immutable UTXO system
 
+Status 2026-11-17: owner decisions since this report: execution layer is Kaspa L1, Igra not retained (2026-11-13); stability fee recurring, fees never burned (a burn option is excluded). Passages on Igra and on burning are kept as history.
+
+Superseded in part by econ-t4 (executed on testnet-10): timestamp lag 130-140 s (not tens of seconds); harvest max 5 vaults per tx and surplus routing max 3 (not 160-180 / 150); hot UTXO 6.0-9.6 spends/s. See econ-v4 section 'P16 A3 compiled claims vs econ-t4 executions'.
+
 Date 2026-11-10. Research and design feasibility only. Repo not modified, no transaction executed, no secrets read, nothing under scratchpad/tn10 read.
 Everything labelled "proposal for owner decision" is an option, not a decision.
 Tags: VERIFIED = read in source or compiled by me (file:line or snippet path); DERIVED = arithmetic or reasoning from verified facts; UNVERIFIED = not checked / must be tested.

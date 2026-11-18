@@ -1,0 +1,32 @@
+[
+  {
+    "sha": "a8951cd4063f1b02ec670735c6ef860f817b39ce",
+    "date": "2026-06-23T15:21:42Z",
+    "msg": "Zk sdk (#953)"
+  },
+  {
+    "sha": "e45141f805a8e3f1e9c64a6a8abf2fb42afe3e16",
+    "date": "2026-04-27T23:25:29Z",
+    "msg": "Use kaspanet workflow-perf-monitor (#965)"
+  },
+  {
+    "sha": "acdd9b9a91a1fa917c4c3b2edea1bfc7f830590d",
+    "date": "2026-04-19T08:48:58Z",
+    "msg": "Propagate upstream control ID check (#957)"
+  },
+  {
+    "sha": "a692d5780d2af94d653a76c2c7157cb4154f0eba",
+    "date": "2026-02-08T18:05:10Z",
+    "msg": "Enable OpTxInputDaaScore (#861)"
+  },
+  {
+    "sha": "10a4af3bea9e4befac63826195740a3891effd22",
+    "date": "2026-02-05T09:56:04Z",
+    "msg": "KIP-16 (#775)"
+  },
+  {
+    "sha": "ecbd6f3163bf63ce475b77d1a4e598f18271c18d",
+    "date": "2025-01-06T14:56:11Z",
+    "msg": "CI Update (#622)"
+  }
+]

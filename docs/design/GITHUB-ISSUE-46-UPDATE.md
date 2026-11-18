@@ -85,7 +85,7 @@ Variant B (price in state field):
 | 530 | 444 764 | 994 656 | 0 |
 | 540 | — | **1 013 416** (fails) | — |
 
-**The bottleneck is transaction size, not script execution.** Compute mass remains 3–4 % under limit at both breaking points. Transient mass grows at **1 556 units per input for A and 1 876 for B** as signature scripts accumulate, on a fixed transaction cost of 376. (Both figures are exact, not approximate; an earlier text gave 1 866 for B, which the tables above already contradict.)
+**The bottleneck is transaction size, not script execution.** Compute mass remains below the limit at both breaking points (A: 485,854 of 500,000, 2.8 % under; B: 444,764, 11 % under). Transient mass grows at **1 556 units per input for A and 1 876 for B** as signature scripts accumulate, on a fixed transaction cost of 376. (Both figures are exact, not approximate; an earlier text gave 1 866 for B, which the tables above already contradict.)
 
 ### Question 3: How large are the generated scripts?
 
@@ -104,7 +104,7 @@ Toccata increased the opcode limit to 1 M per script (from 201 pre-Toccata), and
 
 ### Question 4: Will a 640-entry transaction be included in a block?
 
-**Answer: Unresolved; requires Testnet-10.** The transaction is valid and executes; the question is whether it will be accepted into blocks under real network conditions.
+**Answer: Unresolved; requires Testnet-10.** [2026-11-17: executed on testnet-10 (AUDIT section 13.3b); mainnet contention untested.] The transaction is valid and executes; the question is whether it will be accepted into blocks under real network conditions.
 
 Note the operational constraint below: a 640-entry round consumes 99.6 % of the block's transient mass budget, making it a near-singleton in its block.
 
@@ -159,7 +159,7 @@ from the canonical form above.)
 - Reduce N to fit the budget (fewer simultaneous liquidators during the crisis that prompted the fall)
 - Tolerate rejection by the mempool
 
-**Variant B:** The storage mass is always 0, regardless of price movement. Round transitions execute at full N in all market conditions — flat market or 50 % crash.
+**Variant B:** The storage mass is always 0, regardless of price movement. [Caution 2026-11-17 (AUDIT I19, section 13.3b): this table describes a value-changing N-to-N round that no entry can produce; price changes happen only through the 1-to-2 sweep. 'Zero at any price' is unproven.] Round transitions execute at full N in all market conditions — flat market or 50 % crash.
 
 This is the measured form of the KIP-9 asymmetry claimed in L1-Native-Reduced-Spec section 2.4. It was derived before; now it is quantified.
 
@@ -230,7 +230,7 @@ All measurements use `argent-runtime` and `rusty-kaspa` mainnet script engine wi
 
 ## Summary
 
-Three of the four questions are answered by compiled evidence:
+Three of the four original questions are answered by compiled evidence (Q1 is shown as two rows, 1a and 1b):
 
 | Question | Answer | Evidence |
 |---|---|---|
@@ -238,7 +238,7 @@ Three of the four questions are answered by compiled evidence:
 | 1b — split with shared ID | ✅ Yes | Oracle emits 2 outputs with same ID |
 | 2 — max N | ✅ 640 (A) / 530 (B) | Transient mass limit measured at scale |
 | 3 — script size | ✅ Negligible | 0.1 % of limit, non-issue |
-| 4 — block inclusion | ⏳ Testnet-10 | Valid tx, 99.6 % block consumption measured |
+| 4 — block inclusion | ⏳ Testnet-10 [2026-11-17: executed on testnet-10 (AUDIT section 13.3b); mainnet contention untested] | Valid tx, 99.6 % block consumption measured |
 
 The measurement also surfaces a design decision: variant A is efficient in calm markets but deteriorates under price collapse; variant B is invariant. The KIP-9 asymmetry, which was derived in section 2.4, is now quantified: a 10 % fall costs 711 040 storage units per round at N = 640, well over the per-block budget.
 

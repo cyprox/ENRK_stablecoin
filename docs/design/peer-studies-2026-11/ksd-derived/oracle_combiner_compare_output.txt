@@ -1,0 +1,44 @@
+ASSUMPTION: honest noise 0.5% per oracle; truth = 1.0. Wrong liquidation if price < 0.75.
+
+1. Calm market, no attack (cost of using the median): std dev and worst error of the combined price
+   weighted mean 30/30/40     std 0.291%   worst 1.33%
+   median of 3                std 0.335%   worst 1.61%
+   weighted median 30/30/40   std 0.334%   worst 1.53%
+
+2. One oracle reports k times the truth (others honest). Combined price, and the harm
+   (WL = fresh 200% vaults wrongly liquidated; OB = vaults can borrow 25%+ too much)
+   corrupted   k      weighted mean     median of 3     weighted median
+   A 30%       0.0    0.702 WL          1.001             1.001   
+   A 30%       0.5    0.852             1.001             1.001   
+   A 30%       2.0    1.301 OB          1.005             1.005   
+   A 30%       5.0    2.199 OB          1.005             1.005   
+   B 30%       0.0    0.696 WL          0.990             0.990   
+   B 30%       0.5    0.847             0.990             0.990   
+   B 30%       2.0    1.298 OB          1.001             1.001   
+   B 30%       5.0    2.201 OB          1.001             1.001   
+   C 40%       0.0    0.600 WL          0.999             0.999   
+   C 40%       0.5    0.800             0.999             0.999   
+   C 40%       2.0    1.400 OB          1.001             1.001   
+   C 40%       5.0    2.601 OB          1.001             1.001   
+
+3. Two oracles corrupted the same way (the median is no longer protected)
+   corrupted      k      weighted mean     median of 3
+   A+B 60%       0.0          0.400             0.000
+   A+B 60%       0.5          0.699             0.500
+   A+B 60%       2.0          1.599             1.997
+   A+C 70%       0.0          0.300             0.000
+   A+C 70%       0.5          0.650             0.502
+   A+C 70%       2.0          1.700             1.994
+   B+C 70%       0.0          0.298             0.000
+   B+C 70%       0.5          0.648             0.501
+   B+C 70%       2.0          1.701             2.004
+
+4. One oracle offline (value missing). A rule is needed; ASSUMED here: median/mean of the two that remain
+   oracle A offline: weighted mean 1.003   median of the remaining two 1.003
+   oracle B offline: weighted mean 1.003   median of the remaining two 1.003
+   oracle C offline: weighted mean 1.003   median of the remaining two 1.003
+   One offline AND one corrupted to 0: with two values left, the 'median' is their average = 0.5; a rule for
+   this case (stop, or use the more prudent value) must be decided in advance.
+
+5. Reading: with k=0 (price 0, the I26 case) and a 30% oracle the weighted mean gives 0.70 -> WL; the
+   median gives about 1.00. The weighted median of 30/30/40 is always the middle value, i.e. the plain median.

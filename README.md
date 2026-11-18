@@ -9,9 +9,9 @@ chosen by users.
 
 ## Status — read this before anything else
 
-**Design and specification complete. Implementation not started.**
+**The core design and specification are written; several design questions are still open and belong to the owner (see `PROJECT-STATE.md`, section Open). Implementation not started.**
 
-The execution layer is undecided. The covenant-based price oracle described in
+The execution layer is decided by the owner (2026-11-13): Kaspa L1 covenants; Igra is not retained. The covenant-based price oracle described in
 [`docs/design/L1_NATIVE_REDUCED_SPEC.md`](docs/design/L1_NATIVE_REDUCED_SPEC.md)
 was **implemented, compiled and measured** on September 6, 2026 — written in Argent,
 executed through the real Kaspa mainnet script engine — which answered three of the
@@ -25,7 +25,8 @@ four questions filed as
 | Q1c | `covenant_id` as a compile-time constant? | **No** — new constraint |
 | Q2 | Ceiling on N per oracle round | **642** / **532**, bounded by transient mass |
 | Q3 | Script size | 0.1% of the 1 MB limit |
-| Q4 | Block inclusion under contention | **Open** — Testnet-10 required |
+| Q4 | Block inclusion under contention | **Answered on testnet-10, not on mainnet**: an N = 640 round (97.5 % of the compute limit) was included in about 8 s on a lightly loaded testnet; mainnet contention not tested |
+| Q5 (new) | Can a vault and an oracle price UTXO be co-spent? | **Refused as written; accepted once both vault entries declare the oracle outputs** (executed on testnet-10) |
 
 Method and reproduction:
 [`docs/design/GITHUB-ISSUE-46-UPDATE.md`](docs/design/GITHUB-ISSUE-46-UPDATE.md).
@@ -48,6 +49,8 @@ variants to deploy — are open and documented in
 No code is deployed. No audit has been performed. Nothing here should be read as
 an invitation to use the protocol.
 
+**Since September.** A full audit (Nov 9-10) and testnet-10 executions of the oracle and vault lifecycle; an economics and mechanism verification (Nov 11-15) with simulations of crash safety, unit of account and reactive borrowers; studies of peer designs (Kaspa Dollar, kUSD, Monolith, Frax) and an oracle sheet (Nov 15-17). Owner decisions taken: execution layer Kaspa L1 (Igra not retained, 2026-11-13); a recurring stability fee; fees are never burned; ENRK has its own price oracle. Still open: the fate of the peg index, the loss-absorption structure, the role of the fee reserve, the debt-ceiling method, the issuance-cap design and the oracle phasing and bound. See `PROJECT-STATE.md`.
+
 **Start here:** [**`PROJECT-STATE.md`**](PROJECT-STATE.md) — what is decided, what
 is blocked, what happens next.
 
@@ -64,6 +67,8 @@ is blocked, what happens next.
 | **Liquidation** | Dutch auction, permissionless. |
 | **Governance** | **None.** Every parameter frozen at compile time. |
 
+Status note: the peg index (unit of account and formula), the junior share and the loss-absorption structure are under review; the owner has not decided them (see `docs/design/ECONOMICS-VERIFICATION-2026-11-11.md`, section 9). The values in the table are unchanged until he does.
+
 The thermodynamic thesis is what makes Kaspa the right chain rather than an
 arbitrary one: KAS has a production cost anchored in proof-of-work electricity
 consumption. If price falls below that cost, miners power down, hashrate falls,
@@ -77,6 +82,8 @@ are causally linked through the consensus mechanism itself.
 Every value below is fixed at compile time. Changing any of them requires a fork.
 Full justification, with the evidence behind each figure, in
 [`docs/design/FROZEN_PARAMETERS.md`](docs/design/FROZEN_PARAMETERS.md).
+
+These values date from September 3-5. Since then: (a) the stress-test figures behind them were found to inherit a hidden cushion from the simulator's default index response (`ECONOMICS-VERIFICATION` section 1); (b) the circuit breaker as coded was found harmful because it can halt liquidations, and its fate is an open owner decision; (c) the owner has decided there will be a recurring stability fee, never burned; its rate, and the destination of fees after the treasury cap, are not decided.
 
 | Parameter | Value |
 |---|---|
@@ -122,11 +129,11 @@ Documented as such rather than claimed otherwise.
 
 **The fix is a static parameter.** Moving the Dutch auction floor from 85% to 75%
 eliminates the freeze — p95 latent hole from 46% to zero — for +2.4% additional
-discount in calm markets. The floor is a safety valve, not a price.
+discount in calm markets. The floor is a safety valve, not a price. (Measured on the original simulator; its default index response lowers debt value in a crash, so the figure has not been shown to hold when the index does not fall with KAS. See `ECONOMICS-VERIFICATION` section 1.)
 
 Three false paths were rejected with numbers: a gold reserve, Liquity-style
 Recovery Mode (active 47 of 60 days, zero points of improvement), and a 250% ICR
-(buys nothing, costs 25% capital efficiency).
+(rejected on capital efficiency, 25% more capital for the borrower; in the model it protects slightly more, audit I2).
 
 ---
 
@@ -134,9 +141,10 @@ Recovery Mode (active 47 of 60 days, zero points of improvement), and a 250% ICR
 
 ```
 PROJECT-STATE.md              Status, critical path, document index — start here
+KFIAT-DEFINITION-GAP.md       The undefined denomination of kFIAT
 
 docs/
-  ENRK-System-Map.pdf             The whole protocol in 12 pages
+  ENRK-System-Map.pdf             The protocol in 12 pages, as of September 5 (overview only)
   ENRK_ECOSYSTEM_PROPOSAL.md      Dossier for Kaspa core devs and KEF
   design/
     FROZEN_PARAMETERS.md              Every parameter, its value, its evidence
@@ -152,6 +160,13 @@ docs/
     STABLECOIN-FAILURE-ANALYSIS.md    Terra, DOLA, Curve — the failures designed against
     GITHUB-ISSUE-46-COMMENT.md        Oracle validation — summary posted to issue #46
     GITHUB-ISSUE-46-UPDATE.md         Oracle validation — full report, tables, method
+    REMEASUREMENT-2026-09-15.md       Re-measurement on Argent e76ee07 + Silverscript v1.0.0
+    UNDEFINED-BEHAVIOUR-EXPOSURE.md   Undefined-behaviour audit of the Argent sources
+    ORACLE-BINDING.md                 Asset-to-vault binding (Q1c)
+    AUDIT-2026-11-09.md               Audit and testnet-10 results
+    ECONOMICS-VERIFICATION-2026-11-11.md  Economics and mechanism verification
+    studies-2026-11/                  Reports, scripts, handoff log
+    peer-studies-2026-11/             Kaspa Dollar review, oracle sheet, comparison with Monolith and Frax
 
 examples/enrk/                Argent source for the oracle/vault construction
   a/oracle.ag  a/vault.ag       Variant A — price encoded in the UTXO amount
@@ -169,15 +184,16 @@ tests/backtesting/            Stress test and Recovery Mode analysis (stdlib onl
 ## What is not claimed
 
 - No code is deployed. No audit has been performed.
-- The Rust implementation in `contracts/igra/` targeted an EVM rollup and **does
+- The Rust implementation in `contracts/igra/` targeted an EVM rollup (Igra, not retained) and **does
   not deploy**. It survives as an executable specification and a
   differential-testing oracle, nothing more.
 - The covenant oracle construction has been compiled and measured against the real
   Kaspa mainnet script engine, but it has **not been reviewed by anyone who wrote
   those KIPs**. A local engine agreeing with our reading is not the same thing.
   That review is the current blocker.
-- One sizing question remains unresolved: block inclusion for a large sweep
-  transaction under contention, which requires Testnet-10.
+- Block inclusion for a large sweep transaction was answered on testnet-10 only
+  (an N = 640 round was included in about 8 s on a lightly loaded testnet);
+  behaviour under mainnet contention is not tested.
 - The measurement surfaced a constraint we had not anticipated: `covenant_id`
   cannot be a compile-time constant, so each vault carries the oracle identity in
   its own state. **What guarantees a vault is bound to the correct oracle at
@@ -194,12 +210,15 @@ tests/backtesting/            Stress test and Recovery Mode analysis (stdlib onl
   affected vaults impossible to liquidate rather than exploitable. Documented in
   [`docs/design/UNDEFINED-BEHAVIOUR-EXPOSURE.md`](docs/design/UNDEFINED-BEHAVIOUR-EXPOSURE.md)
   rather than fixed quietly.
-- The mass cost of a liquidation transaction has never been measured. The
-  published ceilings describe a pure oracle round.
+- The mass cost of a liquidation transaction was measured in November: about
+  0.4 % of compute and 0.7 % of transient mass for one vault and one price
+  input (local engine), and 180 vaults in one transaction on testnet-10. These
+  are lower bounds: real signatures and the auction distribution rules are not
+  included.
 - Being first on these primitives is a risk, not a feature. Immutable code, plus
   primitives nobody has shipped a CDP stablecoin on, plus a language that reached
   v1.0.0 with no published audit, plus no auditors with covenant experience, is a
-  combination taken seriously here.
+  combination taken seriously here. Nobody has shipped one; two peer designs exist before launch: Kaspa Dollar (specification, no public code at the 2026-11-15 review) and kUSD (testnet-10 research code, not audited).
 
 ---
 

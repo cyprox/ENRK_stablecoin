@@ -1,0 +1,93 @@
+[
+  {
+    "number": 1129,
+    "state": "open",
+    "created_at": "2026-09-10T08:40:02Z",
+    "merged_at": null,
+    "title": "Bump rust 1.98.1"
+  },
+  {
+    "number": 965,
+    "state": "closed",
+    "created_at": "2026-04-25T13:06:00Z",
+    "merged_at": "2026-04-27T23:25:30Z",
+    "title": "Use kaspanet workflow-perf-monitor"
+  },
+  {
+    "number": 957,
+    "state": "closed",
+    "created_at": "2026-04-16T09:36:04Z",
+    "merged_at": "2026-04-19T08:48:59Z",
+    "title": "Propagate upstream control ID check"
+  },
+  {
+    "number": 953,
+    "state": "closed",
+    "created_at": "2026-04-12T04:15:11Z",
+    "merged_at": "2026-06-23T15:21:42Z",
+    "title": "Zk sdk"
+  },
+  {
+    "number": 861,
+    "state": "closed",
+    "created_at": "2026-02-06T13:24:52Z",
+    "merged_at": "2026-02-08T18:05:10Z",
+    "title": "Enable OpTxInputDaaScore"
+  },
+  {
+    "number": 775,
+    "state": "closed",
+    "created_at": "2025-12-07T06:49:18Z",
+    "merged_at": "2026-02-05T09:56:04Z",
+    "title": "KIP-16"
+  },
+  {
+    "number": 622,
+    "state": "closed",
+    "created_at": "2025-01-06T14:01:12Z",
+    "merged_at": "2025-01-06T14:56:11Z",
+    "title": "CI Update"
+  },
+  {
+    "number": 548,
+    "state": "closed",
+    "created_at": "2024-09-08T19:06:52Z",
+    "merged_at": null,
+    "title": "Build with debug and strip on pre-release"
+  },
+  {
+    "number": 545,
+    "state": "closed",
+    "created_at": "2024-09-05T18:07:41Z",
+    "merged_at": "2024-09-06T03:40:54Z",
+    "title": "Change directory back to repo root."
+  },
+  {
+    "number": 541,
+    "state": "closed",
+    "created_at": "2024-09-03T15:51:29Z",
+    "merged_at": "2024-09-05T16:51:04Z",
+    "title": "Deprecate zigbuild and glibc in favor of static musl binaries for Linux builds."
+  },
+  {
+    "number": 519,
+    "state": "closed",
+    "created_at": "2024-08-15T15:01:03Z",
+    "merged_at": "2024-08-19T08:57:24Z",
+    "title": "#505 #473 Upgrade kaspa-alloc's mimalloc dependency"
+  },
+  {
+    "number": 327,
+    "state": "closed",
+    "created_at": "2023-11-20T23:45:58Z",
+    "merged_at": "2023-11-21T14:39:14Z",
+    "title": "Allow addition of path when specifying RPC url"
+  },
+  {
+    "number": 321,
+    "state": "closed",
+    "created_at": "2023-11-14T16:23:56Z",
+    "merged_at": "2023-12-10T19:34:15Z",
+    "title": "README improvements"
+  }
+]

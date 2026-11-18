@@ -1,0 +1,178 @@
+ 
+ How it works — Kaspa Dollar 
+ Kaspa Dollar Menu Home 
+ Why stablecoins 
+ How it works 
+ Whitepaper 
+ Roadmap and funding 
+ Contact 
+ How it works
+ This section outlines at a high level how KaspaDollar functions. For simplicity, we will refer to the KaspaDollar token as KSD. This is a reference label used to describe the token, we emphasize though that this is not the final ticker , and it is
+ subject to change upon release. This page describes what the protocol
+ does, what it cannot do, how it behaves when the KAS price falls, and where its limits are. All parameters are to be considered as preliminary and may change throughout the development phase. Methodologies listed in this section are still subject to internal review and may change as the protocol matures.
+ 1. Vaults 2. The 2.5x rule 3. Liquidation 4. Redemption and the peg 5. The oracle 6. Effect on miner revenue 7. In the event of a mass Kaspa price fall 1. Vaults, overcollateralization and risk
+ When choosing a decentralized stablecoin design over a centralized asset we have to trade
+ centralization and stability, for risk. In order to lower this risk and make the asset
+ stable, it is something that we need to actively manage. One way to do this is through a principle known as
+ overcollateralization. In traditional centralized stablecoins you exchange 1 unit of real
+ fiat in return for a virtual one. In stablecoins that are utilizing overcollateralization you
+ exchange more than 1 unit of some other decentralized asset (which has value) for 1 unit of
+ stablecoin.
+ Even though it may sound absurd, as why would someone pay 1.5 or 2x more to get less it makes
+ total sense when you think of it from a risk perspective. Given that the decentralized
+ collateral backing the stablecoin with much higher volatility in comparison to fiat, we
+ simply need to make room for these larger "swings", by having more of the collateral. In this
+ case, it is KAS. And us as protocol designers, have to account the volatility of Kaspa over
+ the lifetime of an open position when selecting what is the minimum collateral ratio in order to mint KSD.
+ Centralized stablecoin USD 1.00 One dollar in a bank account, held by the company that issues the token.
+ KSD USD 2.50 of KAS KAS locked in a covenant vault on Kaspa L1. Even with no liquidation at all, the KAS price can fall 60% before this KSD is unbacked.
+ 2. The 2.5x rule
+ To mint KSD, the KAS in a vault must be worth at least 2.5x the KSD minted. One KSD
+ therefore requires to be backed by 2.5 dollars' worth of KAS. This allows the user keeps the upside of KAS and a dollar to spend just like a lending platform, in fact decentralized stablecoins are lending platforms .
+ 250% and above: the vault can mint KSD or withdraw KAS.  
+ 200% to 250%: safe from liquidation, but no minting or withdrawing. 
+ Below 200%: anyone can liquidate part of the vault to bring it back to 200%. 
+ Below 100%: the vault holds less KAS than its debt, so part of its KSD is unbacked. 
+ In order to mint or withdraw KAS from a vault it must be fully collateralized, i.e. at least 250%. If a position falls below 200% it can be liquidated, which means someone can repay the missing KSD and get the corresponding KAS that this KSD was backing. In order for this to happen the price of Kaspa has to fall 20% from the opening of a position. It is important to note that the owner can repay this debt themselves and that this is done by anyone, via a P2P gossiping layer (for the OGs: Stroemnet P2P). 
+ An illustrative example of how a vault's health changes over time as the worth of KAS decreases.  Each bar represents the
+ value of the KAS in the vault after a price decrease. The white line marks the point where if the price was to further decline, the KSD would be unbacked. The dashed line is the liquidation threshold.
+ Unchanged 250% 
+ −20% 200% 
+ −40% 150% 
+ −60% 100% 
+ −80% 50% 
+ KAS in the vault The 200% liquidation threshold The 100 KSD debt Unbacked KSD 
+ A liquidation opportunity is a moment when the oracle price is recent and a liquidator is able to act upon it. While prices are being posted and liquidators are active, opportunities are seconds apart, and no fall in Kaspa’s history has come close to half within seconds. However, the rule is sized for the case where the oracle or the liquidators are absent for a longer period, which is the case in which protocol's with far lower ratios have failed. This mechanism ensures that every vault is at or above 200%. If we consider that liquidation would be paused or non-existent a 200% vault can absorb a price decrease of up to 50%. 
+ Let D be the KSD a vault has minted, V the dollar value of its KAS, and f the fall in the KAS
+ price. 1. The vault opens at 250% collateralization
+ V = 2.5 D 
+ At its minimum ratio, each newly minted KSD is worth 2.5x KAS.
+ 2. HOW MUCH price depreciation can newly minted KSD tolerate
+ V = 2.5 D ( 1 − f ) 
+ The vault holds the same amount of KAS, so its value falls with the price.
+ 3. THE MAXIMUM PRICE DEPRECIATION a VAULT CAN WITHSTAND
+ V ≥ D ⟺ f ≤ 1 − 1 2.5 = 60% 
+ 3. Liquidation
+ A vault whose ratio falls below 200% can be partially liquidated by anyone including the owner itself. When this happens, the
+ person liquidating (liquidator) repays part of the vault’s KSD and receives KAS back, shrinking the position of the vault. In addition, they receive a reward, a penalty paid by the vault holder.
+ A concrete example: 
+1. a vault with 1,000,000 KAS (USD 36,600) has minted the
+ maximum of 14,640 KSD. 
+2. KAS falls 25%, so the KAS is now worth USD 27,450 and the ratio is
+ 187.5%, too little. 
+3. A liquidator repays about 1,926 KSD, 13% of the debt, and
+ receives KAS worth USD 2,023. 
+4. The vault is left with USD 25,427 of KAS against 12,714 KSD, which
+ is 200%. The owner has lost USD 96, the penalty, and keeps the rest.
+ The example above, illustrated step by step. 
+ Vault opened USD 36,600 at 250% 
+ KAS falls 25% USD 27,450 at 187.5% 
+ After liquidation USD 25,427 at 200% 
+ 4. Redemption and the peg
+ Any user can redeem KSD through the protocol for one USD worth of KAS per KSD, taken from
+ any vault the holder chooses. This does not impact the vault's risk exposure as the size.
+ If KSD was above one USD there is no protocol mechanism, but if it was to happen, an arbitrage opportunity would arise as someone can simply mint KSD and sell it. Therefore this is not considered to be an issue.
+ Arbitrage: KSD trades below one dollar Buy 1 KSD for USD 0.97 → Redeem it for USD 1.00 of KAS → Keep USD 0.03 
+ KSD trades above one dollar Lock KAS in a vault → Mint KSD → Sell it above USD 1.00 
+ 5. The oracle
+ In contrast to many other decentralized stablecoins, KSD will implement a first of its kind, PoW-backed price oracle backed by true Kaspa hashrate. This section explains how it works together with miners, how they vote, how the votes become a price, what limits what a
+ group of miners can do, and what happens if they stop voting. It is important to note that this is still in the early phases and many constants might change as the protocol matures. 
+ Who posts the price. Every Kaspa miner, in every block
+ it mines has the ability to post a price in its coinbase payload thanks to KIP-21 sequencing commitments. The process of posting the price is done via a small plugin that extends to most common mining software. This extension reads several
+ public exchange prices or from a custom feed if wanted (which can be relevant for RFQ or proprietary price sources) which is then appended into the coinbase payload of each block.
+ How the votes become a price. The protocol looks at one
+ window of recent blocks: the last 6,000 blocks, about ten minutes. The votes are sorted in the window by price and the median of all votes is taken as the true current price. From the true current price two prices are determined:
+ The mint price:  used when KSD is minted or withdrawn. This has no cap downwards, but a maximum of 10% price increase per hour.
+ The liquidation price:  used when a vault is liquidated or KSD is redeemed. This has an uncapped increase in price and at most down by 25% per hour.
+ The mint price can therefore never exceed the median, and the liquidation price can never be below it. The reason for the caps is to slow down an attacker's yield in order to give time for honest actors to react.
+ A crash and a recovery. The above example illustrates how the oracle price falls 40% after 1 hour of runtime. The mint price drops instantly, whilst the liquidation price slowly decreases. At hour 5, the price jumps back to its origin, and the liquidation price instantly adjusts, whilst the mint price slowly increases in accordance with its cap.
+ Median of the votes Mint price: down at once, up at most 10%/h Liquidation price: up at once, down at most 25%/h 
+ Why the median.  The reason for using the median is that an adversary that has less than 50% of the votes cannot move the price outside of the range of the honest votes, regardless which direction the adversary is trying to push. Votes above
+ the honest ones can move it only to a higher honest vote, and votes below them only to a lower
+ honest vote.
+To push the price outside the range reported by honest miners, an adversary needs at least half of the votes. When every block carries a vote, this corresponds to half of the network hashrate, a threshold comparable to that required for a 51% attack on Kaspa itself. If fewer blocks carry a vote, half of the
+ votes takes less hashrate which increases risk for manipulation. However, the hashrate needed can never be less than 25% of the network, because a window only counts when at least 50% of Kaspa L1 blocks carry a vote. 
+ Here is an illustration of the computed oracle price based on the protocol's health. In the
+ scenarios below you can see different outcomes depending on how much of the votes the attacker is
+ claiming. The median price is represented by the white flag.
+ All pools honest The median is an honest vote.
+ Attacker has 40%, votes high The median is still an honest vote.
+ Attacker has 40%, votes low The median is still an honest vote.
+ Attacker has 60%, votes high The median is an attacker vote: the price moves. In this scenario there is a risk that the attacker can mint unbacked KSD through a manipulated
+ price. However, given that there is a cap on how much can be minted per hour, honest actors have
+ sufficient time to repay and close their positions, exiting the protocol.
+ Honest vote Attacker vote Median at an honest vote Median moved by the attacker 
+ How the price gets on chain. Anyone can post a price
+ update. To do this, one has to collect the votes of a valid window and produce a ZK proof that:  these are indeed the votes in the blocks of the Kaspa chain, none added and none left out,
+ and that the median was computed from them correctly. The protocol’s
+ on-chain price record checks the proof against KIP-21 sequencing commitment and ensures its correctness. If everything checks out, the provider of the proof is rewarded a small fee for their service, which is paid from the oracle fee that every priced action pays.
+ With KSD there are four very important conditions to be mindful of: 
+ The price was computed in a valid window where at least 50% of the blocks carried a vote. This ensures that votes are linked with hashrate, as without it it could weaken the security property of oracle price manipulation.
+ If no valid price has been posted for 30 minutes, every action that requires a price stops:
+ minting, withdrawing, liquidating and redeeming. Adding KAS, repaying and closing continue,
+ as they do not require a price.
+ The mint price rises by at most 10% per hour.
+ The liquidation price falls by at most 25% per hour.
+ Below is an illustration of how a price is computed depending on how many blocks have voted within the 10-minute window. If less than 50% voted, there is no price computed.
+ 90% of blocks carry a vote Price 
+ 18 of 20 blocks carry a vote, so the window gives a price.
+ 55% of blocks carry a vote Price 
+ 11 of 20 is still at least half, so the window gives a price.
+ 40% of blocks carry a vote No price 
+ 8 of 20 is less than half, so this window gives no price.
+ Block with a vote Block without a vote Half of the blocks 
+ Why the liquidation price has a fall limit. Without it, an attacker with 50% of the votes could set a very low price in one window, which would lead to an exploit redemption at that
+ price which would drain the KAS of a vault for a negligible amount of KSD. With the limit, a false low
+ price takes hours to arrive. Vault owners can
+ repay and close, because those actions do not require a price to be available.
+ The oracle fee.  Every action that reads a price pays 0.1% of its dollar value in KAS, with a floor of one KAS. The fee goes to three parties: the miners whose votes were within 2% of the median, as a fixed amount per block, the posters of accepted updates, and the keepers who freeze a stale price.
+ Below you find the computations of the above discussed security parameters at a slightly more granular level. The upcoming whitepaper, will support the above stated facts with proofs.  
+ Let a be the attacker’s share of the network
+ hashrate, v the share that votes honestly, and P = a + v the share of the network that votes.
+ 1. Moving a price requires half of the votes
+ a a + v ≥ 1 2 ⟺ a ≥ v 
+ The attacker needs at least as much voting hashrate as all
+ honest voters together.
+ 2. A computed price can only come from 25% network participation
+ a ≥ P 2 ≥ 50% 2 = 25% 
+ A window counts only if at least half of its blocks carry a vote. When every block votes,
+ the bar is 50%, the hashrate of a 51% attack on Kaspa.
+ 3. Stopping the oracle
+ P − a < 50% ⟹ a > P − 50% 
+ A pool that stops voting leaves too few votes for a valid window. When every block votes, that
+ takes more than 50%, as much as moving a price.
+ The below chart shows how much of the network hashrate an attacker needs in order to manipulate
+ the oracle, depending on how much of the network votes.
+ Move a price: half of the voting share Stop the oracle by not voting: voting share minus 50% Example launch gate: 90% of blocks vote 
+ What penalizes an attacker. Nothing in the protocol
+ beyond the lost oracle reward. The deterrents are the
+ ones that protect the chain: 1. the cost of the hashrate, 2. the miners who leave a pool that attacks
+ in public, 3. and the fall in the KAS price that a visible attack causes.
+ Launch gate. Before launch, a certain launch ceremony will be provisioned in order to ensure a smooth start. An initial voting threshold is the trigger for the protocol activation: 90% of blocks must carry a vote, without a gap, for 30 days. Once this threshold has been passed, the protocol continues as stated previously, with its 50% vote threshold.
+ 6. Effect on miner revenue
+ KaspaDollar adds to what Kaspa miners earn and aims to stimulate miner economics. A vote does not affect the outcome of the
+ block reward or how quickly one can mine a block. In addition, it requires no stake and no additional hardware. In return, miners earn a fixed amount of
+ KAS from the oracle fee. We believe that this will increase hashrate retention in the future as more an more applications develop on the KIP-21 consensus changes.
+ 7. In the event of a mass Kaspa price fall
+ This section describes exactly what happens, in order, if the KAS price falls sharply.
+ Stage one: liquidations restore 200% No liquidation: the ratio falls with the price Below 200%: can be liquidated Below 100%: unbacked 
+ Stage one: the price falls while windows are being posted and liquidators are active.  The liquidation
+ price follows the miners’ votes down by up to 25% per hour. As
+ vaults cross below 200%, liquidators repay part of their debt and take KAS plus a few % as penalty, and each vault returns to at least 200%.
+ Owners who prefer to keep their KAS add collateral or repay before liquidators. KSD remains fully backed. The expected effect on KSD would be an increase since borrowers will drive an increased demand for KSD in order to repay their debt.
+ Stage two: the oracle stops, or liquidators are absent, during the fall. Liquidation needs a fresh price, so if votes are present in fewer than half of the blocks, or if nobody
+ is liquidating, vaults are untouched. Minting, withdrawing, liquidating and redeeming stop. Adding KAS, repaying and closing continue. Every vault keeps the margin it had, and a
+ vault opened at 250% remains fully backed down to a fall of 60%. When
+ windows resume, liquidation resumes at the new price and the vaults that fell below 200% are brought back to 200%.
+ Stage three: the fall exceeds half while liquidation is impossible. Vaults that were at the 200% liquidation threshold now hold less KAS than their debt. Their owners have
+ no reason to repay, so their KSD is unbacked until the KAS price recovers or someone repays
+ the debt to take the KAS. The protocol does not spread this loss across other vaults and does
+ not mint any new assets to cover it. Holders can still redeem against every vault that has enough
+ KAS, so the shortfall falls on the KSD that remains after those vaults are used, and the
+ market price of KSD reflects this until it is cleared. 
+ If the oracle never returns. If no valid price has been
+ posted for 30 days, anyone can trigger settlement at the last valid price. Settlement ends minting permanently. Holders may redeem KSD against vaults at the settlement price with no fee,
+ and owners withdraw whatever KAS remains above their debt.
+ The protocol’s exact details, proofs and other clarifications are in the whitepaper , a working document that is updated in place.
+ Contact Refund terms X 
+

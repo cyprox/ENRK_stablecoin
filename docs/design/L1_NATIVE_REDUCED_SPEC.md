@@ -1,7 +1,7 @@
 # ENRK on Kaspa L1 — Reduced Design Specification
 
 **Date:** September 3, 2026
-**Status:** Specification for comparison. No implementation implied.
+**Status:** design specification of the layer decided by the owner on 2026-11-13 (Kaspa L1; Igra not retained). It is a design record, not an implementation. Open items are listed in section 8.
 **Purpose:** Make the L1-native path concrete enough to compare with the Igra EVM
 path on mechanisms rather than impressions.
 
@@ -18,7 +18,7 @@ spending. It can spend an oracle UTXO published for exactly that purpose, in the
 same transaction as the operation that needs the price. KIP-10 introspection reads
 other inputs by index, and KIP-20 covenant IDs authenticate their lineage.
 
-Both KIPs shipped with the Toccata hardfork in June 2026.
+KIP-20 shipped with the Toccata hardfork (mainnet activation 2026-06-30); the KIP-10 introspection opcodes were active before it (KIP-17).
 
 The L1 path is therefore open, but **reduced**: two mechanisms from the Igra design
 do not survive the move, and one sub-problem is genuinely unsolved.
@@ -137,12 +137,9 @@ Oracle UTXO for round R — two branches:
 **DoS resistance** — the USE branch forces identical replication, so a spender
 must recreate what they consume. The feed cannot be drained. Condition (a)
 additionally forces the attacker to touch a real vault, so the feed cannot be
-spammed for free either.
+spammed for free either (not implemented in either variant as of AUDIT I22).
 
-**Freshness** — sweep and republish are intended to happen in a **single
-transaction**: round R's UTXOs are consumed and round R+1's are created
-atomically. There is no instant at which both rounds exist, so there is no
-stale-price window at all.
+**Freshness** — the intended design is a single transaction in which round R is consumed and round R+1 created, so no stale sibling remains. As written this does not hold (see the note below); stale-sibling risk is closed only by an all-N completeness guard, shown essential by a negative control on testnet-10 (ECONOMICS-VERIFICATION section 10.2).
 
 > **This property does not hold for the construction as currently written.**
 > Measured September 15, 2026: `sweep` in both variants emits exactly two outputs
@@ -188,7 +185,7 @@ design toward **frequent rounds of small amplitude**, which is what a good oracl
 should do anyway.
 
 Exact numbers are deliberately omitted: KIP-9 expresses the constant in "dworks"
-while the mempool limit (100,000) and block limit (500,000) are in "grams", and
+while the block limits are compute 500,000, transient 1,000,000 and storage 500,000 (no separate 100,000 standard-mass cap exists after Toccata in rusty-kaspa v2.1.0), and
 that conversion has not been verified. The structural results are certain; a
 specific maximum N is not.
 
@@ -223,7 +220,7 @@ typed state field. Both compiled on the first attempt.
    transient 1,000,000, storage 500,000.
 2. **Script size — answered, and it is a non-issue.** 1,046 B and 1,206 B against a
    1 MB limit, or 0.1%. Vault 805 B / 886 B, oracle 241 B / 320 B.
-3. **Block inclusion — still open.** A round at N=640 consumes 996,216 transient
+3. **Block inclusion — answered on testnet-10, not on mainnet.** (These ceilings are for N independent USE spends in one transaction. Republication at a changed price was executed on testnet-10 up to N = 46 for the contract form tested (ECONOMICS-VERIFICATION section 10.2). Inclusion of an N = 640 round, 97.5% of the compute limit, was executed on testnet-10 on a lightly loaded network; mainnet contention is untested.) A round at N=640 consumes 996,216 transient
    mass, or 99.6% of one block's budget. At Kaspa's 10 BPS that is ~100 ms per
    round, and ~10 ms at the planned 100 BPS, which is acceptable for real-time
    liquidation. But behaviour under contention, and post-Toccata fees, require
@@ -264,7 +261,7 @@ the two variants sharply.
 
 At N=640 a −10% round costs variant A **711,040 storage units**, which exceeds the
 500,000 per-block limit by 42%. Variant B incurs zero storage mass under any price
-movement, because its amounts do not change when the price does.
+movement, because its amounts do not change when the price does. Caution (AUDIT I19, section 13.3b): this table describes a value-changing N-to-N round that no entry can produce; price changes happen only through the 1-to-2 sweep. The real storage cost is in genesis (about 4 x N x 10^12 / value) and in sweep. 'Zero at any price' for variant B is unproven.
 
 **This is the crash scenario.** A falling price is exactly when the oracle must keep
 publishing, and it is where variant A's capacity degrades. Whether that is
@@ -414,7 +411,7 @@ it removes a mechanism already shown to be decorative.
 
 ## 8. Open problems, ranked
 
-The gating problem — oracle freshness — is **resolved** (§2.3, §2.4). What remains:
+The gating problem (oracle freshness) is partly resolved: the construction is measured, but the atomic round transition does not hold as written (section 2.3 note); the form of the round transition is an open design decision. What remains:
 
 1. **Audit capacity.** Who can credibly audit a SilverScript covenant system for
    immutable deployment? The language is three months old. This is very likely the
@@ -432,7 +429,7 @@ The gating problem — oracle freshness — is **resolved** (§2.3, §2.4). What
    launch proofs as unimplemented follow-ups. See
    [`ORACLE-BINDING.md`](ORACLE-BINDING.md).
 4. **Variant A or B** (§2.5.2). Measurable, not yet measured.
-5. **Block inclusion under contention** (§2.5). Testnet-10 required.
+5. **Block inclusion under contention** (§2.5). Executed on testnet-10 on a lightly loaded network (AUDIT section 13.3b); mainnet contention not tested.
 6. **Stability Pool via delegation.** Worth a design attempt, but low priority
    given §6.2. **Constraint:** any delegation design must leave `PriceRound`
    non-leader. Argent `e76ee07` requires `|I(c)| = 1` — one input per covenant id
@@ -442,7 +439,7 @@ The gating problem — oracle freshness — is **resolved** (§2.3, §2.4). What
 7. **The form of the round transition** (§2.3). Binary sweep without atomicity,
    or N sweeps batched into one transaction. Gates the next measurement.
 
-8. **The cost of the liquidation transaction.** Never measured. A vault input is
+8. **The cost of the liquidation transaction.** Measured on testnet-10 (AUDIT section 13.3b; lightly loaded testnet). A vault input is
    815–912 B of signature script against 248–328 B for an oracle `use`. N = 642 is
    the ceiling on a pure oracle round, not on the path the protocol runs.
 
@@ -462,7 +459,7 @@ it is a static constant, and it works identically on both layers (§6.1).
 
 ## 9. Where the comparison now stands
 
-The L1 path no longer has a hole in it. Every mechanism it needs rests on a
+The L1 path has no known hole in the primitives it relies on, but the round transition form, the asset to vault binding and the arithmetic discipline are open. Every mechanism it needs rests on a
 documented, shipped opcode, and the property that makes the oracle work is quoted
 verbatim from KIP-9.
 
@@ -483,6 +480,8 @@ technical argument against L1, and §6.1 disproves it.
 
 Both are defensible. Neither is obvious. The choice is a judgement about which
 risk is more survivable, and that judgement belongs to the project owner.
+
+**Outcome (2026-11-13): the owner chose Kaspa L1; Igra is not retained.** The Igra column of section 7 is kept as record.
 
 ---
 

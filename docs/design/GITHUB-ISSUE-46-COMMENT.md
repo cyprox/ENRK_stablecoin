@@ -1,3 +1,5 @@
+> Superseded (2026-11-17): this is the text posted on 2026-09-06. Later corrections: ceilings 642/532 (REMEASUREMENT-2026-09-15); block inclusion near the limit executed on testnet-10 (AUDIT section 13.3b); the 711,040 storage figure describes a round no entry can produce (AUDIT I19). Do not quote this file for current figures.
+
 ## Response: KIP-20 Covenant Architecture for ENRK Oracle — Compiled Evidence
 
 I am responding to the four questions in this issue with measured data, not arguments. Two Argent applications were written to embody the oracle and vault structure described in the ENRK specification, compiled against the Argent compiler, and executed through the Kaspa mainnet script engine to measure all quantities.
@@ -73,3 +75,5 @@ The harness will output the scaling table showing N at which transient mass exce
 - Complete measurement tables
 - Variant A vs. Variant B trade-off analysis
 - Storage mass asymmetry quantification under KIP-9
+
+In this repository the files are `examples/enrk/` and `tests/enrk_mass.rs`; the harness needs the one-line fix of REMEASUREMENT section 5.1 (not yet applied in the repository as of 2026-11-17).

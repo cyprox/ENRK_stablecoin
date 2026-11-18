@@ -21,7 +21,7 @@ def cmp(a, b, tag, fields=FIELDS):
         n += 1
         x, y = getattr(a, f), getattr(b, f)
         if x != y and not (x != x and y != y): bad += 1; print("DIFF", tag, f, x, y)
-# (1)
+# part 1
 for idx in (dict(index_mode="orig"), dict(index_mode="flat"), dict(index_mode="proc", idx_vol=.3, idx_rho=-.5), dict(index_mode="det", idx_target=2.0),
             dict(index_mode="path", idx_path=tuple(1.01 ** c for c in range(60))), dict(index_mode="det", idx_target=2.0, idx_max_up_step=.0025)):
     for extra in (dict(), dict(policy="kfiat_then_borrowers", soc_cap=.05), dict(c1_days=3, subpar_redemption=True), dict(surplus_rule="S3", kfiat_share=.5),
@@ -32,7 +32,7 @@ for idx in (dict(index_mode="orig"), dict(index_mode="flat"), dict(index_mode="p
                     kw = dict(name="c", seed=N.SEED + i, total_drawdown=dd, stability_fee=.03, pre_days=pre, junior_ledger=True, **{**FZ, "kfiat_share": .3, **idx, **extra})
                     cmp(N.run(N.Scenario(**kw)), W1.run(W1.Scenario(**kw)), f"(1){idx.get('index_mode')}{extra}{dd}{pre}{i}")
 print("(1) W2 off == W1:", n, "field comparisons, differences:", bad)
-# (2)
+# part 2
 b0, n0 = bad, n
 INERT = (dict(rb_red_dump=.5, enable_redemption=False), dict(rb_on=True, rb_att=0.0), dict(rb_on=True, rb_trigger_icr=0.0, rb_exit_mode="both"), dict(rb_spec_frac=.4, rb_spec_icr=50.0),
          dict(rb_miner_frac=.4, rb_miner_opex=0.0), dict(rb_run_red=.3, rb_sig_icr=0.0, enable_redemption=True), dict(rb_run_b=.5, rb_sig_icr=0.0),
@@ -43,7 +43,7 @@ for ft in INERT:
             kw = dict(name="c", seed=N.SEED + i, total_drawdown=.85, stability_fee=.03, pre_days=pre, junior_ledger=True, kfiat_share=.3, index_mode="flat", **FZ)
             cmp(N.run(N.Scenario(**{**kw, **ft})), W1.run(W1.Scenario(**{**kw, **{k: v for k, v in ft.items() if not k.startswith("rb_")}})), f"(2){ft}{pre}{i}")
 print("(2) inert rb options == off:", n - n0, "comparisons, differences:", bad - b0)
-# (3)
+# part 3
 b0, n0 = bad, n
 RB = (dict(rb_run_red=.2, rb_red_dump=1.0, enable_redemption=True), dict(rb_on=True, rb_exit_mode="both"), dict(rb_on=True, rb_exit_mode="cash", rb_att=.9, rb_budget=3.0), dict(rb_spec_frac=.3, rb_spec_icr=1.7),
       dict(rb_miner_frac=.3, rb_miner_opex=.002), dict(rb_run_red=.2, rb_run_b=.5, enable_redemption=False),
@@ -56,7 +56,7 @@ for ft in RB:
         n += 1
         if dataclasses.asdict(full) != dataclasses.asdict(cached): bad += 1; print("DIFF (3)", ft, i)
 print("(3) cached pre-year == full run with rb ON:", n - n0, "cases, differences:", bad - b0)
-# (4)
+# part 4
 b0, n0 = bad, n
 for ft in RB + (dict(),):
     for dd in (.7, .85):
@@ -66,7 +66,7 @@ for ft in RB + (dict(),):
             rhs = r.redeemed_units + r.enrk_repaid_auction + (r.enrk_written_off - r.subpar_loss_pct / 100 * r.enrk_start) + r.enrk_remaining + r.rb_exit_enrk_units
             if abs(lhs - rhs) > 1e-6 * lhs: bad += 1; print("DIFF (4)", ft, dd, i, lhs, rhs)
 print("(4) ENRK accounting identity with rb:", n - n0, "cases, differences:", bad - b0)
-# (5)
+# part 5
 b0, n0 = bad, n
 for i in range(10):
     kw = dict(name="c", seed=N.SEED + i, total_drawdown=.85, index_mode="flat", **FZ)

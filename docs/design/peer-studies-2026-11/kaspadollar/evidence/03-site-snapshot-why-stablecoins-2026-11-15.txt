@@ -1,0 +1,55 @@
+ 
+ Why stablecoins — Kaspa Dollar 
+ Kaspa Dollar Menu Home 
+ Why stablecoins 
+ How it works 
+ Whitepaper 
+ Roadmap and funding 
+ Contact 
+ Why stablecoins
+ Stablecoins are the foundations that are required to build a successful DeFi ecosystem. This section describes how much of the industry already depends on stablecoin functionality and why Kaspa cannot build a lending market or an exchange of any depth without a dollar of its own.
+ 1. Stablecoins are the largest asset class in decentralized finance
+ The total worth of all stablecoins in circulation were worth close to about 300 billion USD, with Tether’s USDT at 182B USD and Circle’s USDC at 72B USD.
+ Tether USDT USD 182 billion 
+ Circle USDC USD 72 billion 
+ All others USD 46 billion 
+ Stablecoins in circulation, 24 October 2026. Source: DefiLlama. 
+ 2. They settle more value than the card networks*
+ In accordance with a16z State of Crypto 2025 report, stablecoins moved about 46T USD in the 12 months to October 2025, nearly 3x the volume of Visa. *Even after accounting for bot activity and internal transfers, the adjusted figure was 9T USD.
+ Stablecoins USD 46 trillion 
+ Visa, for reference about USD 16 trillion 
+ Stablecoins, adjusted for bots USD 9 trillion 
+ Settlement volume in the twelve months to October 2025. Source: a16z State of Crypto 2025. 
+ 3. Exchanges price everything against them
+ A trading pair needs a stable quote asset. On DEXs,
+ stablecoins traded 161B USD in the 30 days to 12 October 2026. Without a stablecoin, a Kaspa exchange can only quote KAS against other
+ volatile assets, meaning there would be no stable asset to take profit in, without leaving the Kaspa network.
+ All stablecoins USD 161 billion 
+ Of which USDC USD 81 billion 
+ Stablecoin volume on decentralized exchanges, 30 days to 12 October 2026. Source: Crypto Briefing. 
+ 4. Lending markets are stablecoin markets
+ On Aave, the largest lending protocol, stablecoins make up about 7.5B USD out of 12.3B in active loans, or roughly 61%. This is a way for people to deposit volatile assets as
+ collateral and borrow dollars against them. That is also the mechanism that we envision to build.
+ All active loans USD 12.3 billion 
+ Of which stablecoins USD 7.5 billion 
+ Active loans on Aave, read 25 October 2026. Source: Aavescan. 
+ 5. How lending markets affect the price of KAS
+ A lending market gives KAS holders a way to spend without selling. A holder who needs
+ dollars locks KAS in a vault and mints KSD against it, so the dollars arrive while the KAS
+ stays theirs. Spending that would otherwise be sell pressure becomes locked supply instead:
+ every KSD in circulation keeps at least twice its value in KAS out of the market for as
+ long as the loan is open, and some of the minted dollars return to buy more KAS. So the net economical effect is that we have less Kaspa in circulation whilst still allowing it to be used for trade.
+ 6. A KAS-backed dollar depends only on Kaspa
+ KaspaDollar follows the overcollateralized design introduced by MakerDAO’s SAI in
+ 2017 and refined by Liquity in 2021: users lock a volatile asset and mint a dollar against
+ a fraction of its value, and the protocol liquidates positions that fall below a published
+ threshold. Nobody holds reserves, nobody can freeze a balance, and the backing can be
+ verified on chain by anyone. The design has been stress-tested through several market
+ cycles. Its weak points are known, and the how it works page describes how this project handles them and where its limits are.
+ Sources
+ DefiLlama, stablecoin market capitalisation, 24 October 2026 https://defillama.com/stablecoins 
+ a16z, State of Crypto 2025, 22 October 2025, as reported by DL News https://www.dlnews.com/articles/markets/stablecoin-volumes-triple-visa-as-a16z-projects-digital-dollars-to-hit-3tn-by-2030/ 
+ Crypto Briefing, stablecoin volume on decentralized exchanges, 13 October 2026 https://cryptobriefing.com/usdc-dex-trading-volume-81-billion/ 
+ Aavescan, stablecoin share of Aave deposits and loans, read 25 October 2026 https://aavescan.com/protocol/stablecoins 
+ Contact Refund terms X 
+

@@ -1,5 +1,7 @@
 # P5a - Kaspa L1 feasibility for ENRK (research, read-only on the repo)
 
+Status 2026-11-17: owner decisions since this report: execution layer is Kaspa L1, Igra not retained (2026-11-13); stability fee recurring, fees never burned (a burn option is excluded). Passages on Igra and on burning are kept as history.
+
 Date: 2026-11-09. Repo not modified. Experiments were compiled in the scratchpad only
 (`.../scratchpad/exp/{fix,atom,two,inapp}`) with the repo's prebuilt
 `argent/target/debug/argentc` (Argent e76ee07). Nothing was executed on a node or in the mass harness.
@@ -190,6 +192,8 @@ The audit's claim needs correction on two points (VERIFIED by RK code, F8):
 4. New data from this study: under Design 3.A the safe N is about 128-160, set by Leader script growth, not
    by the mempool cap. Under 3.A with the old 100k cap, N would be about 20 (Follower 2.7k each) - another
    reason to confirm the cap relaxation before relying on it.
+
+Update 2026-11-14: measured in econ-x1b: leader/follower form max N = 46 (compute 487,182, accepted on testnet-10), N = 128 does not compile; the derived 128-160 does not hold for that contract form.
 
 ## 5. Problem 5: icr_percent division by zero and overflow
 

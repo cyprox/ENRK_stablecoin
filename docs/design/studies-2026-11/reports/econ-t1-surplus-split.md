@@ -1,4 +1,6 @@
 # ECON-T1 - Split of the auction surplus (junior phi_j / reserve phi_r / borrower remainder) - TEST, no decision
+
+Status 2026-11-17: headline values are for the cushioned index (original simulator, index falls with KAS to about 0.54 at -85 %); on a flat index ENRK p95 13.8 %, junior net -15.5 % (econ-t3, econ-v1). Not re-based except in part by econ-w1 section 4 (with the redemption schedule ON). See ECONOMICS-VERIFICATION-2026-11-11.md section 2.
 Date 2026-11-11. Every number is a MODEL OUTPUT of a simulator with known flaws; none is a forecast or a recommendation.
 Work dir: /private/tmp/claude-501/-Users-simoes-ENRK-stablecoin/2186f877-edaf-4d28-afb8-7195b5d7c758/scratchpad/econ/t1
 Repo untouched (git status shows only pre-existing/other changes, none by this task); nothing read under scratchpad/tn10; no secrets. No background process of this task remains.

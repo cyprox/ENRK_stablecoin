@@ -1,4 +1,6 @@
 # ECON-V1 - Re-verification of the architecture proposals on ADVERSE index bases (TEST only, no design decision)
+
+Note 2026-11-17: the exogenous redemption schedule is a second built-in cushion (econ-v5 section 1; W2 profile N0: A3 flat85 ENRK p95 20.0 instead of 13.8).
 Date 2026-11-11. Every number is a MODEL OUTPUT of a simulator with known flaws (p3-sim.md, econ-t3 s.9). Repo untouched; nothing read under scratchpad/tn10; no secrets.
 Work dir: SP/econ/v1 (SP = /private/tmp/claude-501/-Users-simoes-ENRK-stablecoin/2186f877-edaf-4d28-afb8-7195b5d7c758/scratchpad). Full tables: SP/econ/v1/tables_v1.txt (1316 lines), per-cell CSV cells_v1.csv, per-path pickles E1..E7.pkl.
 

@@ -1,0 +1,146 @@
+[
+  {
+    "sha": "1ed87aef59faff8354061aee30f734a3b8b2c3d2",
+    "date": "2026-10-21T14:50:48Z",
+    "login": "Manyfestation",
+    "msg": "KCC-1: advance to Final (#39)"
+  },
+  {
+    "sha": "9dec4a0421326a99c70d07f0aa11d11bc894ab9b",
+    "date": "2026-10-21T14:50:45Z",
+    "login": "Manyfestation",
+    "msg": "KCC-20: advance to Final (#41)"
+  },
+  {
+    "sha": "6f271b7b378e704e5d9fca18f310b18ca7c5a05e",
+    "date": "2026-10-21T11:32:05Z",
+    "login": "Manyfestation",
+    "msg": "KCC-2: advance to Final (#40)"
+  },
+  {
+    "sha": "1516a6c4cef59940fc3af3096dbcdd9c08690254",
+    "date": "2026-10-14T13:11:38Z",
+    "login": "Manyfestation",
+    "msg": "Add KCC-23: MJ (Metadata JSON) (#26)"
+  },
+  {
+    "sha": "3fbec524abfbc20e87652eb938db218f8c17db17",
+    "date": "2026-10-07T20:38:08Z",
+    "login": "saefstroem",
+    "msg": "KCC0 Compliance for KCC-20 + Last Call advancement (#31)"
+  },
+  {
+    "sha": "411b41bc14b3fda8f3a0548242c555f3597cad1a",
+    "date": "2026-10-01T13:15:20Z",
+    "login": "IzioDev",
+    "msg": "docs: kcc0 is already final (#34)"
+  },
+  {
+    "sha": "ad1b8996d648708c0ac6e351f950437c1b867c29",
+    "date": "2026-10-01T12:52:20Z",
+    "login": "IzioDev",
+    "msg": "kcc-02: last call status (#33)"
+  },
+  {
+    "sha": "815ecaff3071f5e227cc4b4cdb6c167ae2915666",
+    "date": "2026-10-01T12:33:08Z",
+    "login": "IzioDev",
+    "msg": "kcc-01: last call status (#32)"
+  },
+  {
+    "sha": "da834af024b235171cd154fdfde16c0cadf8854f",
+    "date": "2026-09-28T10:07:34Z",
+    "login": "IzioDev",
+    "msg": "kcc-1: kcc0 compliance (#27)"
+  },
+  {
+    "sha": "90beacd0dd34543a7321144d122189d779c5ad9b",
+    "date": "2026-09-27T15:14:21Z",
+    "login": "IzioDev",
+    "msg": "kcc-2: kcc-0 compliant and use unkeyed hash function (#30)"
+  },
+  {
+    "sha": "c0bb8f3babbb6a93dbddac900121e5046c1ec388",
+    "date": "2026-09-21T13:31:53Z",
+    "login": "saefstroem",
+    "msg": "Change status from Last Call to Final (#25)"
+  },
+  {
+    "sha": "54f4f9c2730f77ec5b1ee8bc746d7f94d83b8ee6",
+    "date": "2026-09-02T11:06:54Z",
+    "login": "someone235",
+    "msg": "Add Comments-URI to KCC 1 document (#21)"
+  },
+  {
+    "sha": "fd9ea1b84f158057dbcb031de36c8f5889e31b44",
+    "date": "2026-09-02T11:06:18Z",
+    "login": "someone235",
+    "msg": "Add Comments-URI to KCC 2 document (#22)"
+  },
+  {
+    "sha": "3229efbbcbc57e5b75df750d1cf045298d1df8a0",
+    "date": "2026-08-28T08:35:42Z",
+    "login": "Manyfestation",
+    "msg": "KCC-0020: prevent hash-chain borrow front-running (#18)"
+  },
+  {
+    "sha": "93e1915fcfe813b878ebb1699b1eebc154c1a414",
+    "date": "2026-08-27T17:55:39Z",
+    "login": "Manyfestation",
+    "msg": "Clarify extended state fungibility semantics (#16)"
+  },
+  {
+    "sha": "ba692c6129cdc99e4d6be2c76c583da1753ae79f",
+    "date": "2026-08-27T17:52:38Z",
+    "login": "IzioDev",
+    "msg": "feat(kcc-01/dipatch-tag): hardening include record fields (#19)"
+  },
+  {
+    "sha": "5cf757b63467b8c3fa4a290973d171063164be21",
+    "date": "2026-08-27T14:09:58Z",
+    "login": "saefstroem",
+    "msg": "specify KCC-0 (#17)"
+  },
+  {
+    "sha": "ea5176aa65b14b11be6ff4840ba0076893ada87e",
+    "date": "2026-08-20T23:18:28Z",
+    "login": "michaelsutton",
+    "msg": "Move KCC20 borrowed receive guide into companion folder (#13)"
+  },
+  {
+    "sha": "e31a5a855bdebd3bdc4456e5bd40179e9f98a3e8",
+    "date": "2026-08-20T23:13:31Z",
+    "login": "Manyfestation",
+    "msg": "KCC-0020 fungible token covenant specification (#2)"
+  },
+  {
+    "sha": "502a8a292240c7f4b607f9b11e9931b24e727a23",
+    "date": "2026-08-20T20:31:48Z",
+    "login": "IzioDev",
+    "msg": "KCC-0002: authority schemes for program ABIs (#5)"
+  },
+  {
+    "sha": "5a17429a63ba67e7f689d68f501bfe38a950da08",
+    "date": "2026-08-20T20:19:42Z",
+    "login": "IzioDev",
+    "msg": "KCC-0001: covenant definition, concepts, bytes layout and abi (#3)"
+  },
+  {
+    "sha": "345aa32dbbb6addccf1a4cd12a22c213c99b3029",
+    "date": "2026-07-15T12:32:02Z",
+    "login": "IzioDev",
+    "msg": "Merge pull request #1 from kaspanet/initial-kcc-readme"
+  },
+  {
+    "sha": "0e10968ac36c8b4e6f2f95f254f73b364e26125f",
+    "date": "2026-07-15T12:24:24Z",
+    "login": "michaelsutton",
+    "msg": "Initial kcc readme"
+  },
+  {
+    "sha": "50f6bd694b944520de3c11f668270ac2ce644b71",
+    "date": "2026-07-15T12:21:32Z",
+    "login": "michaelsutton",
+    "msg": "Initial commit"
+  }
+]

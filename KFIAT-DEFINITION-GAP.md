@@ -13,6 +13,8 @@ is the gating question.
 > defined, what is assumed silently and inconsistently, and what must be decided
 > before any implementation.
 
+**Update 2026-11-17.** The audit of 2026-11-09 confirms sections 4, 6.1 and 6.2 (audit B3, I8, I9). The economics verification (2026-11-11) found that the two denomination forms are identical on every aggregate, so the difference is global state on UTXO and where the excess goes (ECON P3: needs a decision), and that the published stress figures inherit a hidden index cushion (`docs/design/ECONOMICS-VERIFICATION-2026-11-11.md` §1.1). The denomination remains undecided. The code has not changed since `33c4248`.
+
 ---
 
 ## 1. The chronology, established from git
@@ -92,9 +94,9 @@ let debt_value = self.debt_enrk.to_f64().unwrap_or(0.0) * enrk_price
 The other seven declarations only transport the value to that line.
 
 **Nothing produces it.** `oracle_feeds.rs` (557 lines) produces four indices and
-the peg. No function in any module returns a kFIAT price. `grep -rn
-"kfiat.*price" docs/` returns nothing across the entire documentation, including
-the documents added on September 15.
+the peg. No function in any module returns a kFIAT price. In the documentation,
+`grep -rn "kfiat.*price" docs/` matches only the November audit and the study
+reports, which describe the gap and do not define the price.
 
 **Nothing tests it.** The 119 tests never call `VaultManager::mint_kfiat`,
 `burn_kfiat`, `withdraw_collateral`, `close_vault` or
@@ -139,8 +141,9 @@ Total debt — ENRK and kFIAT combined — multiplied by a single `peg`. There i
 `kfiat_price` anywhere in `tests/backtesting/`. Vault construction (l.156-157)
 splits one `total_debt_units` into two fractions of the same unit.
 
-**Every published kFIAT figure assumes par**: ENRK p95 5.0% / kFIAT 2% with
-redemption, kFIAT 14% without, the latent hole 46% → 0%, the rejection of
+**Every published kFIAT figure assumes par**: ENRK p95 5.0% with redemption (the
+quoted "kFIAT 2%" is not reproduced: audit I1 gives mean about 10%, p95 about 39% at
+-85%, floor 75%, redemption on; "kFIAT 14% without" was not re-checked), the latent hole 46% → 0%, the rejection of
 Recovery Mode, the rejection of a 250% ICR.
 
 ---
@@ -189,9 +192,11 @@ Untouched since September 3, therefore predating the frozen specification:
 | `LiquidationParams::end_price` | 85 | **75** |
 | `FeeStructure::stability_pool_allocation` / `treasury_allocation` | 80 / 20 | Fees taken in KAS; treasury 20% until cap, then 0% |
 | `OraclePrice::source` | `"band"`, `"chainlink"` | Covenant-lineage oracle |
+| `lib.rs:68` `LIQUIDATION_END_PRICE` | 85 | **75** |
 
 These are the same assertions for which seven documents were deleted in the
-September 5 hygiene pass. The pass did not cover the code.
+September 5 hygiene pass. The pass did not cover the code. Whether to correct
+these values is an open owner decision.
 
 ---
 
@@ -203,8 +208,9 @@ residual claim marked to market?
 **Branch 1 — fixed face.** Removes eight parameter declarations and the
 `* kfiat_price` term; `types.rs:220` becomes a single multiplication of total
 debt by the peg. Nine call sites adjusted, one test constant. No test to rewrite,
-since none exercises the surface. `PHASE_4` §5.5 holds as written. Published
-figures remain valid. `kaspa_tokens.rs` must be corrected, since it asserts the
+since none exercises the surface. `PHASE_4` §5.5 holds as written. The choice
+does not change the published figures, which still carry the index cushion found
+in the economics verification (§1.1). `kaspa_tokens.rs` must be corrected, since it asserts the
 opposite.
 
 **Branch 2 — residual claim.** Requires creating the producer that does not
@@ -225,6 +231,10 @@ function.
 The costs are not symmetric: branch 1 deletes code, branch 2 adds code and
 invalidates measurements. **This is not a reason to decide it here.**
 
+Note (2026-11-17): the economics verification found the two forms identical on
+aggregates (ECON P3), and the audit lists a third form, fixed face plus an
+on-chain write-down index (audit, option A2). None is decided.
+
 ---
 
 ## 9. Open items this document adds
@@ -241,10 +251,10 @@ invalidates measurements. **This is not a reason to decide it here.**
 
 ## 10. Operational note for the next session
 
-The document copies attached to the Claude project are dated September 8; the
-repository is at September 15 (`33c4248`). Any session reading the attachments
-without fetching the repository works from a superseded state. This is hygiene
-rule 3 in its exact form: before asserting the state of a file, read the file.
+Copies of documents attached to other tools can be older than the repository. A
+session that works from such copies works from a superseded state. This is hygiene
+rule 3 of `PROJECT-STATE.md` in its exact form: before asserting the state of a
+file, read the file.
 
 ---
 

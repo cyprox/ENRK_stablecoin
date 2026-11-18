@@ -3,6 +3,8 @@
 **Date:** September 3, 2026
 **Author:** cyprox
 
+**Revision note, 2026-11-17 (dated record; values below are as frozen on 2026-09-03).** Since then: (1) execution layer decided by the owner on 2026-11-13: Kaspa L1, Igra not retained (sections 7 and 10 updated below); (2) owner decisions: a recurring stability fee, fees are never burned, ENRK has its own price oracle (rate, base and recipients not decided); (3) the stress figures quoted in sections 1 and 4 come from a simulator whose index falls with KAS (hidden cushion), see ECONOMICS-VERIFICATION-2026-11-11 sections 1 and 2; (4) open owner decisions are listed in ECONOMICS-VERIFICATION section 9.
+
 Every parameter here is frozen at compile time and cannot be changed after
 deployment. There is no governance. Changing any of them requires a fork.
 
@@ -25,14 +27,15 @@ each with the evidence behind it.
 | Crypto adoption weight | 10% | ✅ |
 | Peg clipping range | [0.1, 5.0] | ✅ |
 
-Chosen as "Alternative 3.5" after backtesting. The 30% uncorrelated energy hedge
-cut peg drawdown from −78% to −17.3%.
+Chosen as "Alternative 3.5" after backtesting. In the definitive 4,380-day simulation Alt 3.5 has volatility 25.0% and max drawdown −17.3%, while pure-Kaspa Alt 3 does not produce a finite figure (NaN); the earlier intermediate estimates were −35% against −78% (2018 bear).
 
 **Documented cost, to be stated in any public specification:** a peg that holds
 firm while collateral collapses maximises the fall in ICR. Alt 3 (pure Kaspa
 indexing) leaves a 10% latent hole at −85% where Alt 3.5 leaves 17% — the hedge
 costs roughly 7 points of solvency. This is the MakerDAO Black Thursday dynamic.
 Not a reason to change the formula; a reason not to claim the hedge is free.
+
+Note (2026-11-17): the 'peg holds firm' reading and the 7-point figure come from the original simulator, in which the index falls with KAS (to about 0.54 at -85%). With a flat index the same architecture loses far more (ECONOMICS-VERIFICATION section 1). The check mark records the 2026-09-03 decision; the fate of the index (fixed unit, slow-up/immediate-down bound, baseline, energy source) is open (ECONOMICS-VERIFICATION section 9, item 1).
 
 ---
 
@@ -125,6 +128,8 @@ Its structural limit: at face value, `new ratio = (a−r)/(b−r)` improves a he
 vault and degrades an underwater one. Below 100% ICR the collateral to honour face
 value does not exist. At −95%, 26% of redemption demand finds no eligible vault.
 
+Note (2026-11-17): in the simulator, redemption demand is an exogenous schedule; with it switched off, the candidate architecture's ENRK p95 at KAS −85% on a flat index rises from 13.8 to 20.0 (W2). 'Halves losses' is therefore model-dependent.
+
 Lowest-ICR-first is deliberate: it pays down the worst debt and improves system
 health. Those owners are dispossessed of collateral at par, involuntarily, having
 done nothing wrong beyond being the least collateralised.
@@ -138,10 +143,11 @@ done nothing wrong beyond being the least collateralised.
 | Mint fee | 2% | ✅ |
 | Liquidation fee | 4% | ✅ |
 | Redemption fee | 1% | ✅ |
+| Recurring stability fee | **Yes** (owner decision 2026-11-13); rate, accrual base, denomination and recipient not decided (ECONOMICS-VERIFICATION section 9 items 3-4) | ✅ decision, ❓ parameters |
 | **Fee denomination** | **KAS, taken from vault collateral** | ✅ |
 | Treasury share | 20% until the cap, then **0% forever** | ✅ |
 | **Treasury cap** | **2,500,000 peg units** (~$300k) | ✅ |
-| Fee destination after the treasury cap | **see §7** | ❓ |
+| Fee destination after the treasury cap | **open; fees are never burned (owner 2026-11-13) and must remunerate; recipient(s) not decided** | ❓ |
 
 **Why fees are taken in KAS rather than minted as ENRK.** Three reasons:
 
@@ -203,11 +209,7 @@ receives the same fraction regardless of when they act, so there is no race.
 **But pro-rata socialisation requires global aggregate state** — direct in an
 account model, and precisely what Kaspa L1's UTXO model cannot express.
 
-**Consequence:** this is the first concrete argument in Igra's favour to emerge in
-some time, and it belongs in the layer decision. On Kaspa L1, burning the fee KAS is
-the honest answer — minimal, no attack surface, no race, benefiting all KAS holders
-pro rata including every vault owner. On Igra, the pro-rata reserve becomes possible
-and deserves its own analysis.
+**Consequence (revised 2026-11-17):** the execution layer is decided: Kaspa L1, Igra not retained (owner, 2026-11-13), and the owner has ruled that fees are never burned. The earlier recommendation to burn the fee KAS on L1 is withdrawn. A pro-rata reserve needs global aggregate state, which the UTXO model cannot express directly; its L1 form is an open question (ECONOMICS-VERIFICATION P5: 'counts as collateral' has no verified L1 form).
 
 For immutable code, adding a mechanism whose race dynamic is already known is worse
 than adding nothing.
@@ -221,6 +223,8 @@ than adding nothing.
 | Peg deviation threshold | 10% | ✅ |
 | Oracle downtime threshold | 360 minutes (6h) | ✅ |
 | Override | **None possible** | ✅ |
+
+Note (2026-11-17): ECONOMICS-VERIFICATION section 1 finds the breaker as coded harmful if it halts liquidations (unbacked debt 19.9% to 86.8% at index x2). Whether the breaker may ever act on liquidations, and on what trigger, is an open owner decision (section 9, item 2).
 
 ---
 
@@ -244,13 +248,7 @@ therefore costs nothing.
 
 ## 10. Still open
 
-1. **Execution layer** — Kaspa L1 covenants vs Igra EVM. The oracle construction
-   was measured on September 6, 2026 and re-measured on September 15 against
-   Argent `e76ee07` and Silverscript v1.0.0, where every figure reproduced
-   (Q1a, Q1b yes; true ceilings N = 642/532; script size negligible). Awaiting
-   core-developer confirmation, and Q4 (block inclusion under contention) still
-   requires Testnet-10. See
-   [`REMEASUREMENT-2026-09-15.md`](REMEASUREMENT-2026-09-15.md).
+1. **Execution layer — decided by the owner, 2026-11-13: Kaspa L1; Igra not retained.** The oracle construction was measured on September 6, 2026 and re-measured on September 15 against Argent `e76ee07` and Silverscript v1.0.0, where every figure reproduced (Q1a, Q1b yes; ceilings N = 642/532 for a pure consumption round, bounded by transient mass; script size negligible). Block inclusion near the limit was executed on testnet-10 (AUDIT section 13.3b: N = 640, included in about 8 s, lightly loaded testnet, no mainnet contention test). A whole-population refresh at a changed price works on testnet-10 up to N = 46 for the contract form tested (ECONOMICS-VERIFICATION section 10.2). Core-developer confirmation of the sibling-covenant-id reading is still outstanding. See [`REMEASUREMENT-2026-09-15.md`](REMEASUREMENT-2026-09-15.md).
 2. **Oracle identity binding (Q1c)** — `covenant_id` cannot be a compile-time
    constant, so the vault carries it in its own state. Reframed on September 15:
    the binding to secure is **asset → vault**, since a forged vault is inert
@@ -270,14 +268,11 @@ therefore costs nothing.
    hold as written. Design decision, gates the next measurement.
 3. **Oracle variant A or B** — A allows ~21% more N; B incurs zero storage mass
    under a falling price and locks negligible capital. Not decided.
-4. **Fee destination after the treasury cap** (§7) — burn on L1, pro-rata reserve on
-   Igra. Follows the layer decision.
-5. **Stability Pool: fix or remove** — follows from (4).
+4. **Fee destination after the treasury cap** — open. Constraint: fees are never burned (owner 2026-11-13); recipient(s) and the fee reserve's role (loss absorption versus incentives) are open owner decisions.
+5. **Stability Pool: fix or remove** — open (AUDIT section 7 D proposes removal with bids payable in ENRK; not decided).
 
 ---
 
 ## Sources
 
-`Stress-Test-Crash-Results`, `Recovery-Mode-Analysis`, `Redemption-Analysis`,
-`Execution-Target-Assessment`, `L1-Native-Reduced-Spec`,
-`Phase-4-Architecture-Proposal`, `GITHUB-ISSUE-46-UPDATE`.
+[`STRESS-TEST-CRASH-RESULTS`](STRESS-TEST-CRASH-RESULTS.md), [`RECOVERY-MODE-ANALYSIS`](RECOVERY-MODE-ANALYSIS.md), [`REDEMPTION-ANALYSIS`](REDEMPTION-ANALYSIS.md), [`EXECUTION_TARGET_ASSESSMENT`](EXECUTION_TARGET_ASSESSMENT.md), [`L1_NATIVE_REDUCED_SPEC`](L1_NATIVE_REDUCED_SPEC.md), [`PHASE_4_ARCHITECTURE_PROPOSAL`](PHASE_4_ARCHITECTURE_PROPOSAL.md), [`GITHUB-ISSUE-46-UPDATE`](GITHUB-ISSUE-46-UPDATE.md).

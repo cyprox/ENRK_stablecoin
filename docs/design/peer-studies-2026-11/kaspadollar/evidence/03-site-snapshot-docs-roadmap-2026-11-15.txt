@@ -1,0 +1,69 @@
+ 
+ Roadmap and funding — Kaspa Dollar 
+ Kaspa Dollar Menu Home 
+ Why stablecoins 
+ How it works 
+ Whitepaper 
+ Roadmap and funding 
+ Contact 
+ Roadmap and funding
+ Kaspa Dollar is a decentralized dollar on Kaspa. The fundraiser has a target of 5,000,000 KAS and closes on 1 January 2027. If the
+ target is not reached by then, every contribution is refunded under the terms at the foot of
+ this page. This page sets out what the funds pay for, in what order, and how spending is
+ reported.
+ Who is building it
+ Kaspa Dollar is led by Alexander Safstrom, a Kaspa
+ core developer and the author of KIP-16, the zero-knowledge proof verification opcodes for
+ Kaspa, with the help and support of the rest of the Kaspa core team.
+ January
+ Fundraiser closes
+ If 5,000,000 KAS has not been reached by 1 January 2027, every contribution is refunded under the terms below.
+ January - April
+ Build
+ The protocol code, the publisher software and the membership covenants, the wallet integrations and the indexer that wallets and explorers need to read vault state.
+ May
+ Testnet
+ Every action runs end to end on testnet: mint, repay, redeem, liquidate, price rounds, publisher ejection, membership changes and settlement. Integrators test against it as a proof of concept, and the publishers run the oracle on testnet for the full month.
+ June - August
+ Audit and hardening
+ Independent review of the code by a third-party firm, a second review of the fixes, and the infrastructure for nodes, indexers and monitoring.
+ September
+ Mainnet
+ Kaspa Dollar goes live. The code is final from this point.
+ October onward
+ Ecosystem
+ Work with other stablecoin providers to strengthen the stablecoin ecosystem on Kaspa, and help integrators bring it to people.
+ Use of funds
+ The 5,000,000 KAS is divided into two
+ allocations: 72% pays for building, representing and promoting the project, and the
+ remaining 28% pays for the audit.
+ Development, representation and marketing, 72% Independent audit, 28% Development, representation and marketing
+ 72%: 3,600,000 KAS
+ Development fees, relationship building with wallets, exchanges and integrators, travel to
+ conferences, promotion and marketing, and representation of Kaspa in discussions with
+ partners.
+ Independent audit
+ 28%: 1,400,000 KAS
+ A third-party review of the vault and token covenants and the oracle and membership
+ covenants; a second review of the fixes; publication of both reports; a public bug bounty
+ on the audited code.
+ Reporting
+ Every transaction out of the fundraising address is published at the end of each month, with
+ the amount, the recipient category and the purpose. The audit contracts and both audit
+ reports are published in full when they are signed and delivered.
+ How to take part
+ Send KAS to the address below before 1 January 2027.
+ [ADDRESS REDACTED]
+ We strongly recommend sending from a self-custodial wallet ,
+ so that any refund can be returned directly to the address it came from.
+ Contributions sent from an exchange or another custodial wallet cannot be refunded that
+ way, because the sending address belongs to the custodian rather than to you. Whether a
+ sending address belongs to a custodian is determined by its label on kaspa.stream . To claim a refund for such a contribution, forward the custodian’s withdrawal
+ confirmation email to support@kaspadollar.com as an attachment rather than inline, so that its full headers and DKIM signature reach us
+ intact. The amount and time it states must match the transaction on chain, and additional
+ verification may be required.
+ No guarantees can be made. By contributing, you accept the risk of losing your contribution
+ in full.
+ Leave your email on the front page and you’ll be the first to know when it goes live.
+ Contact Refund terms X 
+

@@ -18,7 +18,7 @@ def cmp(a, b, tag, fields=FIELDS):
         n += 1
         x, y = getattr(a, f), getattr(b, f)
         if x != y and not (x != x and y != y): bad += 1; print("DIFF", tag, f, x, y)
-# (1)
+# part 1
 for idx in (dict(index_mode="orig"), dict(index_mode="flat"), dict(index_mode="proc", idx_vol=.3, idx_rho=-.5), dict(index_mode="det", idx_target=2.0)):
     for extra in (dict(), dict(policy="kfiat_then_borrowers", soc_cap=.05), dict(c1_days=3, subpar_redemption=True), dict(surplus_rule="S3", kfiat_share=.5)):
         for dd in (.7, .85):
@@ -26,7 +26,7 @@ for idx in (dict(index_mode="orig"), dict(index_mode="flat"), dict(index_mode="p
                 kw = dict(name="c", seed=N.SEED + i, total_drawdown=dd, stability_fee=.03, pre_days=0, junior_ledger=True, **FZ, **{"kfiat_share": .3, **idx, **extra})
                 cmp(N.run(N.Scenario(**kw)), V1.run(V1.Scenario(**kw)), f"(1){idx}{extra}{dd}{i}")
 print("(1) W1 off == V1:", n, "field comparisons, differences:", bad)
-# (2) (3)
+# parts 2 and 3
 b0, n0 = bad, n
 for tgt in (1.5, 2.0, 0.6):
     path = tuple(tgt ** ((c + 1) / 60) for c in range(60))
@@ -37,7 +37,7 @@ for i in range(10):
     kw = dict(name="c", seed=N.SEED + i, total_drawdown=.85, stability_fee=.03, pre_days=0, junior_ledger=True, kfiat_share=.3, **FZ)
     cmp(N.run(N.Scenario(index_mode="flat", **kw)), N.run(N.Scenario(index_mode="path", idx_path=(1.0,) * 60, **kw)), f"(3){i}")
 print("(2)(3) path==det, path(1)==flat:", n - n0, "comparisons, differences:", bad - b0)
-# (4)
+# part 4
 b0, n0 = bad, n
 for i in range(10):
     kw = dict(name="c", seed=N.SEED + i, total_drawdown=.85, stability_fee=.03, pre_days=0, junior_ledger=True, kfiat_share=.3, **FZ)
@@ -49,7 +49,7 @@ for i in range(10):
     r0 = N.run(N.Scenario(index_mode="det", idx_target=0.6, **kw))
     cmp(r, r0, f"(4c){i}")
 print("(4) up-limit off/large inert, binds exactly, falls unlimited:", n - n0, "comparisons, differences:", bad - b0)
-# (5)
+# part 5
 b0, n0 = bad, n
 for i in range(8):
     base = dict(name="c", seed=N.SEED + i, total_drawdown=.85, crash_days=60, stability_fee=.03, pre_days=365, junior_ledger=True, kfiat_share=.3, **FZ)

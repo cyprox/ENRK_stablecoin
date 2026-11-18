@@ -2,7 +2,7 @@
 
 **Date:** September 3, 2026
 **Status:** Peg formula decided and frozen. These are the definitive backtesting
-figures.
+figures. The formula was decided on 2026-09-03; the open questions on the index design (unit, baseline, energy source, bounds) are listed in ECONOMICS-VERIFICATION section 9, item 1.
 
 > **Scope.** This document fixes the peg formula and its calibration. Protocol
 > parameters — ICR, MCR, auction floor, fees, treasury — are in
@@ -20,14 +20,13 @@ the formula chosen for the ENRK peg is **Alternative 3.5**.
 
 | Metric | Alt 3 (pure Kaspa) | Alt 3.5 (hybrid) |
 |---|---|---|
-| Annual volatility | NaN — diverges | **25.0%** |
+| Annual volatility | NaN (no finite figure) | **25.0%** |
 | Max drawdown | NaN | **−17.3%** |
 | Sharpe ratio | NaN | **0.42** |
 | Days drifting > 5% | 886 / 4,380 | **319 / 4,380** |
 | Mean drift from peg | 5.8% | **2.1%** |
 
-Alternative 3 **fails numerically** in backtesting, with infinite volatility, which
-confirms its spiral risk.
+Alternative 3 produces no finite figure (NaN) in the 4,380-day script, which is not in the repository (AUDIT I6).
 
 ---
 
@@ -66,6 +65,8 @@ Baseline   : global average at launch (order of $0.08/kWh)
 Frequency  : daily, aggregated over a rolling week
 References : IEA, GlobalPetrolPrices, ENTSO-E (Europe), CAISO (USA)
 ```
+
+Note (2026-11-17): available energy series are monthly with a 1-6 week delay; the fee and adoption legs are unusable as coded (ECONOMICS-VERIFICATION section 5). Daily frequency is a target, not an available input.
 
 **Why 30%** — a hedge against Kaspa's volatility, since energy is weakly correlated
 with crypto sentiment. It is also a physical reality: the kWh is the real cost of
@@ -124,7 +125,7 @@ Peg = 0.40×400 + 0.30×110 + 0.20×500 + 0.10×180
     = 160 + 33 + 100 + 18 = 311%          -> a rise of 211%
 ```
 
-Measured, where Alternative 3 would have produced +600% — too speculative for a
+Computed by hand (not a simulation), where Alternative 3 would have produced +600% — too speculative for a
 stablecoin.
 
 ### Scenario 3 — global energy crisis
@@ -160,6 +161,8 @@ covenant-lineage oracle described in
 [`L1_NATIVE_REDUCED_SPEC.md`](L1_NATIVE_REDUCED_SPEC.md) §2**, not a third-party
 oracle. Failure behaviour is the frozen circuit breaker: 10% deviation or six hours
 of unavailability triggers a pause, with no override.
+
+(See ECONOMICS-VERIFICATION sections 1 and 9: the breaker as coded is harmful if it halts liquidations; the 'no spiral' result depends on an index that falls with KAS; both are open owner decisions.)
 
 ### Weights immutable after launch
 
@@ -221,6 +224,8 @@ The other side: kFIAT absorbs losses first and is not redeemable.
 **Technically** — 25% volatility against infinite volatility for Alt 3, a positive
 Sharpe at 0.42, survival of all three black scenarios tested, and no spiral even
 under a regulatory apocalypse.
+
+(See ECONOMICS-VERIFICATION sections 1 and 9: the breaker as coded is harmful if it halts liquidations; the 'no spiral' result depends on an index that falls with KAS; both are open owner decisions.)
 
 **Doctrinally** — 40% Kaspa-native, 30% real energy, 20% the network's real economy,
 10% long-run trend. **No USD oracle: the decoupling from fiat is structural, not

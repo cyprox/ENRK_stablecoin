@@ -1,0 +1,16 @@
+blocks sampled 2223
+humpool                      683  30.7%  cum  30.7%
+other/untagged               541  24.3%  cum  55.1%
+f2pool                       477  21.5%  cum  76.5%
+viabtc                       252  11.3%  cum  87.9%
+wpool                         71   3.2%  cum  91.0%
+kaspa-pool                    64   2.9%  cum  93.9%
+2miners                       38   1.7%  cum  95.6%
+kryptex                       23   1.0%  cum  96.7%
+herominers                    19   0.9%  cum  97.5%
+antpool                       18   0.8%  cum  98.3%
+other:emcd.u2                 12   0.5%  cum  98.9%
+other:emcd.e3                  8   0.4%  cum  99.2%
+other:nicehash                 6   0.3%  cum  99.5%
+other:emcd.e2                  5   0.2%  cum  99.7%
+other:emcd.m2                  3   0.1%  cum  99.9%

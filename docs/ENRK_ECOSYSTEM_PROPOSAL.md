@@ -2,10 +2,11 @@
 
 **A proposal to the Kaspa Ecosystem Foundation and Kaspa core developers**
 
-**Date:** September 2026
+**Date:** September 2026 (revised November 2026: status, Q4 and corrections only)
 **Repository:** https://github.com/cyprox/ENRK_stablecoin
-**Status:** Design and specification complete. Pre-implementation. Seeking
-technical validation and audit partnership.
+**Status:** Design and specification written; several design questions open.
+Pre-implementation. Execution layer: Kaspa L1 (owner decision, 2026-11-13).
+Seeking technical validation and audit partnership.
 
 ---
 
@@ -81,6 +82,8 @@ the whole reason for this proposal.
 ## 3. The technical core: a contention-free price oracle from covenants
 
 This is the part we most want reviewed, because everything else depends on it.
+
+*Note (November 2026): sections 3.2 and 3.3 describe the construction as first conceived. Two points were withdrawn by later measurement and are stated in section 5: `covenant_id` cannot be a compile-time constant in the vault script (the vault carries it in its state), and the round transition is not atomic as written (`sweep` emits two outputs). A whole-population refresh at a changed price works on testnet-10 up to N = 46 per transaction for the contract form tested (not an L1 limit) and needs an all-N completeness guard (`docs/design/ECONOMICS-VERIFICATION-2026-11-11.md` §10.2).*
 
 ### 3.1 The problem
 
@@ -159,7 +162,7 @@ the magnitude."*
 
 For N inputs of value `a` and N outputs of value `b`, the storage mass formula
 `C·(Σ(1/o) − |I|²/Σ(v))⁺` reduces to `C·N·(1/b − 1/a)⁺`, giving an asymmetry that
-shapes the design:
+shapes the design. (Correction, audit I19: KIP-9 exempts compounding into an equal or smaller number of outputs only; a 1-to-2 split is not exempt, about 30,000 storage units for 1e8 split into two outputs of 5e7, and a genesis of N covenant outputs costs about 4 x N x 10^12 / value storage mass: a genesis of 128 UTXOs of 10 KAS was refused by the node.)
 
 - **a rising price is free** — the term goes negative and clamps to zero
 - **a falling price costs mass**, proportional to N and to the depth of the fall
@@ -215,7 +218,7 @@ eliminates the freeze entirely — p95 latent hole from 46% to zero — for +2.4
 additional discount in calm markets. Floors of 75%, 70% and 60% give identical
 results, because a Dutch auction clears at the first acceptable price: once the
 floor is deep enough to cover maximum demand, going deeper costs nothing. The floor
-is a safety valve, not a price.
+is a safety valve, not a price. (Measured on the original simulator; its default index response lowers debt value in a crash, so the figure has not been shown to hold when the index does not fall with KAS.)
 
 **Our 30% kFIAT cap is a mint-time ceiling, not a permanent guarantee.** Burning
 ENRK shrinks the denominator, so peg defence and the cap pull against each other.
@@ -234,8 +237,9 @@ We document it as such rather than claiming otherwise.
   reviewed by anyone who wrote those KIPs.** A local engine agreeing with our
   reading is not the same as a core developer agreeing with it. That review is
   still the first thing we want.
-- One sizing question remains unresolved: block inclusion for a several-hundred-
-  input sweep transaction under contention, which requires Testnet-10 (§7.1).
+- Block inclusion for a several-hundred-input sweep transaction was answered on
+  testnet-10 only (an N = 640 round was included in about 8 s on a lightly loaded
+  testnet); behaviour under mainnet contention is not tested (§7.1).
 - The measurement surfaced a constraint we had not anticipated: `covenant_id`
   cannot be a compile-time constant, so each vault must carry the oracle identity
   in its own state. **What guarantees a vault is bound to the correct oracle at
@@ -303,7 +307,7 @@ compiling it, and executing it through the real Kaspa mainnet script engine with
 | Q1c | `covenant_id` as a compile-time constant? | **No** — new constraint |
 | Q2 | Ceiling on N per round | **642** / **532**, bounded by transient mass |
 | Q3 | Script size | 0.1% of the limit |
-| Q4 | Block inclusion under contention | **Open** — Testnet-10 |
+| Q4 | Block inclusion under contention | **Answered on testnet-10, not on mainnet** (N = 640, 97.5 % of the compute limit, included in about 8 s on a lightly loaded testnet) |
 
 **What we are asking of you is therefore narrower than it was, and different in
 kind.** Not "please answer these for us", but:
@@ -317,9 +321,10 @@ kind.** Not "please answer these for us", but:
    own state. We do not yet know what should guarantee a vault is bound to the
    correct oracle at creation, and we would rather be told than invent it.
 3. **Q4 — block inclusion.** A round at N=640 consumes 99.6% of one block's
-   transient mass. Is that acceptable in practice, and what happens under
-   contention? This needs Testnet-10 and, ideally, your view on whether the
-   cadence model (one block per oracle round) is sane.
+   transient mass (derived). It was included in about 8 s on a lightly loaded
+   testnet-10; behaviour under mainnet contention is untested. Is that acceptable
+   in practice, and what happens under contention? We would like your view on
+   whether the cadence model (one block per oracle round) is sane.
 
 If the answer to (1) is that we have misread the KIPs, this proposal ends and we
 deploy elsewhere or wait. We would rather learn that from you now than from an
@@ -351,9 +356,9 @@ and no exceptions to any protocol limit.
 
 | | |
 |---|---|
-| Economic design | Complete |
+| Economic design | Open: see `PROJECT-STATE.md` (index, loss absorption, fee reserve, debt ceiling, issuance cap, oracle) |
 | Peg formula, backtested | Complete |
-| Full-protocol crash stress test | Complete, published |
+| Full-protocol crash stress test | Published; re-based in November: its figures carried a hidden index cushion (`docs/design/ECONOMICS-VERIFICATION-2026-11-11.md` §1) |
 | Covenant oracle construction | **Measured, awaiting confirmation** (§7.1) |
 | Execution target assessment | Complete |
 | Implementation | Not started |

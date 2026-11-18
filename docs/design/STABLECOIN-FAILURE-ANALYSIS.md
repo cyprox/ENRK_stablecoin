@@ -158,7 +158,7 @@ A combination of assets and derivative hedging.
 | Observed failure | The constraint that follows | Where it is handled |
 |---|---|---|
 | LUNA with no value of its own | Collateral must have value exogenous to the protocol | KAS, PoW production cost |
-| Anchor: unsustainable yield | The protocol promises no yield | The protocol pays nothing |
+| Anchor: unsustainable yield | The protocol promises no yield | The protocol promises no yield on ENRK. (Owner decision 2026-11-13: a recurring stability fee, never burned, that must remunerate; recipient not decided.) |
 | Terra's capped redemption | Convertibility must be permanent, with no discretionary cap | [`REDEMPTION-ANALYSIS.md`](REDEMPTION-ANALYSIS.md) |
 | Liquidity concentrated on Curve | Do not depend on a single pool | Redemption at par, independent of DEXs |
 | Captured governance | No governance | [`Immutable-By-Design.md`](Immutable-By-Design.md) |
@@ -169,3 +169,5 @@ believed was its protection: arbitrage at Terra, liquidity at Curve, governance 
 MakerDAO. That is why the analysis in this repository is run against its own
 conclusions — see [`STRESS-TEST-CRASH-RESULTS.md`](STRESS-TEST-CRASH-RESULTS.md),
 where the model was wrong three times before it was right.
+
+Sources: none cited; the figures for Terra, Curve and USDC are from memory and have not been verified. 'Iron' refers to Iron Finance.

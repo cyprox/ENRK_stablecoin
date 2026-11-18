@@ -1,5 +1,7 @@
 # ENRK proposal ledger (2026-11-11) — every proposal made so far, to be VERIFIED
 
+Status 2026-11-17: verdicts are in ECONOMICS-VERIFICATION-2026-11-11.md section 4 (independent review: econ-v5). Reports are in studies-2026-11/reports (not scratchpad). Owner decision 2026-11-13: layer Kaspa L1, Igra not retained.
+
 Status vocabulary for verdicts: CONFIRMED / PARTLY CONFIRMED / REFUTED / UNTESTABLE HERE (say why) / NEEDS DECISION. Each verdict needs evidence (script + numbers, source line, compiled or executed result). Nothing here is a design decision: all are proposals awaiting the owner.
 
 Owner directions so far (2026-11-10/11): recurring stability fee YES; NO burning of fees, they must remunerate (incentive); surplus destination decided by tests; stay on testnet-10; ENRK must have ITS OWN PRICE ORACLE; the Monolith "free vs paid debt" avenue is to be explored as an additional path; the owner's idea: accumulate fees in a reserve used to grant incentive yield that becomes active in case of depeg.

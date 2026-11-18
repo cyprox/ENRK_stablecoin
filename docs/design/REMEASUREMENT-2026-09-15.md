@@ -64,7 +64,7 @@ fixed transaction cost and dividing by the marginal cost per input gives:
 | | ceiling | binding constraint | block transient consumed |
 |---|---|---|---|
 | Variant A | **642** | transient mass | 99.93 % |
-| Variant B | **532** | transient mass | 99.93 % |
+| Variant B | **532** | transient mass | 99.84 % |
 
 Compute mass would have allowed 658 and 595 respectively, so the September
 finding holds: **transient mass binds, compute mass does not.**
@@ -352,8 +352,7 @@ N = 2.
 4. **Measure the liquidation transaction** (§6.4). Vault input plus oracle input,
    full mass accounting. This is the path the protocol actually runs.
 5. **Q1c / the binding problem**, reframed — see
-   `docs/design/ORACLE-BINDING.md` if written, and §7 of this document's
-   companion note. The question is not only "is the vault bound to the right
+   `docs/design/ORACLE-BINDING.md`. The question is not only "is the vault bound to the right
    oracle" but "does the ENRK asset accept a mint from this vault".
 6. **Variant A or B.** Unchanged and still open. The measurement confirms the
    trade-off: A allows ~21 % more N and costs storage mass on a falling price; B
@@ -375,3 +374,7 @@ variants, both entries, and the compiler accepts it without a diagnostic.
 
 **Author:** cyprox
 **Licence:** GPL-3.0
+
+Update 2026-11-17: the liquidation path and the sweep were measured on testnet-10 (AUDIT sections 6 P1 and 13.3b); whole-population refresh executed (ECONOMICS-VERIFICATION section 10.2).
+
+Status 2026-11-17 of the items in section 9: 1 open (repo defect, owner go); 2 open; 3 done in part (sweep batches); 4 done; 5 open (ORACLE-BINDING); 6 open; 7 done on testnet-10 (mainnet untested).

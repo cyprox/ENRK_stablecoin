@@ -1,0 +1,25 @@
+Closed form check: hours for a -D gap to be fully reflected at 25 %/h: ln(1/(1-D))/ln(1/0.75)
+  D=20%: 0.776 h = 47 min
+  D=40%: 1.776 h = 107 min
+  D=50%: 2.409 h = 145 min
+
+Liquidation delay added by the limit (minutes), real price flat after the gap
+  vault ICR at P0 ->   1.55   1.75   2.00   2.50
+  gap 20%:             7     33    --     -- 
+  gap 30%:             7     33     60    -- 
+  gap 40%:             7     33     60    -- 
+  gap 50%:             7     33     60    107
+  gap 60%:             7     33     60    107
+  ('--' = not liquidatable even at the real price)
+
+Real ratio of a 200% vault at the moment it becomes liquidatable, by gap and continued fall per hour
+(continued fall = swept ASSUMPTION, not measured). Below 100% = bad debt before any auction starts.
+  gap \ fall/h ->    0%     5%    10%
+  30%:               1.40   1.33   1.26
+  40%:               1.20   1.14   1.08
+  50%:               1.00   0.95   0.90
+
+Without the limit the same vault is liquidatable at once (delay 0) at ratio 2.00*(1-D).
+ENRK's auction itself lasts up to 120 min after trigger (frozen doc), a separate latency.
+
+Daily-step view: a 25 %/h limit allows a daily fall of 99.8997% so it cannot bind at daily steps.

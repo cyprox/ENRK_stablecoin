@@ -1,4 +1,8 @@
 # ECON-T2 Borrower demand for ENRK debt vs all-in cost (TEST, no decision)
+
+Status 2026-11-17: owner decisions since this report: execution layer is Kaspa L1, Igra not retained (2026-11-13); stability fee recurring, fees never burned (a burn option is excluded). Passages on Igra and on burning are kept as history.
+
+Status 2026-11-17: headline values are for the cushioned index (original simulator, index falls with KAS to about 0.54 at -85 %); on a flat index ENRK p95 13.8 %, junior net -15.5 % (econ-t3, econ-v1). Not re-based except in part by econ-w1 section 4 (with the redemption schedule ON). See ECONOMICS-VERIFICATION-2026-11-11.md section 2.
 Date 2026-11-10. Every output is a MODEL RESULT, not a forecast. Demand is NOT observable here (no ENRK borrower exists; no data on how Kaspa holders would use borrowed stablecoin). The reference rates in section 5 are the only external anchor; the demand-distribution parameters are ASSUMED and decide the answer.
 Work dir: /private/tmp/claude-501/-Users-simoes-ENRK-stablecoin/2186f877-edaf-4d28-afb8-7195b5d7c758/scratchpad/econ/t2 (t2_demand.py, tables.md = all tables, grid.csv = 1,568 rows, web/ = downloaded public data, fetch_refs.sh, ref_extract.py). Repo untouched; nothing read under scratchpad/tn10; no secrets.
 

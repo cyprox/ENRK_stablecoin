@@ -1,0 +1,92 @@
+
+== 1. Liquidation eq (4): x=(Rl*d - c*l)/(Rl-1-p)
+debt at 250%: 14640.0
+price after -25%: 0.027450000000000002  value 27450.000000000004  ratio 1.8750000000000002
+x repaid = 1926.3157894736805 (13.2% of debt)
+KAS value received = 2022.6315789473647  penalty = 96.31578947368403
+after: value 25427.368421052637 debt 12713.68421052632 ratio 1.9999999999999998
+site says: x~1,926; KAS worth 2,023; left 25,427 vs 12,714 KSD; owner lost 96
+check: 1.05*1926= 2022.3000000000002  27450-2023= 25427  14640-1926= 12714  penalty .05*1926= 96.30000000000001
+NOTE: ratio 27450/14640 = 1.875
+
+== 1b. Liquidation property sweep: ratio after == Rl for rho in (1+p, Rl)
+1.06 989.474 2.0
+1.2 842.105 2.0
+1.5 526.316 2.0
+1.9 105.263 2.0
+1.999 1.053 2.0
+
+== 1c. Edge: x vs d. x<d iff rho(l) > 1+p ? x<d  <=> Rl*d-c*l < d*(Rl-1-p) <=> c*l/d > 1+p
+rho 1.05 x/d 1.0
+rho 1.0500001 x/d 0.9999998947368419
+rho 1.04 x/d 1.0105263157894737
+rho 1.0 x/d 1.0526315789473686
+Liquidator gain in USD per KSD repaid = p*x at l; but only profitable vs market if l <= (1+p)P
+
+== 1d. Is a partial liquidation always strictly improving the owner? Bad-debt zone 1<rho<=1.05 full liquidation: owner gets 0
+
+== 1e. Observed: stated threshold text "Below 200%: liquidate part" but covenant condition 1<=rho(l)<Rl; rho>=Rl cannot be liquidated; after-liq rho = Rl exactly -> immediately re-liquidatable on any tick down (no hysteresis).
+
+== 2. Theorem 1: issuance cap
+B= 3125.0 2B= 6250.0 k*2B= 50000.0
+long-run mint rate per UTXO per day = refill B = 3125.0  => total/day = 25000.0 (sustained), burst 2B*k = M in any 24h window
+sim greedy per-UTXO: mint everything available at start of each 24h, plus all refill at end: [6250.0, 3125.0, 3125.0, 3125.0] (first day 2B, later days 2B only if mint just before boundary)
+Overlap check: any 24h window contains <= B(start budget)+B(refill) = 6250.0 . OK; the bound M is for NET supply; but burning credits budget (b+=x up to B), so burn+remint cycles allow GROSS minting beyond M with flat net: not a problem for net supply but see attack notes.
+Subtle: the bound 2B per UTXO holds only if timestamp-based proven time cannot exceed real time. Proven dt<=t_e+ - t_e (chain timestamps). Timestamps are bounded below by PMT and above by local clock +132s (site) -> miners can skew by minutes, refill by ~dt/24 of B => small
+Replicas: minting UTXO choice by user; k=8 parallel; attacker can use all 8 => 50,000 KSD/day unbacked worst case; as % of ? supply unknown
+
+== 3. Theorem 2: thresholds
+pi=1.0 g=0.5: control price a>=pi/2=0.500; stop oracle a>pi-g=0.500
+pi=0.9 g=0.5: control price a>=pi/2=0.450; stop oracle a>pi-g=0.400
+pi=0.55 g=0.5: control price a>=pi/2=0.275; stop oracle a>pi-g=0.050
+pi=0.5 g=0.5: control price a>=pi/2=0.250; stop oracle a>pi-g=0.000
+how-it-works claim: a>=25% min when pi=50%: pi/2= 0.25  ; site: "hashrate needed can never be less than 25% of network"
+BUT attacker with a withholding while others vote: attacker also lowers pi? If attacker is part of pi and votes, pi fixed. For control: needs a/pi>=1/2 AND window valid pi>=g. If honest pi_h=0.5-eps (<g) honest alone invalid; attacker adds votes to make window valid: needs a>=g-pi_h; attacker votes all => share a/(a+pi_h) >=1/2 iff a>=pi_h. So min a = max(...)? with pi_h=g/2.. a=pi_h=0.25 -> pi=0.5 valid. consistent with 25%.
+Hidden-hashrate question: pi measured as share of BLOCKS carrying votes, equals hashrate share only in expectation; window is 6000 blocks (~10 min) so sampling noise sd of share ~ 0.005590169943749474
+Launch pi=0.9: control 45%, stop >40% -> matches site
+Two largest (57.1%) vs thresholds with pi=1: control 50%, stop 50% => yes both. With pi=0.9: 45/40 => yes.
+Largest 32.7%: stop at pi=0.9 needs >40%: no. But after launch pi may drop toward g=0.5 -> stop needs >0 ... at pi=0.6, stop needs >10% (!). control needs 30%.
+  pi=0.9: control>=0.450 stop>0.400
+  pi=0.8: control>=0.400 stop>0.300
+  pi=0.7: control>=0.350 stop>0.200
+  pi=0.6: control>=0.300 stop>0.100
+  pi=0.55: control>=0.275 stop>0.050
+=> stop-oracle threshold collapses as participation falls toward g; 32.7% single pool could freeze oracle if pi<=0.727 (pi-0.5<0.327)
+   single pool 32.7% could control price if pi<=0.654 and min-pi-with-pool: control a>=pi/2
+
+== 3b. Median manipulation by cost: attacker with 32.7% (one pool) with pi=0.6
+   votes share a/pi= 0.545
+   also, window blocks are the 6000 highest blue work among mergesets; a pool can withhold only its own.
+
+== 4. Backing claims: 60% (2.5x) and 50% (2.0x)
+1-1/2.5 = 0.6  1-1/2 = 0.5
+Site: "In order for [liquidation] the price has to fall 20% from opening" : 1-2/2.5 = 0.19999999999999996
+Whitepaper (5): rho(P)>=Rl*P/lu ; backed while P>=lu/Rl. After liquidation rho=Rl at l_u. fall of 50% from lu.
+But vault between 200%-250% never touched: ratio at lu could be ANY >=Rl; so rho(P)>=Rl*P/lu holds. OK. Vault at 250% survives 60% only if no liquidation: "60%" claim is for vaults at exactly open ratio; vaults at 200% only 50%.
+Backing is at ORACLE-lagged lu, and ignores liquidation penalty/redeem effects: redemption takes x/l KAS for x KSD: if l>P redeemer overpays?; l<P redeemer profits
+
+== 5. Fall limit: liquidation price l falls max 25%/h; lag
+lag factor (1-F)^-tau = 1.0391027596285836  vs 1+p= 1.05
+P fall between updates (10 min) at worst-case 25%/h-equivalent: 1-0.75^(10/60)= 0.04681570700306348
+sudden fall D=0.2: hours until l reaches (1+p)P: 0.606 h = 36.4 min
+sudden fall D=0.4: hours until l reaches (1+p)P: 1.606 h = 96.4 min
+sudden fall D=0.5: hours until l reaches (1+p)P: 2.240 h = 134.4 min
+Real crashes faster than 25%/h: e.g. -25% in 1h; then l lags by (price ratio). In flash crash (-40% in 10 min) liquidators earn NOTHING (l>(1+p)P) for 1.6h; vault drifts to <100% if fall>50%.
+Lag compounding: liquidation price l is rate-limited, so liquidation proceeds in a crash only if fall < ~ F per hour, i.e. the protocol cannot liquidate in precisely the scenario liquidations are needed.
+Doubling time of mint price: ln2/ln1.1 = 7.272540897341713 h ; halving l: 2.409420839653209 h; tenth: 8.003922779651095
+Mint-price rate limit effect on honest users: after a crash and rebound m rises <=10%/h: recovery from -40% to old takes 5.35961242350747 h before minting at the true price. Minting allowed only when rho(m)>=2.5 using m<=median.
+Continuous compounding check: per hour (1+U) with dt fractional hours => m*(1.1)^dt consistent.
+
+== 6. Oracle price lag tau
+tau = w/2+delta = 8.0 min
+
+== 7. Misc numbers on site
+KAS fall ATH->Oct2026: 0.17^(1/19700)-1 rate/h = 8.99430026993775e-05  => 0.0090%
+27 months in hours = 19723.5
+W=6000 blocks at 10bps = 10.0 min
+Window: 6000 blocks "last 10 min"; actual network block rate (verify): see 03-technical-verification.md
+Fundraising: 3.6M+1.4M = 5000000.0  72%/28% of 5M: 3600000.0 1400000.0000000002
+Fee: 0.1% of value, floor 1 KAS; at KAS=0.0366 USD floor equals 0.0366 USD -> floor binds for operations < $36.6 (i.e. 100% fee on a $0.0366 op; min debt 10 KSD => min fee 1 KAS=$0.0366=0.37% of 10 KSD
+
+== 8. Dust / min debt 10 KSD: griefing
+liquidation of a 10 KSD vault: penalty 5% =0.5 KSD vs oracle fee floor 1 KAS = 0.0366 USD: liquidator profit 0.4634 USD minus tx fee; min tx fee 100 sompi/gram*...; at KAS 0.0366 profitable only marginally

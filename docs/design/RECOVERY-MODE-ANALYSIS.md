@@ -90,3 +90,5 @@ aggregate read. **It works identically on Kaspa L1 and on Igra EVM.**
 The only serious technical disadvantage of the Kaspa L1 path has therefore
 disappeared. What remains against L1 is non-technical: no prior art, and almost no
 auditors with covenant experience.
+
+Note (2026-11-17): the figures were produced on the cushioned index (ECONOMICS-VERIFICATION section 1). Layer decided: Kaspa L1, so 'works identically on Igra EVM' is history.

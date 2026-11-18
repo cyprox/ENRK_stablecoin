@@ -1,0 +1,21 @@
+ 
+ Contact — Kaspa Dollar 
+ Kaspa Dollar Menu Home 
+ Why stablecoins 
+ How it works 
+ Whitepaper 
+ Roadmap and funding 
+ Contact 
+ Contact
+ Whether its a question or partnership, please use the channels below. We're always open for discussion!
+ Email
+ support@kaspadollar.com Refund claims from custodial donors, integration requests, press, publisher candidates.
+ X
+ x.com/KaspaDollar Announcements and progress.
+ GitHub
+ Published when the repository is public
+ Code, issues, the published specification.
+ Refund claims must follow the procedure in the refund terms : forward the custodian’s withdrawal confirmation as an attachment, and make sure the
+ amount and the time match the on-chain transaction.
+ Contact Refund terms X 
+

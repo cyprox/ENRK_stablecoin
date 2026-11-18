@@ -35,7 +35,7 @@ I1. docs/ENRK-System-Map.pdf is stale yet PROJECT-STATE.md:156 (index) calls it 
 
 I2. ECOSYSTEM_PROPOSAL contradicts itself on Q1c and atomicity.
 - :109-110 "Its covenant_id is frozen into every vault script" and :122 `OpInputCovenantId(1) == ORACLE_COVENANT_ID` vs :239-243 and :303 "covenant_id cannot be a compile-time constant". :147-151 "Round R is consumed and round R+1 created atomically ... removes the window entirely" vs :246-248 "not atomic as written". §5 discloses it but §3.2/§3.3 (the "part we most want reviewed") carry no marker.
-- :374 "with the flow moving permanently to the protocol" vs FROZEN §6/§10.4 "Fee destination after the cap = open (burn on L1 / pro-rata reserve on Igra)".
+- :374 "with the flow moving permanently to the protocol" vs FROZEN §6/§10.4 "Fee destination after the cap = open (burn on L1 / pro-rata reserve on Igra)". [Status 2026-11-17: owner direction fees never burned; Igra not retained; the open question is now the destination among non-burn options.]
 - Rec: add inline "see §5" notes to §3.2/3.3; reword :374.
 
 I3. L1_NATIVE_REDUCED_SPEC.md internal contradictions.

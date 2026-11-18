@@ -1,4 +1,6 @@
 # P2 Rust audit - contracts/igra/src (read-only, 2026-11-09)
+
+Status 2026-11-17: owner decisions since this report: execution layer is Kaspa L1, Igra not retained (2026-11-13); stability fee recurring, fees never burned (a burn option is excluded). Passages on Igra and on burning are kept as history.
 Test run: `cargo test --offline` (CARGO_TARGET_DIR in scratchpad): 119 passed, 0 failed, 0 ignored. Claim "119" confirmed.
 Per module: kaspa_tokens 24, oracle_feeds 16, circuit_breaker 13, kaspa_adapter 11, peg 11, stability_pool 11, types 10, liquidation 7, lib 6, errors 5, vault 5.
 All paths under /Users/simoes/ENRK_stablecoin/contracts/igra/src. Note: `contracts/igra/target` exists in repo dir (pre-existing, not touched).

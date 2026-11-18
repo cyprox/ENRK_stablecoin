@@ -1,4 +1,6 @@
 # P5b - Economic solutions for ENRK as an immutable system (research, read-only)
+
+Status 2026-11-17: owner decisions since this report: execution layer is Kaspa L1, Igra not retained (2026-11-13); stability fee recurring, fees never burned (a burn option is excluded). Passages on Igra and on burning are kept as history.
 Date 2026-11-09. Everything below is a PROPOSAL for owner decision; nothing was changed in the repo.
 Labels: VERIFIED = fetched/seen this session from the cited page; SECONDARY = reported by search-result summaries or third-party write-ups; UNVERIFIED = from my background knowledge, not re-checked (check before citing).
 
